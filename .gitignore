@@ -1,0 +1,35 @@
+# --- OS / éditeurs ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- Node / Expo (frontend) ---
+frontend/node_modules/
+frontend/.expo/
+frontend/dist/
+frontend/web-build/
+frontend/npm-debug.*
+frontend/*.jks
+frontend/*.p12
+frontend/*.key
+frontend/*.mobileprovision
+frontend/.env
+
+# --- Laravel (backend) ---
+backend/vendor/
+backend/node_modules/
+backend/.env
+backend/.env.backup
+backend/.phpunit.result.cache
+backend/storage/*.key
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/public/storage
+backend/bootstrap/cache/*.php
+
+# Garder les dossiers vides versionnés
+!**/.gitkeep
