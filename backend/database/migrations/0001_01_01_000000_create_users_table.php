@@ -13,10 +13,21 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('nom');
+            $table->string('prenom');
+            // Identifiant de connexion principal (format sénégalais +221XXXXXXXXX).
+            $table->string('telephone', 15)->unique();
+            $table->string('email')->nullable()->unique();
+            $table->timestamp('telephone_verifie_le')->nullable();
             $table->string('password');
+            $table->string('photo')->nullable();
+            $table->enum('statut_kyc', ['en_attente', 'verifie', 'rejete'])->default('en_attente');
+            $table->decimal('score_fiabilite', 5, 2)->default(100.00);
+            $table->boolean('est_gele')->default(false);
+            $table->enum('role', ['membre', 'super_admin'])->default('membre');
+            // OTP 2FA simulé en dev (code fixe côté service, cf. RG sécurité §9).
+            $table->string('otp_code', 6)->nullable();
+            $table->timestamp('otp_expire_le')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
