@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
 use App\Http\Controllers\Api\GroupController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,5 +41,9 @@ Route::prefix('v1')->group(function () {
         Route::post('cycles/{cycle}/close', [ContributionController::class, 'close']);
         Route::patch('contributions/{contribution}/confirm', [ContributionController::class, 'confirm']);
         Route::patch('contributions/{contribution}/dispute', [ContributionController::class, 'dispute']);
+
+        // --- Notifications in-app (canal database) ---
+        Route::get('notifications', [NotificationController::class, 'index']);
+        Route::patch('notifications/{id}/read', [NotificationController::class, 'markRead']);
     });
 });
