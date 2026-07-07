@@ -18,6 +18,21 @@ class ReliabilityScoreService
     /** Statuts considérés comme « dus » (cotisation attendue sur une période). */
     private const STATUTS_DUS = ['declare_paye', 'valide', 'en_retard', 'litige'];
 
+    /**
+     * Badge de fiabilité associé à un score (US-17) :
+     * 🟢 Fiable ≥ 90, 🟡 Correct 70-89, 🔴 À risque < 70.
+     *
+     * @return array{niveau: string, label: string, couleur: string}
+     */
+    public static function badge(float $score): array
+    {
+        return match (true) {
+            $score >= 90 => ['niveau' => 'fiable', 'label' => 'Fiable', 'couleur' => '#1B7A43'],
+            $score >= 70 => ['niveau' => 'correct', 'label' => 'Correct', 'couleur' => '#C79A3A'],
+            default => ['niveau' => 'a_risque', 'label' => 'À risque', 'couleur' => '#B3261E'],
+        };
+    }
+
     public function recalculer(User $user): float
     {
         $cotisations = Contribution::query()

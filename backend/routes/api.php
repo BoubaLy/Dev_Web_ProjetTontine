@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
+use App\Http\Controllers\Api\DisputeController;
 use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,5 +47,14 @@ Route::prefix('v1')->group(function () {
         // --- Notifications in-app (canal database) ---
         Route::get('notifications', [NotificationController::class, 'index']);
         Route::patch('notifications/{id}/read', [NotificationController::class, 'markRead']);
+
+        // --- Litiges (signalement, investigation, résolution) ---
+        Route::get('disputes', [DisputeController::class, 'index']);
+        Route::post('disputes', [DisputeController::class, 'store']);
+        Route::patch('disputes/{dispute}/investigate', [DisputeController::class, 'investigate']);
+        Route::patch('disputes/{dispute}/resolve', [DisputeController::class, 'resolve']);
+
+        // --- Score de fiabilité ---
+        Route::get('users/{user}/reliability-score', [UserController::class, 'reliabilityScore']);
     });
 });
