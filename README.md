@@ -3,10 +3,13 @@
 Application mobile de digitalisation des tontines rotatives/accumulatives, avec
 paiement **P2P déclaratif et validation croisée** (Wave / Orange Money).
 
-**Stack :** React Native (Expo) · Laravel 11 (API REST) · MySQL 8 · Sanctum
+**Stack :** React Native (Expo SDK 57) · Laravel 12 (API REST) · MySQL 8 · Sanctum
 
-Projet académique — DIC1, Développement Web. Cahier des charges complet :
-[`docs/cahier-des-charges.md`](docs/cahier-des-charges.md).
+Projet académique — DIC1, Développement Web.
+
+> 📚 **Toute la documentation est indexée dans [`GUIDE.md`](GUIDE.md)** : guide de
+> présentation/démo, user stories, rôles & permissions, apprentissage Laravel & React
+> Native, architecture, sources et déploiement.
 
 ---
 
@@ -14,9 +17,11 @@ Projet académique — DIC1, Développement Web. Cahier des charges complet :
 
 ```
 tontinesecure/
-├── backend/     API Laravel 11 (Sanctum, Services, Jobs, Notifications)
-├── frontend/    App React Native / Expo
-└── docs/        Cahier des charges, rapport UP, collection Postman
+├── backend/     API Laravel 12 (Sanctum, Services, Jobs, Notifications, Policies, tests)
+├── frontend/    App React Native / Expo (design system « Opal », navigation, hooks)
+├── docs/        Cahier des charges + guides (présentation, apprentissage, architecture…)
+├── GUIDE.md     Point d'entrée de la documentation
+└── DEPLOYMENT.md + docker-compose.yml   Déploiement (Caddy HTTPS auto + nginx + MySQL)
 ```
 
 ## Prérequis
@@ -71,5 +76,9 @@ npx expo start
 
 ## Comptes de démo (après `migrate --seed`)
 
-Voir `backend/database/seeders/` — un super-admin et plusieurs membres avec des
-statuts KYC variés sont créés pour la démo.
+Mot de passe commun : **`password`**. Comptes clés :
+- **Awa Diop** `+221771111111` — administratrice de groupe
+- **Support** `+221770000000` — super-administrateur (onglet « Admin »)
+- **Modou Fall** `+221772222222` — bénéficiaire (validation croisée)
+
+Liste complète et scénario de démo : **[docs/GUIDE-PRESENTATION.md](docs/GUIDE-PRESENTATION.md)**.
