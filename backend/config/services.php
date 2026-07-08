@@ -35,6 +35,11 @@ return [
         ],
     ],
 
+    // Canal de vérification OTP : email (défaut prod, gratuit) | sms | log.
+    'otp' => [
+        'channel' => env('OTP_CHANNEL'),
+    ],
+
     // Envoi de SMS (OTP / alertes). Pilote choisi par OTP_SMS_DRIVER.
     'sms' => [
         'driver' => env('OTP_SMS_DRIVER', 'log'),

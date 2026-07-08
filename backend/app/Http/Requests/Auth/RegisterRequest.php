@@ -19,7 +19,8 @@ class RegisterRequest extends FormRequest
             'prenom' => ['required', 'string', 'max:255'],
             // Format sénégalais : +221 suivi de 9 chiffres.
             'telephone' => ['required', 'string', 'regex:/^\+221[0-9]{9}$/', 'unique:users,telephone'],
-            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
+            // Email requis : c'est le canal de vérification OTP (2FA).
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ];
     }

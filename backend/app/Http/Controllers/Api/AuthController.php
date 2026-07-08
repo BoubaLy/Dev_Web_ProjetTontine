@@ -34,7 +34,7 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token,
             'otp_hint' => config('app.debug') ? OtpService::DEV_CODE : null,
-        ], 'Compte créé. Un code OTP a été envoyé pour vérifier votre téléphone.', 201);
+        ], 'Compte créé. Un code de vérification a été envoyé à votre email.', 201);
     }
 
     /** US-01 — Vérification du code OTP reçu par SMS (simulé en dev). */
