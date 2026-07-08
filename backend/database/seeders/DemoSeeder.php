@@ -7,6 +7,7 @@ use App\Models\Cycle;
 use App\Models\Dispute;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Models\KycDocument;
 use App\Models\Payout;
 use App\Models\User;
 use App\Notifications\ContributionDeclared;
@@ -30,6 +31,7 @@ use Illuminate\Support\Str;
  *   Ousmane Ndiaye         : +221774444444  (a déclaré, en attente de validation)
  *   Fatou Ba               : +221775555555  (en retard → litige)
  *   Cheikh Diallo          : +221776666666
+ *   Aminata Sarr           : +221777777777  (KYC en attente → à valider par le Support)
  */
 class DemoSeeder extends Seeder
 {
@@ -49,6 +51,13 @@ class DemoSeeder extends Seeder
         $ousmane = $mk('+221774444444', 'Ousmane', 'Ndiaye', 74);
         $fatou = $mk('+221775555555', 'Fatou', 'Ba', 61);
         $cheikh = $mk('+221776666666', 'Cheikh', 'Diallo', 92);
+
+        // Compte en attente de vérification KYC (pour la démo côté Super-Admin).
+        $aminata = $mk('+221777777777', 'Aminata', 'Sarr', 100, ['statut_kyc' => 'en_attente']);
+        KycDocument::create([
+            'user_id' => $aminata->id, 'type_document' => 'cni',
+            'chemin_fichier' => "kyc/{$aminata->id}/cni-demo.jpg", 'statut' => 'en_attente',
+        ]);
 
         // === Groupe 1 : « Tontine des Amis » (Awa admin, en cours, cycle 2) ===
         $g1 = Group::create([

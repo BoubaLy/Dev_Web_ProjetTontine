@@ -66,5 +66,9 @@ Route::prefix('v1')->group(function () {
 
         // --- Score de fiabilité ---
         Route::get('users/{user}/reliability-score', [UserController::class, 'reliabilityScore']);
+
+        // --- Modération des comptes (Super-Admin) ---
+        Route::get('users', [UserController::class, 'index'])->middleware('role:super_admin');
+        Route::patch('users/{user}/freeze', [UserController::class, 'setFreeze'])->middleware('role:super_admin');
     });
 });
