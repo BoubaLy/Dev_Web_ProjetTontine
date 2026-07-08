@@ -206,7 +206,20 @@ class GroupController extends Controller
             return $this->error('Aucun cycle en cours pour ce groupe.', null, 404);
         }
 
-        return $this->success($cycle, 'Cycle en cours.');
+        $user = $request->user();
+        $estBeneficiaire = $cycle->beneficiaire_id === $user->id;
+
+        // Statut clair de la cotisation du membre courant pour CE tour (US-12).
+        $maCotisation = $cycle->contributions()->where('user_id', $user->id)->first();
+
+        // Enrichit la réponse pour que le membre sache immédiatement quoi faire.
+        $data = $cycle->toArray();
+        $data['montant_cotisation'] = $group->montant_cotisation;
+        $data['est_beneficiaire'] = $estBeneficiaire;
+        $data['ma_cotisation_statut'] = $estBeneficiaire ? 'beneficiaire' : ($maCotisation->statut ?? 'a_payer');
+        $data['ma_cotisation'] = $maCotisation;
+
+        return $this->success($data, 'Cycle en cours.');
     }
 
     // --- Helpers ----------------------------------------------------------

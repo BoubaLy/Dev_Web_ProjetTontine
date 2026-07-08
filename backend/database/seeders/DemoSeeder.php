@@ -119,7 +119,8 @@ class DemoSeeder extends Seeder
             'nb_membres_max' => 10, 'penalite_pourcentage' => 1.5, 'delai_grace_jours' => 2,
             'methode_rotation' => 'aleatoire', 'statut' => 'en_cours', 'code_invitation' => 'NATT2026',
         ]);
-        foreach ([$modou, $awa, $bineta, $cheikh] as $i => $u) {
+        // 5 membres actifs : cohérent avec le minimum d'une tontine rotative démarrée.
+        foreach ([$modou, $awa, $bineta, $cheikh, $fatou] as $i => $u) {
             GroupMember::create(['group_id' => $g2->id, 'user_id' => $u->id, 'ordre_rotation' => $i + 1, 'statut' => 'actif', 'date_adhesion' => now()->subWeeks(2)->addDays($i)]);
         }
         $c3 = Cycle::create(['group_id' => $g2->id, 'numero_periode' => 1, 'beneficiaire_id' => $modou->id, 'date_debut' => now()->subDays(3), 'date_fin' => now()->addDays(4), 'statut' => 'en_cours']);
