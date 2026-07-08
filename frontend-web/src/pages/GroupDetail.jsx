@@ -11,6 +11,7 @@ import {
 } from '../lib/queries';
 import { Loading, EmptyState, StatusPill, Avatar, ProgressBar, Modal, Field, Toast, Spinner } from '../components/ui';
 import { CONTRIB_STATUS, GROUP_STATUS, scoreBadge } from '../lib/status';
+import RotationRing from '../components/RotationRing';
 
 const MEMBER_STATUS = {
   en_attente: { label: 'En attente', cls: 'bg-gold-soft text-gold' },
@@ -36,6 +37,11 @@ export default function GroupDetail() {
   const isAdmin = user?.id === group.admin_id;
   const membres = group.adhesions ?? [];
   const st = GROUP_STATUS[group.statut] ?? GROUP_STATUS.ouvert;
+
+  // Données du Cercle de Rotation : membres actifs triés par ordre, bénéficiaire en avant.
+  const actifsTries = membres.filter((m) => m.statut === 'actif' && m.ordre_rotation).sort((a, b) => a.ordre_rotation - b.ordre_rotation);
+  const ringMembers = actifsTries.map((m) => ({ name: `${m.user?.prenom ?? ''} ${m.user?.nom ?? ''}`.trim() || m.user?.telephone || '?' }));
+  const benefIdx = cycle ? Math.max(actifsTries.findIndex((m) => m.user_id === cycle.beneficiaire?.id), 0) : 0;
 
   const onInvite = async () => {
     try { const r = await invite.mutateAsync(); setCode(r.code); } catch (e) { setToast(e.response?.data?.message ?? 'Erreur'); }
@@ -81,9 +87,9 @@ export default function GroupDetail() {
         </div>
       </div>
 
-      {/* Cycle en cours — clarté du parcours */}
+      {/* Cycle en cours — Cercle de Rotation + clarté du parcours */}
       {group.statut === 'en_cours' && cycle && (
-        <CycleCard cycle={cycle} groupId={id} onDeclare={() => setDeclareOpen(true)} />
+        <CycleCard cycle={cycle} members={ringMembers} benefIdx={benefIdx} onDeclare={() => setDeclareOpen(true)} />
       )}
 
       {/* Tableau de bord admin */}
@@ -166,39 +172,62 @@ export default function GroupDetail() {
   );
 }
 
-/** Carte « cycle en cours » : bénéficiaire explicite + MON état de cotisation. */
-function CycleCard({ cycle, onDeclare }) {
+/** Carte « cycle en cours » : Cercle de Rotation + bénéficiaire + MON état. */
+function CycleCard({ cycle, members = [], benefIdx = 0, onDeclare }) {
   const benef = cycle.beneficiaire;
   const monStatut = cycle.ma_cotisation_statut; // beneficiaire | a_payer | declare_paye | valide | litige
   const s = CONTRIB_STATUS[monStatut] ?? CONTRIB_STATUS.a_payer;
+  const n = Math.max(members.length, 1);
+  const progress = Math.min(cycle.numero_periode / n, 1);
 
   return (
-    <div className="overflow-hidden rounded-sheet bg-night p-6 text-white shadow-raised">
-      <p className="text-sm text-white/70">Tour n°{cycle.numero_periode} · bénéficiaire</p>
-      <div className="mt-2 flex items-center gap-3">
-        <Avatar name={benef ? `${benef.prenom} ${benef.nom}` : '?'} size={46} />
-        <div>
-          <p className="text-lg font-semibold">{benef ? `${benef.prenom} ${benef.nom}` : '—'}{cycle.est_beneficiaire && ' — c\'est vous 🎉'}</p>
-          {benef?.telephone && <p className="flex items-center gap-1 text-sm text-white/70"><Phone size={13} /> {benef.telephone}</p>}
+    <div className="card overflow-hidden">
+      {/* Cercle de Rotation (membres réels, bénéficiaire mis en avant) */}
+      {members.length > 0 && (
+        <div className="flex flex-col items-center border-b border-line bg-surface-alt/40 py-6">
+          <RotationRing
+            members={members}
+            progress={progress}
+            beneficiaryIndex={benefIdx}
+            centerLabel="Tour"
+            centerValue={`${cycle.numero_periode}/${n}`}
+            size={280}
+          />
         </div>
-      </div>
+      )}
 
-      <div className="mt-5 rounded-card bg-white/10 p-4">
-        {cycle.est_beneficiaire ? (
-          <p className="text-sm">Vous recevez les fonds ce tour-ci. Confirmez chaque paiement reçu dans <b>Notifications</b>.</p>
-        ) : (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs text-white/60">Votre cotisation pour ce tour</p>
-              <p className="mt-1"><span className={`pill ${s.cls}`}>{s.label}</span></p>
-            </div>
-            {['a_payer', 'en_attente', 'litige'].includes(monStatut) && (
-              <button className="btn bg-white font-semibold text-primary hover:bg-white/90" onClick={onDeclare}>
-                <CircleDollarSign size={18} /> Déclarer {formatFCFA(cycle.montant_cotisation)}
-              </button>
-            )}
+      <div className="p-5">
+        {/* Bénéficiaire du tour — explicite */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Avatar name={benef ? `${benef.prenom} ${benef.nom}` : '?'} size={46} />
+            <Crown size={16} className="absolute -right-1 -top-1 text-gold" fill="#C6974F" />
           </div>
-        )}
+          <div>
+            <p className="text-xs text-ink-soft">Bénéficiaire du tour n°{cycle.numero_periode}</p>
+            <p className="font-semibold text-ink">{benef ? `${benef.prenom} ${benef.nom}` : '—'}{cycle.est_beneficiaire && ' — c\'est vous 🎉'}</p>
+            {benef?.telephone && <p className="flex items-center gap-1 text-xs text-ink-faint"><Phone size={12} /> {benef.telephone}</p>}
+          </div>
+        </div>
+
+        {/* Mon état pour ce tour */}
+        <div className="mt-4 rounded-card bg-surface-alt p-4">
+          {cycle.est_beneficiaire ? (
+            <p className="text-sm text-ink-soft">Vous recevez les fonds ce tour-ci. Confirmez chaque paiement reçu dans l'onglet <b className="text-ink">Notifications</b>.</p>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs text-ink-soft">Votre cotisation pour ce tour</p>
+                <p className="mt-1"><span className={`pill ${s.cls}`}>{s.label}</span></p>
+              </div>
+              {['a_payer', 'en_attente', 'litige'].includes(monStatut) && (
+                <button className="btn-primary" onClick={onDeclare}>
+                  <CircleDollarSign size={18} /> Déclarer {formatFCFA(cycle.montant_cotisation)}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
