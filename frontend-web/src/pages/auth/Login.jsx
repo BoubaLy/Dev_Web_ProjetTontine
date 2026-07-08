@@ -17,7 +17,7 @@ export default function Login() {
     setErreur(null); setLoading(true);
     try {
       await login(telephone.trim(), password);
-      navigate('/');
+      navigate('/tableau-de-bord');
     } catch (err) {
       setErreur(err.response?.data?.message ?? 'Connexion impossible. Réessayez.');
     } finally { setLoading(false); }

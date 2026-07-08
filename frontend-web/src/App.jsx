@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import { Loading } from './components/ui';
 import Layout from './components/Layout';
 
+import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Otp from './pages/auth/Otp';
@@ -39,14 +40,15 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/login" element={token && !loading ? <Navigate to="/" replace /> : <Login />} />
+      {/* Landing publique */}
+      <Route path="/" element={token && !loading ? <Navigate to="/tableau-de-bord" replace /> : <Landing />} />
+      <Route path="/login" element={token && !loading ? <Navigate to="/tableau-de-bord" replace /> : <Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/otp" element={<Otp />} />
 
       {/* Protégé */}
       <Route element={<Protected><Layout /></Protected>}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/tableau-de-bord" element={<Dashboard />} />
         <Route path="/groupes" element={<Groups />} />
         <Route path="/groupes/nouveau" element={<CreateGroup />} />
         <Route path="/groupes/rejoindre" element={<JoinGroup />} />

@@ -48,7 +48,7 @@ export default function Layout() {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1">
-          <Item to="/" icon={Home} label="Accueil" />
+          <Item to="/tableau-de-bord" icon={Home} label="Accueil" />
           <Item to="/groupes" icon={Users} label="Mes tontines" />
           <Item to="/notifications" icon={Bell} label="Notifications" badge={unread} />
           <Item to="/historique" icon={History} label="Historique" />
@@ -87,8 +87,8 @@ export default function Layout() {
 
       {/* Nav mobile bas */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-surface py-2 md:hidden">
-        {[['/', Home], ['/groupes', Users], ['/notifications', Bell], ['/profil', User]].map(([to, Icon]) => (
-          <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `grid place-items-center px-4 py-1 ${isActive ? 'text-primary' : 'text-ink-faint'}`}>
+        {[['/tableau-de-bord', Home], ['/groupes', Users], ['/notifications', Bell], ['/profil', User]].map(([to, Icon]) => (
+          <NavLink key={to} to={to} className={({ isActive }) => `grid place-items-center px-4 py-1 ${isActive ? 'text-primary' : 'text-ink-faint'}`}>
             <Icon size={22} strokeWidth={1.8} />
           </NavLink>
         ))}
