@@ -82,4 +82,20 @@ class CloseCycleTest extends TestCase
         // Score de fiabilité recalculé (cotisation validée à temps → 100%).
         $this->assertEquals(100.0, (float) $payers->first()->fresh()->score_fiabilite);
     }
+
+    public function test_cloture_bloquee_si_le_beneficiaire_est_gele_rg06(): void
+    {
+        ['cycle' => $cycle, 'admin' => $admin, 'beneficiaire' => $beneficiaire, 'payers' => $payers] = $this->bootTontine(3);
+        foreach ($payers as $payeur) {
+            $this->cotisationValide($cycle, $payeur);
+        }
+        // RG-06 : le bénéficiaire est gelé (litige en cours) → versement bloqué.
+        $beneficiaire->update(['est_gele' => true]);
+
+        Sanctum::actingAs($admin);
+        $this->postJson("/api/v1/cycles/{$cycle->id}/close")->assertStatus(422);
+
+        $this->assertDatabaseHas('cycles', ['id' => $cycle->id, 'statut' => 'en_cours']);
+        $this->assertDatabaseCount('payouts', 0);
+    }
 }

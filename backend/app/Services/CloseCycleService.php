@@ -64,6 +64,14 @@ class CloseCycleService
             );
         }
 
+        // RG-06 — un bénéficiaire gelé (litige en cours) ne peut pas recevoir le
+        // versement tant que le litige n'est pas clos.
+        if ($cycle->beneficiaire?->est_gele) {
+            throw new RuntimeException(
+                'Le bénéficiaire du tour est gelé (litige en cours) : le versement est bloqué jusqu\'à résolution (RG-06).'
+            );
+        }
+
         return DB::transaction(function () use ($cycle) {
             $cycle->loadMissing('group', 'contributions');
 
