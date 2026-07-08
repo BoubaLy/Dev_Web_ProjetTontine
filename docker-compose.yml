@@ -1,11 +1,31 @@
 # =====================================================================
 # TontineSecure — orchestration de production (self-hosting)
-# nginx  → php-fpm (app)  → mysql, avec workers queue & scheduler.
-# Prérequis : backend/.env (copié depuis backend/.env.production.example).
+# caddy (HTTPS auto + web app) → nginx → php-fpm (app) → mysql,
+# avec workers queue & scheduler.
+# Prérequis : backend/.env (copié depuis backend/.env.production.example)
+#             + variables SITE_ADDRESS / DB_* (voir DEPLOYMENT.md).
 # Démarrage : docker compose up -d --build
 # =====================================================================
 
 services:
+  # Frontal public : sert la Web App et termine le TLS (Let's Encrypt auto).
+  caddy:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.web
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80} # domaine en prod, :80 en local
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+    volumes:
+      - caddy-data:/data # certificats TLS persistants
+      - caddy-config:/config
+    depends_on:
+      - nginx
+    restart: unless-stopped
+
   app:
     build:
       context: ./backend
@@ -20,10 +40,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # API interne (non exposée publiquement — Caddy y accède via le réseau Docker).
   nginx:
     image: nginx:alpine
-    ports:
-      - "8080:80"
     volumes:
       - ./backend/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -73,3 +92,5 @@ services:
 volumes:
   app-storage:
   mysql-data:
+  caddy-data:
+  caddy-config:
