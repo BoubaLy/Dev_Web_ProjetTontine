@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Plus, UserPlus, ArrowDownLeft, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Plus, UserPlus, ArrowDownLeft, ArrowUpRight, Sparkles, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useGroups, useMyHistory, formatFCFA } from '../lib/queries';
+import { useGroups, useMyHistory, useGroup, useCurrentCycle, formatFCFA } from '../lib/queries';
 import { Loading, EmptyState, StatusPill } from '../components/ui';
 import GroupCard from '../components/GroupCard';
+import RotationRing from '../components/RotationRing';
 
 const sum = (arr, pred) => arr.filter(pred).reduce((t, x) => t + Number(x.montant || 0), 0);
 const DATE_FR = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -13,9 +14,15 @@ export default function Dashboard() {
   const groupsQ = useGroups();
   const histQ = useMyHistory();
 
+  // Tontine active mise en avant (Cercle de Rotation) — hooks appelés avant tout return.
+  const groupsData = groupsQ.data ?? [];
+  const featuredId = groupsData.find((g) => g.statut === 'en_cours')?.id;
+  const featuredQ = useGroup(featuredId);
+  const featuredCycleQ = useCurrentCycle(featuredId);
+
   if (groupsQ.isLoading || histQ.isLoading) return <Loading />;
 
-  const groups = groupsQ.data ?? [];
+  const groups = groupsData;
   const cotisations = histQ.data?.cotisations ?? [];
   const versements = histQ.data?.versements ?? [];
   const epargne = sum(cotisations, (c) => c.statut === 'valide');
@@ -25,6 +32,14 @@ export default function Dashboard() {
   const isSuper = user?.role === 'super_admin';
   const isAdmin = groups.some((g) => g.admin_id === user?.id);
   const role = isSuper ? { l: 'Super-administrateur', c: 'bg-danger text-white' } : isAdmin ? { l: 'Administrateur', c: 'bg-primary text-white' } : { l: 'Membre', c: 'bg-surface-alt text-ink-soft' };
+
+  // Cercle de Rotation de la tontine active
+  const fg = featuredQ.data;
+  const fc = featuredCycleQ.data;
+  const fMembers = fg ? (fg.adhesions ?? []).filter((m) => m.statut === 'actif' && m.ordre_rotation).sort((a, b) => a.ordre_rotation - b.ordre_rotation) : [];
+  const fRing = fMembers.map((m) => ({ name: `${m.user?.prenom ?? ''} ${m.user?.nom ?? ''}`.trim() || m.user?.telephone || '?' }));
+  const fBenefIdx = fc ? Math.max(fMembers.findIndex((m) => m.user_id === fc.beneficiaire?.id), 0) : 0;
+  const showFeatured = fg && fc && fRing.length > 0;
 
   const activite = [
     ...cotisations.map((c) => ({ ...c, t: 'cotisation' })),
@@ -52,6 +67,26 @@ export default function Dashboard() {
           <div className="border-l border-white/15 pl-6"><p className="text-xs text-white/60">Tontines</p><p className="font-mono font-semibold">{groups.length}</p></div>
         </div>
       </div>
+
+      {/* Tour en cours — Cercle de Rotation de la tontine active */}
+      {showFeatured && (
+        <Link to={`/groupes/${fg.id}`} className="card block overflow-hidden transition hover:shadow-raised">
+          <div className="grid gap-4 p-5 sm:grid-cols-[auto_1fr] sm:items-center">
+            <div className="flex justify-center">
+              <RotationRing members={fRing} progress={Math.min(fc.numero_periode / Math.max(fRing.length, 1), 1)} beneficiaryIndex={fBenefIdx} centerLabel="Tour" centerValue={`${fc.numero_periode}/${fRing.length}`} size={180} />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-primary">Tour en cours</p>
+              <h3 className="text-lg font-semibold text-ink">{fg.nom}</h3>
+              <p className="mt-1 text-sm text-ink-soft">Bénéficiaire : <b className="text-ink">{fc.beneficiaire ? `${fc.beneficiaire.prenom} ${fc.beneficiaire.nom}` : '—'}</b>{fc.est_beneficiaire && " (c'est vous 🎉)"}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xs text-ink-soft">Votre cotisation :</span> <StatusPill status={fc.ma_cotisation_statut} />
+              </div>
+              <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary">Voir la tontine <ArrowRight size={16} /></span>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* Actions rapides */}
       <div className="flex flex-wrap gap-3">
