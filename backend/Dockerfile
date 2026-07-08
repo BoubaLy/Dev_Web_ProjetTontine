@@ -9,7 +9,8 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 
 # --- Étape 2 : image applicative ---
-FROM php:8.3-fpm AS app
+# PHP 8.4 : requis par composer.lock (dépendances résolues en >= 8.4.1).
+FROM php:8.4-fpm AS app
 
 # Extensions PHP requises par Laravel + MySQL.
 RUN apt-get update && apt-get install -y --no-install-recommends \
