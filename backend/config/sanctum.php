@@ -50,7 +50,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Durée de vie des tokens (§9 : ex. 7 jours). Configurable via l'env.
+    'expiration' => (int) env('SANCTUM_TOKEN_EXPIRATION', 60 * 24 * 7),
 
     /*
     |--------------------------------------------------------------------------

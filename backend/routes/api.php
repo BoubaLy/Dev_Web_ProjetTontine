@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContributionController;
 use App\Http\Controllers\Api\DisputeController;
 use App\Http\Controllers\Api\GroupController;
+use App\Http\Controllers\Api\KycController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -16,15 +17,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
-    // --- Authentification (public) ---
-    Route::post('auth/register', [AuthController::class, 'register']);
-    Route::post('auth/login', [AuthController::class, 'login']);
-    Route::post('auth/verify-otp', [AuthController::class, 'verifyOtp']);
+    // --- Authentification (public, protégée contre le brute-force) ---
+    Route::middleware('throttle:auth')->group(function () {
+        Route::post('auth/register', [AuthController::class, 'register']);
+        Route::post('auth/login', [AuthController::class, 'login']);
+        Route::post('auth/verify-otp', [AuthController::class, 'verifyOtp']);
+    });
 
     // --- Routes authentifiées ---
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
+
+        // --- KYC (dépôt & validation des pièces d'identité) ---
+        Route::post('kyc/upload', [KycController::class, 'upload']);
+        Route::get('kyc', [KycController::class, 'mine']);
+        Route::get('kyc/pending', [KycController::class, 'pending'])->middleware('role:super_admin');
+        Route::get('kyc/{kyc}/file', [KycController::class, 'download']);
+        Route::patch('kyc/{kyc}/validate', [KycController::class, 'validateDocument'])->middleware('role:super_admin');
 
         // --- Groupes & rotation ---
         Route::get('groups', [GroupController::class, 'index']);

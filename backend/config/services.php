@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    // Envoi de SMS (OTP / alertes). Pilote choisi par OTP_SMS_DRIVER.
+    'sms' => [
+        'driver' => env('OTP_SMS_DRIVER', 'log'),
+        'sender_name' => env('OTP_SENDER_NAME', 'TontineSec'),
+        'orange' => [
+            'token' => env('ORANGE_SMS_TOKEN'),
+            'sender_url' => env('ORANGE_SMS_SENDER_URL'),
+        ],
+        'twilio' => [
+            'sid' => env('TWILIO_SID'),
+            'token' => env('TWILIO_AUTH_TOKEN'),
+            'from' => env('TWILIO_FROM'),
+        ],
+    ],
+
 ];

@@ -15,6 +15,19 @@ class KycDocument extends Model
         'valide_par',
     ];
 
+    protected $hidden = [
+        // Le chemin de stockage n'est jamais exposé dans les réponses API (§9).
+        'chemin_fichier',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            // Chiffrement au repos du chemin du document sensible (§9).
+            'chemin_fichier' => 'encrypted',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
