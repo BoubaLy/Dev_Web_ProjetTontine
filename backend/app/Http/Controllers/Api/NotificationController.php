@@ -21,21 +21,37 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        $notifications = $user->notifications()
-            ->latest()
-            ->limit(50)
-            ->get()
-            ->map(fn ($n) => [
+        $raw = $user->notifications()->latest()->limit(50)->get();
+
+        // État RÉEL des cotisations liées (pour savoir si l'action est encore requise,
+        // indépendamment du statut lu/non-lu de la notification).
+        $contributionIds = $raw->map(fn ($n) => $n->data['contribution_id'] ?? null)->filter()->unique()->all();
+        $statuts = \App\Models\Contribution::whereIn('id', $contributionIds)->pluck('statut', 'id');
+
+        $notifications = $raw->map(function ($n) use ($statuts) {
+            $type = $n->data['type'] ?? $n->type;
+            $cId = $n->data['contribution_id'] ?? null;
+            $cStatut = $cId ? ($statuts[$cId] ?? null) : null;
+
+            return [
                 'id' => $n->id,
-                'type' => $n->data['type'] ?? $n->type,
+                'type' => $type,
                 'data' => $n->data,
                 'lu' => $n->read_at !== null,
                 'created_at' => $n->created_at,
-            ]);
+                // Validation croisée : état réel de la cotisation + action encore à faire ?
+                'contribution_statut' => $cStatut,
+                'action_requise' => $type === 'contribution_declaree' && $cStatut === 'declare_paye',
+            ];
+        });
+
+        // « Non lues » pertinentes = actions encore à faire + notifs non lues.
+        $aValider = $notifications->where('action_requise', true)->count();
 
         return $this->success([
-            'notifications' => $notifications,
+            'notifications' => $notifications->values(),
             'non_lues' => $user->unreadNotifications()->count(),
+            'actions_requises' => $aValider,
         ], 'Vos notifications.');
     }
 
