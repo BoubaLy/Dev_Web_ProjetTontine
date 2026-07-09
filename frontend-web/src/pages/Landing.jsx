@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, useReducedMotion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Coins, Star, Plus, Minus } from 'lucide-react';
 import RotationRing from '../components/RotationRing';
 import OpalAurora from '../components/OpalAurora';
 import HowItWorksStory from '../components/HowItWorksStory';
 import { Avatar } from '../components/ui';
+import { Magnetic } from '../components/motion';
 import { duration, easing } from '../motion/tokens';
 
 const TITLE_WORDS = ['Votre', 'tontine', 'mérite', 'mieux', "qu'un"];
@@ -86,7 +87,7 @@ export default function Landing() {
             Créez ou rejoignez une tontine, cotisez en Mobile Money, et laissez chaque paiement se confirmer <span className="font-medium text-ink">entre deux personnes</span> avant d'être validé. La confiance de toujours, la clarté du numérique.
           </motion.p>
           <motion.div {...stagger(3)} className="mt-8 flex flex-wrap items-center gap-4">
-            <Link to="/register" className="btn-primary px-6 py-3 text-base shadow-soft">Créer ma tontine <ArrowRight size={18} /></Link>
+            <Magnetic><Link to="/register" className="btn-primary px-6 py-3 text-base shadow-soft">Créer ma tontine <ArrowRight size={18} /></Link></Magnetic>
             <Link to="/register" className="text-sm font-medium text-primary underline-offset-4 hover:underline">ou rejoindre avec un code</Link>
           </motion.div>
           <motion.p {...stagger(4)} className="mt-8 flex items-center gap-2 text-sm text-ink-faint"><span className="font-mono text-ink">450 000 FCFA</span> déjà en rotation dans la démo · 0 litige non résolu</motion.p>

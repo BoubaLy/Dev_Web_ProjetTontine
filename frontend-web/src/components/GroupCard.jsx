@@ -12,7 +12,7 @@ export default function GroupCard({ group, admin }) {
   const denom = group.statut === 'ouvert' ? max : membres;
 
   return (
-    <Link to={`/groupes/${group.id}`} className="card block p-4 transition hover:shadow-raised">
+    <Link to={`/groupes/${group.id}`} className="card card-interactive block p-4">
       <div className="flex items-center gap-3">
         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-card bg-primary-soft text-primary"><Users size={20} /></div>
         <div className="min-w-0 flex-1">

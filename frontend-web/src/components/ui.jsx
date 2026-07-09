@@ -1,4 +1,7 @@
+import { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CONTRIB_STATUS } from '../lib/status';
+import { duration, easing } from '../motion/tokens';
 
 export function Spinner({ className = '' }) {
   return (
@@ -20,7 +23,7 @@ export function Pill({ children, className = '' }) {
 
 export function StatusPill({ status }) {
   const s = CONTRIB_STATUS[status] ?? CONTRIB_STATUS.a_payer;
-  return <span className={`pill ${s.cls}`}>{s.label}</span>;
+  return <span key={status} className={`pill badge-pop ${s.cls}`}>{s.label}</span>;
 }
 
 export function EmptyState({ icon = '📭', title, message, action }) {
@@ -80,11 +83,26 @@ export function Avatar({ name = '?', size = 40 }) {
 
 /** Toast simple (message éphémère). */
 export function Toast({ message, onDone }) {
-  if (!message) return null;
-  setTimeout(onDone, 3200);
+  useEffect(() => {
+    if (!message) return undefined;
+    const t = setTimeout(onDone, 3200);
+    return () => clearTimeout(t);
+  }, [message, onDone]);
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-pill bg-ink px-5 py-2.5 text-sm text-white shadow-raised">
-      {message}
+    <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center">
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            className="pointer-events-auto rounded-pill bg-ink px-5 py-2.5 text-sm text-white shadow-raised"
+            initial={{ opacity: 0, y: 24, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.95 }}
+            transition={{ duration: duration.base, ease: easing.standard }}
+          >
+            {message}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

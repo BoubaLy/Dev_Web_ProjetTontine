@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { Plus, UserPlus, ArrowDownLeft, ArrowUpRight, Sparkles, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroups, useMyHistory, useGroup, useCurrentCycle, formatFCFA } from '../lib/queries';
-import { Loading, EmptyState, StatusPill } from '../components/ui';
+import { EmptyState, StatusPill } from '../components/ui';
+import { AnimatedNumber, Skeleton } from '../components/motion';
 import GroupCard from '../components/GroupCard';
 import RotationRing from '../components/RotationRing';
 
@@ -20,7 +21,7 @@ export default function Dashboard() {
   const featuredQ = useGroup(featuredId);
   const featuredCycleQ = useCurrentCycle(featuredId);
 
-  if (groupsQ.isLoading || histQ.isLoading) return <Loading />;
+  if (groupsQ.isLoading || histQ.isLoading) return <DashboardSkeleton />;
 
   const groups = groupsData;
   const cotisations = histQ.data?.cotisations ?? [];
@@ -60,17 +61,17 @@ export default function Dashboard() {
       {/* Héro solde */}
       <div className="overflow-hidden rounded-sheet bg-hero p-6 text-white shadow-raised">
         <p className="text-sm text-white/70">Épargne validée</p>
-        <p className="mt-1 font-mono text-4xl font-semibold">{formatFCFA(epargne)}</p>
+        <p className="mt-1 font-mono text-4xl font-semibold"><AnimatedNumber value={epargne} format={formatFCFA} /></p>
         <div className="mt-5 flex gap-6 border-t border-white/15 pt-4">
-          <div><p className="text-xs text-white/60">Reçu</p><p className="font-mono font-semibold">{formatFCFA(recu)}</p></div>
-          <div className="border-l border-white/15 pl-6"><p className="text-xs text-white/60">À recevoir</p><p className="font-mono font-semibold">{formatFCFA(aRecevoir)}</p></div>
-          <div className="border-l border-white/15 pl-6"><p className="text-xs text-white/60">Tontines</p><p className="font-mono font-semibold">{groups.length}</p></div>
+          <div><p className="text-xs text-white/60">Reçu</p><p className="font-mono font-semibold"><AnimatedNumber value={recu} format={formatFCFA} /></p></div>
+          <div className="border-l border-white/15 pl-6"><p className="text-xs text-white/60">À recevoir</p><p className="font-mono font-semibold"><AnimatedNumber value={aRecevoir} format={formatFCFA} /></p></div>
+          <div className="border-l border-white/15 pl-6"><p className="text-xs text-white/60">Tontines</p><p className="font-mono font-semibold"><AnimatedNumber value={groups.length} /></p></div>
         </div>
       </div>
 
       {/* Tour en cours — Cercle de Rotation de la tontine active */}
       {showFeatured && (
-        <Link to={`/groupes/${fg.id}`} className="card block overflow-hidden transition hover:shadow-raised">
+        <Link to={`/groupes/${fg.id}`} className="card card-interactive block overflow-hidden">
           <div className="grid gap-4 p-5 sm:grid-cols-[auto_1fr] sm:items-center">
             <div className="flex justify-center">
               <RotationRing members={fRing} progress={Math.min(fc.numero_periode / Math.max(fRing.length, 1), 1)} beneficiaryIndex={fBenefIdx} centerLabel="Tour" centerValue={`${fc.numero_periode}/${fRing.length}`} size={180} />
@@ -140,6 +141,28 @@ export default function Dashboard() {
       <div className="flex items-center gap-3 rounded-card bg-surface-alt p-4 text-sm text-ink-soft">
         <Sparkles size={18} className="text-gold" />
         Cotisez à temps pour faire grimper votre score de fiabilité, gage de confiance auprès des groupes.
+      </div>
+    </div>
+  );
+}
+
+/* Squelette de chargement à la forme du contenu (plutôt qu'un spinner générique). */
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-40" rounded="rounded-pill" />
+        <Skeleton className="h-7 w-56" rounded="rounded-pill" />
+      </div>
+      <Skeleton className="h-40 w-full rounded-sheet" />
+      <Skeleton className="h-48 w-full" />
+      <div className="flex gap-3">
+        <Skeleton className="h-11 w-44" rounded="rounded-pill" />
+        <Skeleton className="h-11 w-52" rounded="rounded-pill" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-28 w-full" />
       </div>
     </div>
   );

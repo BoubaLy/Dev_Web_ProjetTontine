@@ -20,8 +20,14 @@
   .card { @apply bg-surface border border-line rounded-card shadow-soft; }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-pill px-5 py-2.5 text-sm font-semibold
-           transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+           transition disabled:opacity-50 disabled:cursor-not-allowed;
+    will-change: transform;
   }
+  /* Micro-interaction : léger enfoncement au clic (token amplitude.pressScale). */
+  .btn:not(:disabled):active { transform: scale(0.97); }
+  /* Carte cliquable : hover-lift (token amplitude.hoverLift = -4px). */
+  .card-interactive { @apply transition duration-200; will-change: transform; }
+  .card-interactive:hover { transform: translateY(-4px); @apply shadow-lift; }
   .btn-primary { @apply btn bg-primary text-white hover:bg-primary-strong; }
   .btn-secondary { @apply btn bg-surface border border-primary text-primary hover:bg-primary-soft; }
   .btn-ghost { @apply btn text-primary hover:bg-primary-soft; }
@@ -32,6 +38,28 @@
   }
   .label { @apply block text-xs font-medium text-ink-soft mb-1; }
   .pill { @apply inline-flex items-center gap-1 rounded-pill px-3 py-1 text-xs font-medium; }
+}
+
+/* ===== Micro-interactions ===== */
+/* Squelette de chargement : balayage shimmer (transform d'un pseudo-élément). */
+.skeleton { position: relative; overflow: hidden; background: theme('colors.surface-alt'); }
+.skeleton::after {
+  content: ''; position: absolute; inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-sweep { 100% { transform: translateX(100%); } }
+
+/* Apparition d'un badge / pastille : petit pop. */
+.badge-pop { animation: badge-pop 0.32s cubic-bezier(0.68, -0.4, 0.32, 1.4); }
+@keyframes badge-pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:not(:disabled):active { transform: none; }
+  .card-interactive:hover { transform: none; }
+  .skeleton::after { animation: none; }
+  .badge-pop { animation: none; }
 }
 
 /* ===== Arrière-plan « Opal Aurora » ===== */
