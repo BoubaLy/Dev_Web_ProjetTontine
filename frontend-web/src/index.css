@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 @layer base {
-  html { -webkit-font-smoothing: antialiased; }
+  html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
   body {
     @apply bg-bg text-ink font-sans;
     margin: 0;
@@ -26,7 +26,7 @@
   /* Micro-interaction : léger enfoncement au clic (token amplitude.pressScale). */
   .btn:not(:disabled):active { transform: scale(0.97); }
   /* Carte cliquable : hover-lift (token amplitude.hoverLift = -4px). */
-  .card-interactive { @apply transition duration-200; will-change: transform; }
+  .card-interactive { @apply transition-all duration-200; will-change: transform; }
   .card-interactive:hover { transform: translateY(-4px); @apply shadow-lift; }
   .btn-primary { @apply btn bg-primary text-white hover:bg-primary-strong; }
   .btn-secondary { @apply btn bg-surface border border-primary text-primary hover:bg-primary-soft; }
@@ -35,12 +35,40 @@
   .input {
     @apply w-full rounded-card border border-line bg-surface px-4 py-2.5 text-sm text-ink
            outline-none focus:border-primary focus:ring-2 focus:ring-primary/15;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .input:focus {
+    box-shadow: 0 0 0 3px rgba(43, 110, 100, 0.12), 0 1px 3px rgba(43, 110, 100, 0.08);
   }
   .label { @apply block text-xs font-medium text-ink-soft mb-1; }
   .pill { @apply inline-flex items-center gap-1 rounded-pill px-3 py-1 text-xs font-medium; }
+
+  /* Glassmorphism — couche multi-blur utilisée sur navbar + modales */
+  .glass {
+    background: rgba(246, 248, 247, 0.72);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(222, 231, 228, 0.6);
+  }
+  .glass-dark {
+    background: rgba(15, 30, 28, 0.75);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  /* Glassmorphism renforcé (modale, toast) */
+  .glass-elevated {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: 0 8px 40px rgba(43, 110, 100, 0.12), 0 0 0 1px rgba(222, 231, 228, 0.5);
+  }
 }
 
-/* ===== Micro-interactions ===== */
+/* ============================================================
+   MICRO-INTERACTIONS SYSTÈME
+   ============================================================ */
+
 /* Squelette de chargement : balayage shimmer (transform d'un pseudo-élément). */
 .skeleton { position: relative; overflow: hidden; background: theme('colors.surface-alt'); }
 .skeleton::after {
@@ -52,54 +80,232 @@
 @keyframes skeleton-sweep { 100% { transform: translateX(100%); } }
 
 /* Apparition d'un badge / pastille : petit pop. */
-.badge-pop { animation: badge-pop 0.32s cubic-bezier(0.68, -0.4, 0.32, 1.4); }
-@keyframes badge-pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-@media (prefers-reduced-motion: reduce) {
-  .btn:not(:disabled):active { transform: none; }
-  .card-interactive:hover { transform: none; }
-  .skeleton::after { animation: none; }
-  .badge-pop { animation: none; }
+.badge-pop { animation: badge-pop 0.32s cubic-bezier(0.68, -0.4, 0.32, 1.4) both; }
+@keyframes badge-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* ===== Arrière-plan « Opal Aurora » ===== */
-/* Durées ~ token duration.ambient (12s) avec variations ; easing = token gentle. */
+/* Glow pulse discret sur les boutons CTA au repos */
+.btn-primary-glow {
+  box-shadow: 0 0 0 0 rgba(43, 110, 100, 0);
+  animation: cta-glow 3s ease-in-out infinite;
+}
+@keyframes cta-glow {
+  0%, 100% { box-shadow: 0 4px 24px rgba(43, 110, 100, 0.22), 0 1px 4px rgba(43, 110, 100, 0.18); }
+  50% { box-shadow: 0 6px 36px rgba(43, 110, 100, 0.38), 0 2px 8px rgba(43, 110, 100, 0.24); }
+}
+
+/* Focus ring cohérent sur tous les éléments interactifs */
+:focus-visible {
+  outline: 2px solid #2B6E64;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   ARRIÈRE-PLAN « OPAL AURORA » — Aurora UI 2026
+   Durées ~ token duration.ambient (12s) avec variations ;
+   easing = token gentle. 5 blobs pour plus de profondeur.
+   ============================================================ */
 .aurora-blob {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(90px);
-  will-change: transform;
+  filter: blur(80px);
+  will-change: transform, opacity;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   animation-iteration-count: infinite;
-}
-.aurora-a { width: 42vw; height: 42vw; left: -10vw; top: -8vw; opacity: 0.16;
-  background: radial-gradient(circle at 50% 50%, #2B6E64 0%, transparent 70%); animation-name: drift-a; animation-duration: 14s; }
-.aurora-b { width: 36vw; height: 36vw; right: -8vw; top: 6vw; opacity: 0.14;
-  background: radial-gradient(circle at 50% 50%, #8DA9C4 0%, transparent 70%); animation-name: drift-b; animation-duration: 20s; }
-.aurora-c { width: 30vw; height: 30vw; left: 20vw; bottom: -12vw; opacity: 0.12;
-  background: radial-gradient(circle at 50% 50%, #C6974F 0%, transparent 70%); animation-name: drift-c; animation-duration: 24s; }
-.aurora-d { width: 28vw; height: 28vw; right: 18vw; bottom: 2vw; opacity: 0.10;
-  background: radial-gradient(circle at 50% 50%, #2B6E64 0%, transparent 70%); animation-name: drift-d; animation-duration: 17s; }
-
-@keyframes drift-a { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(6vw, 5vw) scale(1.14); } }
-@keyframes drift-b { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-7vw, 4vw) scale(0.9); } }
-@keyframes drift-c { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(5vw, -6vw) scale(1.18); } }
-@keyframes drift-d { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-5vw, -4vw) scale(1.08); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .aurora-blob { animation: none !important; }
+  animation-direction: alternate;
 }
 
-/* Mot clé du hero : dégradé shimmer animé (typographie cinétique) */
+/* === Variante claire (hero / fond #F6F8F7) === */
+.aurora-a {
+  width: 55vw; height: 55vw;
+  left: -18vw; top: -15vw;
+  opacity: 0.22;
+  background: radial-gradient(ellipse at 40% 40%, #2B6E64 0%, #4C9A6A 40%, transparent 72%);
+  animation-name: drift-a;
+  animation-duration: 14s;
+}
+.aurora-b {
+  width: 46vw; height: 46vw;
+  right: -12vw; top: 4vw;
+  opacity: 0.18;
+  background: radial-gradient(ellipse at 60% 40%, #8DA9C4 0%, #6FBEB4 40%, transparent 72%);
+  animation-name: drift-b;
+  animation-duration: 20s;
+}
+.aurora-c {
+  width: 38vw; height: 38vw;
+  left: 18vw; bottom: -14vw;
+  opacity: 0.16;
+  background: radial-gradient(ellipse at 50% 50%, #C6974F 0%, #E0AB6E 40%, transparent 72%);
+  animation-name: drift-c;
+  animation-duration: 24s;
+}
+.aurora-d {
+  width: 32vw; height: 32vw;
+  right: 14vw; bottom: 0vw;
+  opacity: 0.14;
+  background: radial-gradient(ellipse at 55% 45%, #2B6E64 0%, #194B44 40%, transparent 72%);
+  animation-name: drift-d;
+  animation-duration: 17s;
+}
+/* Blob supplémentaire — accent central/chaud (Aurora UI 2026) */
+.aurora-e {
+  width: 28vw; height: 28vw;
+  left: 38vw; top: 28vw;
+  opacity: 0.10;
+  background: radial-gradient(ellipse at 50% 50%, #C6974F 0%, #8DA9C4 50%, transparent 72%);
+  animation-name: drift-e;
+  animation-duration: 28s;
+}
+
+/* === Variante sombre (bg-deep #0F1E1C) === */
+.aurora-dark-a { opacity: 0.28; background: radial-gradient(ellipse at 40% 40%, #47A197 0%, #2B6E64 40%, transparent 70%); }
+.aurora-dark-b { opacity: 0.20; background: radial-gradient(ellipse at 60% 40%, #6FBEB4 0%, #8DA9C4 40%, transparent 70%); }
+.aurora-dark-c { opacity: 0.18; background: radial-gradient(ellipse at 50% 50%, #C6974F 0%, #C6974F 40%, transparent 70%); }
+.aurora-dark-d { opacity: 0.16; background: radial-gradient(ellipse at 55% 45%, #33847C 0%, #2B6E64 40%, transparent 70%); }
+.aurora-dark-e { opacity: 0.12; background: radial-gradient(ellipse at 50% 50%, #8DA9C4 0%, #47A197 50%, transparent 72%); }
+
+@keyframes drift-a {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { transform: translate(7vw, 6vw) scale(1.18) rotate(4deg); }
+}
+@keyframes drift-b {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { transform: translate(-9vw, 5vw) scale(0.88) rotate(-5deg); }
+}
+@keyframes drift-c {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { transform: translate(6vw, -8vw) scale(1.22) rotate(6deg); }
+}
+@keyframes drift-d {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { transform: translate(-6vw, -5vw) scale(1.12) rotate(-3deg); }
+}
+@keyframes drift-e {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(4vw, -4vw) scale(1.3) rotate(8deg); }
+  100% { transform: translate(-3vw, 5vw) scale(0.85) rotate(-6deg); }
+}
+
+/* ============================================================
+   TYPOGRAPHIE CINÉTIQUE — shimmer animé sur mot-clé du hero
+   ============================================================ */
 .shimmer-text {
-  background: linear-gradient(120deg, #8DA9C4, #2B6E64, #C6974F, #2B6E64, #8DA9C4);
-  background-size: 220% auto;
+  background: linear-gradient(
+    120deg,
+    #8DA9C4 0%, #2B6E64 20%, #C6974F 40%, #47A197 60%, #2B6E64 80%, #8DA9C4 100%
+  );
+  background-size: 260% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: shimmer-move 6s linear infinite;
+  animation: shimmer-move 5s linear infinite;
 }
-@keyframes shimmer-move { to { background-position: 220% center; } }
+@keyframes shimmer-move { to { background-position: 260% center; } }
+
+/* Titre hero — glow text subtil */
+.hero-glow {
+  text-shadow:
+    0 0 60px rgba(43, 110, 100, 0.15),
+    0 0 120px rgba(141, 169, 196, 0.08);
+}
+
+/* ============================================================
+   CURSEUR GLOW (desktop) — suit la souris sur le hero
+   ============================================================ */
+.cursor-glow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 480px; height: 480px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(circle, rgba(43, 110, 100, 0.07) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.4s ease;
+  will-change: transform;
+}
+
+/* ============================================================
+   SECTION TRANSITIONS — ligne de séparation lumineuse
+   ============================================================ */
+.section-divider {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #DEE7E4 30%, #8DA9C4 50%, #DEE7E4 70%, transparent 100%);
+  opacity: 0.6;
+}
+
+/* ============================================================
+   CARD HOVER — glow border au survol (premium feel)
+   ============================================================ */
+.card-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid theme('colors.line');
+}
+.card-glow:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(43, 110, 100, 0.12), 0 0 0 1px rgba(43, 110, 100, 0.14);
+  border-color: rgba(43, 110, 100, 0.3);
+}
+
+/* ============================================================
+   SCROLL INDICATOR (flèche animée vers le bas dans le hero)
+   ============================================================ */
+.scroll-indicator {
+  animation: scroll-bounce 2.2s ease-in-out infinite;
+}
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(7px); opacity: 1; }
+}
+
+/* ============================================================
+   NUMBER COUNTER — flash subtil quand le chiffre change
+   ============================================================ */
+@keyframes number-flash {
+  0% { color: inherit; }
+  40% { color: #2B6E64; }
+  100% { color: inherit; }
+}
+.number-flash { animation: number-flash 0.4s ease-out; }
+
+/* ============================================================
+   PROGRESS BAR — fill animé avec shimmer
+   ============================================================ */
+.progress-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.progress-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+  animation: progress-sheen 2s ease-in-out infinite;
+}
+@keyframes progress-sheen { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+
+/* ============================================================
+   PREFERS REDUCED MOTION — coupure globale propre
+   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
-  .shimmer-text { animation: none; }
+  /* Animations CSS */
+  .aurora-blob { animation: none !important; }
+  .shimmer-text { animation: none; color: #2B6E64; background: none; -webkit-background-clip: unset; background-clip: unset; }
+  .btn:not(:disabled):active { transform: none; }
+  .card-interactive:hover { transform: none; }
+  .card-glow:hover { transform: none; }
+  .skeleton::after { animation: none; }
+  .badge-pop { animation: none; }
+  .btn-primary-glow { animation: none; box-shadow: 0 4px 24px rgba(43, 110, 100, 0.22); }
+  .cursor-glow { display: none; }
+  .scroll-indicator { animation: none; }
+  .progress-shimmer::after { animation: none; }
+  /* Transitions CSS */
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }

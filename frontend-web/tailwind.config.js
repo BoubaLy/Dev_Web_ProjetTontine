@@ -27,14 +27,43 @@ export default {
         soft: '0 4px 24px rgba(43, 110, 100, 0.08)',
         raised: '0 8px 32px rgba(43, 110, 100, 0.12)',
         lift: '0 18px 60px rgba(15, 30, 28, 0.14)',
+        glow: '0 0 32px rgba(43, 110, 100, 0.24)',
+        'glow-gold': '0 0 32px rgba(198, 151, 79, 0.28)',
       },
       backgroundImage: {
         hero: 'linear-gradient(135deg, #6FBEB4 0%, #47A197 45%, #33847C 100%)',
         night: 'linear-gradient(135deg, #3E938B 0%, #2F736C 100%)',
         shimmer: 'linear-gradient(135deg, #8DA9C4 0%, #2B6E64 50%, #C6974F 100%)',
+        'aurora-overlay': 'radial-gradient(ellipse 80% 60% at 50% 0%, transparent 30%, rgba(246,248,247,0.7) 100%)',
       },
       keyframes: {
-        'fade-up': { '0%': { opacity: 0, transform: 'translateY(12px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+        'fade-up': {
+          '0%': { opacity: 0, transform: 'translateY(12px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
+        'spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'pulse-soft': {
+          '0%, 100%': { opacity: 0.6 },
+          '50%': { opacity: 1 },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'spin': 'spin 1s linear infinite',
+        'spin-slow': 'spin 9s linear infinite',
+        'pulse-soft': 'pulse-soft 2s ease-in-out infinite',
+      },
+      transitionTimingFunction: {
+        // Token easing.standard reproduit en CSS
+        'standard': 'cubic-bezier(0.22, 1, 0.36, 1)',
+        'bounce': 'cubic-bezier(0.68, -0.4, 0.32, 1.4)',
+        'gentle': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      backdropBlur: {
+        xs: '4px',
       },
     },
   },
