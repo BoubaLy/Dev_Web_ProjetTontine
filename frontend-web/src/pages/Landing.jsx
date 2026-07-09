@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
-import { ArrowRight, Coins, ShieldCheck, Users, Wallet, CheckCircle2, Star, Plus, Minus } from 'lucide-react';
+import { ArrowRight, Coins, Star, Plus, Minus } from 'lucide-react';
 import RotationRing from '../components/RotationRing';
 import OpalAurora from '../components/OpalAurora';
+import HowItWorksStory from '../components/HowItWorksStory';
 import { Avatar } from '../components/ui';
 import { duration, easing } from '../motion/tokens';
 
@@ -39,62 +40,11 @@ function Reveal({ children, delay = 0, className = '' }) {
   );
 }
 
-/* Fragments d'interface RÉELS (mini-maquettes, pas des icônes génériques) */
-function FragGroup() {
-  return (
-    <div className="card w-full max-w-xs p-4">
-      <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-card bg-primary-soft text-primary"><Users size={18} /></div>
-        <div className="flex-1"><p className="text-sm font-semibold">Tontine des Amis</p><p className="text-xs text-ink-soft">rotative · mensuelle</p></div>
-        <span className="pill bg-primary-soft text-primary">En cours</span>
-      </div>
-      <div className="mt-3 h-2 overflow-hidden rounded-pill bg-surface-alt"><div className="h-full w-4/5 rounded-pill bg-primary" /></div>
-      <p className="mt-1 text-right text-xs text-ink-faint">5 membres · <span className="font-mono">25 000 FCFA</span></p>
-    </div>
-  );
-}
-function FragDeclare() {
-  return (
-    <div className="card w-full max-w-xs p-4">
-      <p className="text-xs text-ink-soft">Montant à transférer à Modou Fall</p>
-      <p className="font-mono text-xl font-semibold">25 000 FCFA</p>
-      <div className="mt-3 rounded-card border border-line px-3 py-2 font-mono text-sm text-ink">WV-8H2K3P</div>
-      <div className="mt-3 grid place-items-center rounded-pill bg-primary py-2 text-sm font-semibold text-white">Déclarer le paiement</div>
-    </div>
-  );
-}
-function FragValidate() {
-  return (
-    <div className="card w-full max-w-xs p-4">
-      <div className="flex items-start gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-gold-soft text-gold"><Wallet size={18} /></div>
-        <p className="text-sm text-ink">Ousmane a déclaré un paiement de <span className="font-mono">25 000 FCFA</span>. Confirmez la réception.</p>
-      </div>
-      <div className="mt-3 flex gap-2">
-        <div className="flex-1 grid place-items-center rounded-pill border border-danger py-2 text-xs font-semibold text-danger">Contester</div>
-        <div className="flex-1 grid place-items-center rounded-pill bg-primary py-2 text-xs font-semibold text-white">Confirmer</div>
-      </div>
-    </div>
-  );
-}
-
-const ETAPES = [
-  { n: '01', t: 'Créez ou rejoignez un groupe', d: "Lancez votre tontine (montant, fréquence, rotation) ou entrez dans une existante avec un code d'invitation.", Frag: FragGroup },
-  { n: '02', t: 'Déclarez votre cotisation', d: "Faites votre transfert Wave/Orange Money, puis saisissez la référence reçue par SMS. Aucune saisie de solde, aucune fausse info.", Frag: FragDeclare },
-  { n: '03', t: 'Le bénéficiaire confirme', d: "La personne qui reçoit vérifie son solde et confirme — ou conteste. Un paiement n'est validé que si deux personnes sont d'accord.", Frag: FragValidate },
-];
 
 export default function Landing() {
   const reduce = useReducedMotion();
   const navigate = useNavigate();
   const heroRef = useRef(null);
-  const howRef = useRef(null);
-  const [ringProgress, setRingProgress] = useState(0.12);
-
-  // L'arc du Cercle se remplit à mesure qu'on scrolle « Comment ça marche ».
-  const { scrollYProgress } = useScroll({ target: howRef, offset: ['start end', 'end center'] });
-  const p = useTransform(scrollYProgress, [0, 1], [0.1, 1]);
-  useMotionValueEvent(p, 'change', (v) => setRingProgress(v));
 
   // Parallax léger du Cercle dans le hero (l'utilisateur « pilote » l'objet).
   const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -159,33 +109,8 @@ export default function Landing() {
       </section>
       </div>{/* fin du fond Opal Aurora */}
 
-      {/* ③ COMMENT ÇA MARCHE */}
-      <section ref={howRef} className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-        <Reveal className="mb-12 text-center">
-          <h2 className="font-display text-[clamp(1.8rem,4vw,3rem)] font-medium">Comment ça marche</h2>
-          <p className="mt-3 text-ink-soft">Trois étapes, et la rotation tourne toute seule.</p>
-        </Reveal>
-        <div className="grid items-start gap-10 md:grid-cols-[1fr_auto]">
-          <div className="space-y-10">
-            {ETAPES.map((e, i) => (
-              <Reveal key={e.n} delay={i * 0.05}>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <div className="flex-1">
-                    <span className="font-mono text-sm text-gold">{e.n}</span>
-                    <h3 className="mt-1 text-xl font-semibold">{e.t}</h3>
-                    <p className="mt-2 max-w-md text-ink-soft">{e.d}</p>
-                  </div>
-                  <e.Frag />
-                </div>
-              </Reveal>
-            ))}
-          </div>
-          {/* Cercle qui se remplit au scroll (desktop) */}
-          <div className="sticky top-28 hidden self-start lg:block">
-            <RotationRing members={RING_MEMBERS} progress={ringProgress} beneficiaryIndex={1} centerLabel="Progression" centerValue={`${Math.round(ringProgress * 100)}%`} size={300} />
-          </div>
-        </div>
-      </section>
+      {/* ③ COMMENT ÇA MARCHE — scroll storytelling GSAP (seul scroll-jacking) */}
+      <HowItWorksStory />
 
       {/* ④ CONFIANCE — unique section sombre */}
       <section className="bg-bg-deep text-ink-inverse">
