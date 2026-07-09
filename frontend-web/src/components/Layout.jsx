@@ -1,9 +1,23 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Home, Users, Bell, History, User, ShieldCheck, FileCheck2, Scale, LogOut, Coins,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroups, useNotifications } from '../lib/queries';
+import PageTransition from './PageTransition';
+
+/** Vrai dès que la page a défilé de quelques pixels (navbar glassmorphism). */
+function useScrolled(threshold = 8) {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > threshold);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [threshold]);
+  return scrolled;
+}
 
 function Item({ to, icon: Icon, label, badge }) {
   return (
@@ -26,6 +40,7 @@ function Item({ to, icon: Icon, label, badge }) {
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const scrolled = useScrolled();
   const isSuper = user?.role === 'super_admin';
   const { data: groups } = useGroups();
   const { data: notifs } = useNotifications();
@@ -69,8 +84,10 @@ export default function Layout() {
         </button>
       </aside>
 
-      {/* Topbar mobile */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-surface px-4 py-3 md:hidden">
+      {/* Topbar mobile — glassmorphism au scroll */}
+      <header className={`sticky top-0 z-30 flex items-center justify-between px-4 py-3 transition-all duration-300 md:hidden ${
+        scrolled ? 'border-b border-line/70 bg-surface/70 shadow-soft backdrop-blur-lg' : 'border-b border-transparent bg-surface'
+      }`}>
         <div className="flex items-center gap-2">
           <div className="grid h-8 w-8 place-items-center rounded-card bg-hero text-white"><Coins size={16} /></div>
           <span className="font-display font-semibold">TontineSecure</span>
@@ -81,12 +98,12 @@ export default function Layout() {
       {/* Contenu */}
       <main className="md:pl-64">
         <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
-          <Outlet />
+          <PageTransition />
         </div>
       </main>
 
-      {/* Nav mobile bas */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-surface py-2 md:hidden">
+      {/* Nav mobile bas — glassmorphism */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line/70 bg-surface/75 py-2 backdrop-blur-lg md:hidden">
         {[['/tableau-de-bord', Home], ['/groupes', Users], ['/notifications', Bell], ['/profil', User]].map(([to, Icon]) => (
           <NavLink key={to} to={to} className={({ isActive }) => `grid place-items-center px-4 py-1 ${isActive ? 'text-primary' : 'text-ink-faint'}`}>
             <Icon size={22} strokeWidth={1.8} />
