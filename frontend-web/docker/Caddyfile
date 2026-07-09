@@ -1,0 +1,25 @@
+# Caddy — reverse-proxy public de TontineSecure (front React web).
+# SITE_ADDRESS = domaine (ex. tontinesecure.example.com) → HTTPS AUTOMATIQUE.
+# Défaut « :80 » = HTTP simple (test local, sans domaine).
+
+{
+	# Email ACME (Let's Encrypt) — optionnel mais recommandé en prod.
+	email {$ACME_EMAIL:admin@example.com}
+}
+
+{$SITE_ADDRESS::80} {
+	encode gzip
+
+	# API Laravel + santé + Sanctum → nginx interne.
+	@backend path /api/* /up /sanctum/*
+	handle @backend {
+		reverse_proxy nginx:80
+	}
+
+	# Web App (SPA) — fallback vers index.html pour le routage client (React Router).
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

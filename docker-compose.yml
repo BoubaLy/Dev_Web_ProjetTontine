@@ -8,11 +8,10 @@
 # =====================================================================
 
 services:
-  # Frontal public : sert la Web App et termine le TLS (Let's Encrypt auto).
+  # Frontal public : sert la Web App React (Vite) et termine le TLS (Let's Encrypt auto).
   caddy:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.web
+      context: ./frontend-web
     ports:
       - "80:80"
       - "443:443"
