@@ -3,7 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { ArrowRight, Coins, ShieldCheck, Users, Wallet, CheckCircle2, Star, Plus, Minus } from 'lucide-react';
 import RotationRing from '../components/RotationRing';
+import OpalAurora from '../components/OpalAurora';
 import { Avatar } from '../components/ui';
+import { duration, easing } from '../motion/tokens';
+
+const TITLE_WORDS = ['Votre', 'tontine', 'mérite', 'mieux', "qu'un"];
 
 const RING_MEMBERS = [
   { name: 'Awa Diop' }, { name: 'Modou Fall' }, { name: 'Bineta Sow' },
@@ -83,6 +87,7 @@ const ETAPES = [
 export default function Landing() {
   const reduce = useReducedMotion();
   const navigate = useNavigate();
+  const heroRef = useRef(null);
   const howRef = useRef(null);
   const [ringProgress, setRingProgress] = useState(0.12);
 
@@ -90,6 +95,12 @@ export default function Landing() {
   const { scrollYProgress } = useScroll({ target: howRef, offset: ['start end', 'end center'] });
   const p = useTransform(scrollYProgress, [0, 1], [0.1, 1]);
   useMotionValueEvent(p, 'change', (v) => setRingProgress(v));
+
+  // Parallax léger du Cercle dans le hero (l'utilisateur « pilote » l'objet).
+  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const ringY = useTransform(heroScroll, [0, 1], [0, -48]);
+  const ringRot = useTransform(heroScroll, [0, 1], [0, 4]);
+  const wordAnim = (i) => (reduce ? {} : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: duration.base, delay: 0.15 + i * 0.07, ease: easing.standard } });
 
   const stagger = (i) => (reduce ? {} : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.6, delay: 0.1 + i * 0.12, ease: [0.22, 1, 0.36, 1] } });
   const ringIn = reduce ? {} : { initial: { opacity: 0, scale: 0.92 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.8, delay: 0.35, ease: [0.22, 1, 0.36, 1] } };
@@ -110,13 +121,17 @@ export default function Landing() {
         </div>
       </header>
 
+      {/* Fond vivant « Opal Aurora » derrière le hero + le problème */}
+      <div className="relative overflow-hidden">
+      <OpalAurora />
       {/* ① HERO */}
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 md:grid-cols-[1.05fr_0.95fr] md:py-24">
+      <section ref={heroRef} className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 md:grid-cols-[1.05fr_0.95fr] md:py-24">
         <div className="max-w-xl">
           <motion.span {...stagger(0)} className="inline-flex items-center gap-2 rounded-pill bg-primary-soft px-3 py-1 text-xs font-medium text-primary">Épargne rotative · Natt · Mbotaay</motion.span>
-          <motion.h1 {...stagger(1)} className="mt-5 font-display text-[clamp(2.75rem,6vw,5.25rem)] font-medium leading-[1.05] tracking-tight">
-            Votre tontine mérite mieux qu'un <em className="italic text-primary">carnet</em>.
-          </motion.h1>
+          <h1 className="mt-5 font-display text-[clamp(2.75rem,6vw,5.25rem)] font-medium leading-[1.05] tracking-tight">
+            {TITLE_WORDS.map((w, i) => (<motion.span key={i} {...wordAnim(i)} className="mr-[0.28em] inline-block">{w}</motion.span>))}
+            <motion.span {...wordAnim(TITLE_WORDS.length)} className="inline-block shimmer-text">carnet</motion.span>.
+          </h1>
           <motion.p {...stagger(2)} className="mt-6 text-lg leading-relaxed text-ink-soft">
             Créez ou rejoignez une tontine, cotisez en Mobile Money, et laissez chaque paiement se confirmer <span className="font-medium text-ink">entre deux personnes</span> avant d'être validé. La confiance de toujours, la clarté du numérique.
           </motion.p>
@@ -126,14 +141,14 @@ export default function Landing() {
           </motion.div>
           <motion.p {...stagger(4)} className="mt-8 flex items-center gap-2 text-sm text-ink-faint"><span className="font-mono text-ink">450 000 FCFA</span> déjà en rotation dans la démo · 0 litige non résolu</motion.p>
         </div>
-        <motion.div {...ringIn} className="flex justify-center md:justify-end">
-          <div className="hidden md:block"><RotationRing members={RING_MEMBERS} progress={0.55} beneficiaryIndex={1} centerLabel="Pot du tour" centerValue="450 000" size={400} /></div>
-          <div className="md:hidden"><RotationRing members={RING_MEMBERS} progress={0.55} beneficiaryIndex={1} centerLabel="Pot du tour" centerValue="450 000" size={300} /></div>
+        <motion.div {...ringIn} style={reduce ? {} : { y: ringY, rotate: ringRot }} className="flex justify-center md:justify-end">
+          <div className="hidden md:block"><RotationRing animate members={RING_MEMBERS} progress={0.55} beneficiaryIndex={1} centerLabel="Pot du tour" centerValue="450 000" size={400} /></div>
+          <div className="md:hidden"><RotationRing animate members={RING_MEMBERS} progress={0.55} beneficiaryIndex={1} centerLabel="Pot du tour" centerValue="450 000" size={300} /></div>
         </motion.div>
       </section>
 
       {/* ② LE PROBLÈME */}
-      <section className="mx-auto max-w-3xl px-5 py-16 text-center md:py-24">
+      <section className="relative z-10 mx-auto max-w-3xl px-5 py-16 text-center md:py-24">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-wide text-primary">Le vrai problème</p>
           <p className="mt-4 font-display text-[clamp(1.6rem,3.4vw,2.6rem)] font-medium leading-snug">
@@ -142,6 +157,7 @@ export default function Landing() {
           <p className="mt-5 text-ink-soft">TontineSecure garde la mémoire de chaque cotisation et de chaque versement — pour que la confiance ne repose plus sur la mémoire de quelqu'un.</p>
         </Reveal>
       </section>
+      </div>{/* fin du fond Opal Aurora */}
 
       {/* ③ COMMENT ÇA MARCHE */}
       <section ref={howRef} className="mx-auto max-w-6xl px-5 py-16 md:py-24">

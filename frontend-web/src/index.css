@@ -61,3 +61,17 @@
 @media (prefers-reduced-motion: reduce) {
   .aurora-blob { animation: none !important; }
 }
+
+/* Mot clé du hero : dégradé shimmer animé (typographie cinétique) */
+.shimmer-text {
+  background: linear-gradient(120deg, #8DA9C4, #2B6E64, #C6974F, #2B6E64, #8DA9C4);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-move 6s linear infinite;
+}
+@keyframes shimmer-move { to { background-position: 220% center; } }
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-text { animation: none; }
+}
