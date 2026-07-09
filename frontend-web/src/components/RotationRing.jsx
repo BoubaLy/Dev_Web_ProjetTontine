@@ -1,18 +1,38 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { duration, easing } from '../motion/tokens';
+import { CONTRIB_STATUS } from '../lib/status';
 
 /**
  * ÉLÉMENT SIGNATURE — « Cercle de Rotation ».
  * Membres en couronne, arc de progression (dégradé shimmer), bénéficiaire mis en
- * avant. `animate` (landing) : les avatars apparaissent en stagger, l'arc se
- * dessine (stroke-dashoffset), une lueur orbite en continu. Sans `animate` (app) :
- * rendu statique inchangé.
+ * avant.
+ *
+ * Trois régimes :
+ *  - `animate` (landing) : avatars en stagger, arc qui se dessine, lueur qui orbite.
+ *  - statique (défaut)   : rendu figé, arc interpolé en CSS.
+ *  - `interactive` (app) : chaque avatar devient un bouton FOCUSABLE au clavier ;
+ *    clic/focus ouvre une mini-carte glass avec le statut de paiement du membre
+ *    pour le tour en cours. Le halo du bénéficiaire pulse UNE fois toutes les ~5 s
+ *    (opacité 100→85→100), jamais un clignotement rapide (brief §4).
+ *
+ * `members` : `[{ name, status?, isYou? }]` — `status` = clé de CONTRIB_STATUS.
  */
 export default function RotationRing({
-  members = [], progress = 0, beneficiaryIndex = 0, centerLabel, centerValue, size = 340, animate = false,
+  members = [], progress = 0, beneficiaryIndex = 0, centerLabel, centerValue,
+  size = 340, animate = false, interactive = false,
 }) {
   const reduce = useReducedMotion();
   const doAnim = animate && !reduce;
+  const [sel, setSel] = useState(null);
+
+  // Fermeture au clavier (Escape) de la mini-carte.
+  useEffect(() => {
+    if (sel == null) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setSel(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [sel]);
 
   const n = Math.max(members.length, 1);
   const R = size / 2;
@@ -23,12 +43,13 @@ export default function RotationRing({
   const dash = circ * Math.min(Math.max(progress, 0), 1);
 
   const initials = (name) => name.split(' ').filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+  const selMember = sel != null ? members[sel] : null;
 
   return (
     <div className="relative select-none" style={{ width: size, height: size }}>
       <div className="absolute rounded-full bg-primary/5 blur-2xl" style={{ inset: size * 0.08 }} />
 
-      {/* Lueur qui orbite (mode animé) */}
+      {/* Lueur qui orbite (mode animé landing) */}
       {doAnim && (
         <div className="absolute inset-0" style={{ animation: 'spin 9s linear infinite' }}>
           <div className="absolute rounded-full bg-gold blur-md"
@@ -71,19 +92,52 @@ export default function RotationRing({
         const animProps = doAnim
           ? { initial: { opacity: 0, scale: 0.5 }, animate: { opacity: 1, scale: 1 }, transition: { duration: duration.base, ease: easing.standard, delay: 0.35 + i * 0.09 } }
           : {};
+
+        const avatar = (
+          <>
+            {/* Halo bénéficiaire : 1 pulse toutes les ~5 s (lent, non distrayant) */}
+            {isBenef && !reduce && (
+              <motion.span
+                className="absolute inset-0 rounded-full bg-gold/25"
+                animate={{ opacity: [0.5, 0.15, 0.5], scale: [1, 1.12, 1] }}
+                transition={{ duration: 5, ease: easing.gentle, repeat: Infinity, repeatType: 'loop' }}
+              />
+            )}
+            <div className={`relative grid place-items-center rounded-full border-2 font-semibold shadow-soft transition-transform ${
+              isBenef ? 'border-gold bg-gold text-white' : 'border-line bg-surface text-ink-soft'
+            } ${interactive && sel === i ? 'scale-110 ring-2 ring-primary' : ''}`}
+              style={{ width: av * 2, height: av * 2, fontSize: av * 0.6 }}>
+              {initials(m.name)}
+            </div>
+          </>
+        );
+
+        if (interactive) {
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setSel(sel === i ? null : i)}
+              onFocus={() => setSel(i)}
+              className="absolute flex items-center justify-center rounded-full"
+              style={{ left: cx - av, top: cy - av, width: av * 2, height: av * 2 }}
+              aria-label={`${m.name}${isBenef ? ' — bénéficiaire du tour' : ''}${m.status ? `, ${CONTRIB_STATUS[m.status]?.label ?? ''}` : ''}`}
+              aria-expanded={sel === i}
+            >
+              {avatar}
+            </button>
+          );
+        }
+
         return (
           <Slot key={i} className="absolute flex items-center justify-center"
             style={{ left: cx - av, top: cy - av, width: av * 2, height: av * 2 }} {...animProps}>
-            {isBenef && <span className="absolute inset-0 rounded-full bg-gold/25 animate-ping" style={{ animationDuration: '2.4s' }} />}
-            <div className={`relative grid place-items-center rounded-full border-2 font-semibold shadow-soft ${
-              isBenef ? 'border-gold bg-gold text-white' : 'border-line bg-surface text-ink-soft'
-            }`} style={{ width: av * 2, height: av * 2, fontSize: av * 0.6 }}>
-              {initials(m.name)}
-            </div>
+            {avatar}
           </Slot>
         );
       })}
 
+      {/* Disque central */}
       <div className="absolute inset-0 grid place-items-center">
         <div className="grid place-items-center rounded-full bg-surface text-center shadow-lift"
           style={{ width: arcR * 1.42, height: arcR * 1.42 }}>
@@ -91,6 +145,36 @@ export default function RotationRing({
           {centerValue && <span className="mt-1 font-mono text-2xl font-semibold text-primary">{centerValue}</span>}
         </div>
       </div>
+
+      {/* Mini-carte glass du membre sélectionné (interactif) */}
+      {interactive && (
+        <AnimatePresence>
+          {selMember && (
+            <motion.div
+              className="glass-elevated absolute left-1/2 z-20 w-52 -translate-x-1/2 rounded-card p-3 text-left shadow-lift"
+              style={{ bottom: -14 }}
+              initial={{ opacity: 0, y: 8, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 6, scale: 0.96 }}
+              transition={{ duration: duration.fast, ease: easing.standard }}
+              role="dialog"
+              aria-label={`Statut de ${selMember.name}`}
+            >
+              <p className="flex items-center gap-1 text-sm font-semibold text-ink">
+                {selMember.name}{selMember.isYou && <span className="text-xs font-normal text-ink-faint">(vous)</span>}
+              </p>
+              <p className="mt-0.5 text-xs text-ink-soft">
+                {sel === beneficiaryIndex ? 'Bénéficiaire du tour' : 'Membre cotisant'}
+              </p>
+              <div className="mt-2">
+                {selMember.status
+                  ? <span className={`pill ${CONTRIB_STATUS[selMember.status]?.cls ?? 'bg-surface-alt text-ink-soft'}`}>{CONTRIB_STATUS[selMember.status]?.label ?? selMember.status}</span>
+                  : <span className="pill bg-surface-alt text-ink-faint">Statut privé</span>}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   );
 }

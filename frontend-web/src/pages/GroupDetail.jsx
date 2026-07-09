@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  CircleDollarSign, Phone, CalendarClock, Crown, Play, Link2, Share2, Check, X,
+  CircleDollarSign, Phone, Crown, Play, Link2, Share2, Check, X,
   LockKeyhole, TriangleAlert, ArrowLeft,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -10,9 +10,10 @@ import {
   useStartCycle, useValidateMember, useCloseCycle, formatFCFA,
 } from '../lib/queries';
 import { Loading, EmptyState, StatusPill, Avatar, ProgressBar, Modal, Field, Toast, Spinner } from '../components/ui';
-import Celebration from '../components/Celebration';
+import { CycleCompleteMotion } from '../components/celebrations';
 import { CONTRIB_STATUS, GROUP_STATUS, scoreBadge } from '../lib/status';
 import RotationRing from '../components/RotationRing';
+import AmbientMesh from '../components/AmbientMesh';
 
 const MEMBER_STATUS = {
   en_attente: { label: 'En attente', cls: 'bg-gold-soft text-gold' },
@@ -42,8 +43,14 @@ export default function GroupDetail() {
 
   // Données du Cercle de Rotation : membres actifs triés par ordre, bénéficiaire en avant.
   const actifsTries = membres.filter((m) => m.statut === 'actif' && m.ordre_rotation).sort((a, b) => a.ordre_rotation - b.ordre_rotation);
-  const ringMembers = actifsTries.map((m) => ({ name: `${m.user?.prenom ?? ''} ${m.user?.nom ?? ''}`.trim() || m.user?.telephone || '?' }));
+  const ringMembers = actifsTries.map((m) => ({
+    name: `${m.user?.prenom ?? ''} ${m.user?.nom ?? ''}`.trim() || m.user?.telephone || '?',
+    isYou: m.user_id === user?.id,
+    status: m.user_id === user?.id ? cycle?.ma_cotisation_statut : undefined,
+  }));
   const benefIdx = cycle ? Math.max(actifsTries.findIndex((m) => m.user_id === cycle.beneficiaire?.id), 0) : 0;
+  // Total du pot (montant × membres actifs) — affiché à la clôture.
+  const potTotal = Number(group.montant_cotisation || 0) * Math.max(actifsTries.length, 1);
 
   const onInvite = async () => {
     try { const r = await invite.mutateAsync(); setCode(r.code); } catch (e) { setToast(e.response?.data?.message ?? 'Erreur'); }
@@ -62,7 +69,9 @@ export default function GroupDetail() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="relative">
+      <AmbientMesh variant="light" />
+      <div className="relative z-10 space-y-6">
       <Link to="/groupes" className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-primary"><ArrowLeft size={16} /> Mes tontines</Link>
 
       {/* En-tête */}
@@ -170,7 +179,8 @@ export default function GroupDetail() {
         <DeclareModal cycle={cycle} groupId={id} onClose={() => setDeclareOpen(false)} onDone={(msg) => { setDeclareOpen(false); setToast(msg); }} />
       )}
       <Toast message={toast} onDone={() => setToast(null)} />
-      <Celebration open={cycleClosed} variant="cycle" onDone={() => setCycleClosed(false)} />
+      <CycleCompleteMotion open={cycleClosed} total={potTotal} format={formatFCFA} onDone={() => setCycleClosed(false)} />
+      </div>
     </div>
   );
 }
@@ -195,6 +205,7 @@ function CycleCard({ cycle, members = [], benefIdx = 0, onDeclare }) {
             centerLabel="Tour"
             centerValue={`${cycle.numero_periode}/${n}`}
             size={280}
+            interactive
           />
         </div>
       )}

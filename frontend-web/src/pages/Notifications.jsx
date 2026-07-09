@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import { useNotifications, useConfirmContribution, useDisputeContribution, useMarkRead } from '../lib/queries';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
-import Celebration from '../components/Celebration';
+import { CotisationSuccessMotion } from '../components/celebrations';
 
 const META = {
   contribution_declaree: { Icon: Coins, cls: 'bg-gold-soft text-gold' },
@@ -73,7 +73,7 @@ export default function Notifications() {
               : null;
 
             return (
-              <div key={n.id} className={`card p-4 ${actionRequise ? 'border-2 border-gold/60 bg-gold-soft/30' : !n.lu ? 'border-l-4 border-l-primary' : ''}`}>
+              <div key={n.id} className={`p-4 ${actionRequise ? 'glass-elevated rounded-card border border-gold/40' : !n.lu ? 'card border-l-4 border-l-primary' : 'card'}`}>
                 <div className="flex items-start gap-3">
                   <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${meta.cls}`}><Icon size={18} /></div>
                   <div className="flex-1">
@@ -120,7 +120,7 @@ export default function Notifications() {
       </Modal>
 
       <Toast message={toast} onDone={() => setToast(null)} />
-      <Celebration open={celebrate} variant="cotisation" onDone={() => setCelebrate(false)} />
+      <CotisationSuccessMotion open={celebrate} onDone={() => setCelebrate(false)} />
     </div>
   );
 }

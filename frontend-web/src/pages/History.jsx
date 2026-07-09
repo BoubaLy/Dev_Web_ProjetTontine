@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { useMyHistory, formatFCFA } from '../lib/queries';
 import { Loading, EmptyState, StatusPill } from '../components/ui';
@@ -8,10 +9,35 @@ const sum = (arr, pred) => arr.filter(pred).reduce((t, x) => t + Number(x.montan
 export default function History() {
   const { data, isLoading } = useMyHistory();
   const [tab, setTab] = useState('cotisations');
-  if (isLoading) return <Loading />;
+  const reduce = useReducedMotion();
 
   const cotisations = data?.cotisations ?? [];
   const versements = data?.versements ?? [];
+
+  // Écran de vérification (l'utilisateur scanne vite un chiffre) : sobriété volontaire.
+  // SEULE animation autorisée : highlight `primary/8%` qui s'estompe en ~1 s sur une
+  // ligne réellement NOUVELLE (arrivée temps-réel), jamais au simple changement d'onglet.
+  const seen = useRef(null);
+  const [recent, setRecent] = useState(() => new Set());
+  useEffect(() => {
+    if (!data) return undefined;
+    const all = new Set([
+      ...cotisations.map((c) => `c-${c.id}`),
+      ...versements.map((v) => `v-${v.id}`),
+    ]);
+    if (seen.current === null) { seen.current = all; return undefined; }   // 1er chargement : on mémorise sans highlight
+    const fresh = [...all].filter((id) => !seen.current.has(id));
+    seen.current = new Set([...seen.current, ...all]);
+    if (fresh.length === 0) return undefined;
+    setRecent((prev) => new Set([...prev, ...fresh]));
+    const t = setTimeout(() => {
+      setRecent((prev) => { const n = new Set(prev); fresh.forEach((x) => n.delete(x)); return n; });
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isLoading) return <Loading />;
+
   const items = tab === 'cotisations' ? cotisations : versements;
 
   return (
@@ -35,8 +61,16 @@ export default function History() {
         <div className="space-y-2">
           {items.map((it) => {
             const versement = tab === 'versements';
+            const key = `${versement ? 'v' : 'c'}-${it.id}`;
+            const isNew = recent.has(key) && !reduce;
             return (
-              <div key={it.id} className="card flex items-center gap-3 p-3">
+              <motion.div
+                key={it.id}
+                className="card flex items-center gap-3 p-3"
+                initial={isNew ? { backgroundColor: 'rgba(43,110,100,0.08)' } : false}
+                animate={isNew ? { backgroundColor: 'rgba(255,255,255,1)' } : {}}
+                transition={{ duration: 1, ease: 'easeOut' }}
+              >
                 <div className={`grid h-10 w-10 place-items-center rounded-full ${versement ? 'bg-success-soft text-success' : 'bg-surface-alt text-ink-soft'}`}>
                   {versement ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
                 </div>
@@ -50,7 +84,7 @@ export default function History() {
                     ? <span className={`pill ${it.statut === 'verse' ? 'bg-success-soft text-success' : 'bg-gold-soft text-gold'}`}>{it.statut === 'verse' ? 'Versé' : 'En attente'}</span>
                     : <StatusPill status={it.statut} />}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
