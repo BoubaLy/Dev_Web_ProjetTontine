@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Coins, Star, Plus, Minus } from 'lucide-react';
 import RotationRing from '../components/RotationRing';
 import OpalAurora from '../components/OpalAurora';
-import HowItWorksStory from '../components/HowItWorksStory';
+/* Section sous la ligne de flottaison qui embarque GSAP : chargée après le
+   premier rendu du hero pour sortir GSAP du chemin critique (Lighthouse mobile). */
+const HowItWorksStory = lazy(() => import('../components/HowItWorksStory'));
 import { Avatar } from '../components/ui';
 import { Magnetic } from '../components/motion';
 import { duration, easing } from '../motion/tokens';
@@ -111,7 +113,9 @@ export default function Landing() {
       </div>{/* fin du fond Opal Aurora */}
 
       {/* ③ COMMENT ÇA MARCHE — scroll storytelling GSAP (seul scroll-jacking) */}
-      <HowItWorksStory />
+      <Suspense fallback={<div className="min-h-[40vh]" />}>
+        <HowItWorksStory />
+      </Suspense>
 
       {/* ④ CONFIANCE — unique section sombre */}
       <section className="bg-bg-deep text-ink-inverse">

@@ -1,29 +1,33 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { Loading } from './components/ui';
 import Layout from './components/Layout';
 
-import Landing from './pages/Landing';
-import AuroraDemo from './pages/AuroraDemo';
-import CelebrationDemo from './pages/CelebrationDemo';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import Otp from './pages/auth/Otp';
+/* Code-splitting par route : la landing (qui embarque GSAP + le scroll storytelling)
+   et le cluster app authentifié partent dans des chunks séparés — le bundle initial
+   ne paie que ce qu'il affiche. Clé du budget Lighthouse mobile (≥85). */
+const Landing = lazy(() => import('./pages/Landing'));
+const AuroraDemo = lazy(() => import('./pages/AuroraDemo'));
+const CelebrationDemo = lazy(() => import('./pages/CelebrationDemo'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const Otp = lazy(() => import('./pages/auth/Otp'));
 
-import Dashboard from './pages/Dashboard';
-import Groups from './pages/Groups';
-import GroupDetail from './pages/GroupDetail';
-import CreateGroup from './pages/CreateGroup';
-import JoinGroup from './pages/JoinGroup';
-import Notifications from './pages/Notifications';
-import History from './pages/History';
-import Profile from './pages/Profile';
-import Kyc from './pages/Kyc';
-import Disputes from './pages/Disputes';
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Groups = lazy(() => import('./pages/Groups'));
+const GroupDetail = lazy(() => import('./pages/GroupDetail'));
+const CreateGroup = lazy(() => import('./pages/CreateGroup'));
+const JoinGroup = lazy(() => import('./pages/JoinGroup'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const History = lazy(() => import('./pages/History'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Kyc = lazy(() => import('./pages/Kyc'));
+const Disputes = lazy(() => import('./pages/Disputes'));
 
-import AdminKyc from './pages/admin/AdminKyc';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminDisputes from './pages/admin/AdminDisputes';
+const AdminKyc = lazy(() => import('./pages/admin/AdminKyc'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminDisputes = lazy(() => import('./pages/admin/AdminDisputes'));
 
 function Protected({ children }) {
   const { token, loading } = useAuth();
@@ -41,6 +45,7 @@ export default function App() {
   const { token, loading } = useAuth();
 
   return (
+    <Suspense fallback={<Loading />}>
     <Routes>
       {/* Landing publique */}
       <Route path="/" element={token && !loading ? <Navigate to="/tableau-de-bord" replace /> : <Landing />} />
@@ -71,5 +76,6 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
