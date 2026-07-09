@@ -4,6 +4,7 @@ import { Loading } from './components/ui';
 import Layout from './components/Layout';
 
 import Landing from './pages/Landing';
+import AuroraDemo from './pages/AuroraDemo';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Otp from './pages/auth/Otp';
@@ -45,6 +46,7 @@ export default function App() {
       <Route path="/login" element={token && !loading ? <Navigate to="/tableau-de-bord" replace /> : <Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/otp" element={<Otp />} />
+      <Route path="/aurora" element={<AuroraDemo />} />{/* démo motion (validation) */}
 
       {/* Protégé */}
       <Route element={<Protected><Layout /></Protected>}>

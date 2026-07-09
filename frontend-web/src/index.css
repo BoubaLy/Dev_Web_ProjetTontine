@@ -33,3 +33,31 @@
   .label { @apply block text-xs font-medium text-ink-soft mb-1; }
   .pill { @apply inline-flex items-center gap-1 rounded-pill px-3 py-1 text-xs font-medium; }
 }
+
+/* ===== Arrière-plan « Opal Aurora » ===== */
+/* Durées ~ token duration.ambient (12s) avec variations ; easing = token gentle. */
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  will-change: transform;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-iteration-count: infinite;
+}
+.aurora-a { width: 42vw; height: 42vw; left: -10vw; top: -8vw; opacity: 0.16;
+  background: radial-gradient(circle at 50% 50%, #2B6E64 0%, transparent 70%); animation-name: drift-a; animation-duration: 14s; }
+.aurora-b { width: 36vw; height: 36vw; right: -8vw; top: 6vw; opacity: 0.14;
+  background: radial-gradient(circle at 50% 50%, #8DA9C4 0%, transparent 70%); animation-name: drift-b; animation-duration: 20s; }
+.aurora-c { width: 30vw; height: 30vw; left: 20vw; bottom: -12vw; opacity: 0.12;
+  background: radial-gradient(circle at 50% 50%, #C6974F 0%, transparent 70%); animation-name: drift-c; animation-duration: 24s; }
+.aurora-d { width: 28vw; height: 28vw; right: 18vw; bottom: 2vw; opacity: 0.10;
+  background: radial-gradient(circle at 50% 50%, #2B6E64 0%, transparent 70%); animation-name: drift-d; animation-duration: 17s; }
+
+@keyframes drift-a { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(6vw, 5vw) scale(1.14); } }
+@keyframes drift-b { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-7vw, 4vw) scale(0.9); } }
+@keyframes drift-c { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(5vw, -6vw) scale(1.18); } }
+@keyframes drift-d { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-5vw, -4vw) scale(1.08); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob { animation: none !important; }
+}
