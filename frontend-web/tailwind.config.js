@@ -17,10 +17,10 @@ export default {
         line: '#DEE7E4',
       },
       fontFamily: {
+        // App = Inter (sans/mono). Vitrine = Plus Jakarta Sans pour les titres (font-display).
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Manrope', 'Inter', 'sans-serif'],
-        fraunces: ['Fraunces', 'Georgia', 'serif'],
-        mono: ['"IBM Plex Mono"', '"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        mono: ['Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: { card: '12px', pill: '999px', sheet: '20px' },
       boxShadow: {

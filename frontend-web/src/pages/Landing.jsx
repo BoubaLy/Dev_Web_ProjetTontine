@@ -100,8 +100,8 @@ export default function Landing() {
       <header className="sticky top-0 z-40 border-b border-line/60 bg-bg/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-card bg-shimmer text-white"><Coins size={16} /></span>
-            <span className="font-fraunces text-lg font-semibold">TontineSecure</span>
+            <span className="grid h-8 w-8 place-items-center rounded-card bg-hero text-white"><Coins size={16} /></span>
+            <span className="font-display text-lg font-semibold">TontineSecure</span>
           </div>
           <nav className="flex items-center gap-2">
             <Link to="/login" className="btn-ghost px-4 py-2 text-sm">Se connecter</Link>
@@ -114,7 +114,7 @@ export default function Landing() {
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 md:grid-cols-[1.05fr_0.95fr] md:py-24">
         <div className="max-w-xl">
           <motion.span {...stagger(0)} className="inline-flex items-center gap-2 rounded-pill bg-primary-soft px-3 py-1 text-xs font-medium text-primary">Épargne rotative · Natt · Mbotaay</motion.span>
-          <motion.h1 {...stagger(1)} className="mt-5 font-fraunces text-[clamp(2.75rem,6vw,5.25rem)] font-medium leading-[1.05] tracking-tight">
+          <motion.h1 {...stagger(1)} className="mt-5 font-display text-[clamp(2.75rem,6vw,5.25rem)] font-medium leading-[1.05] tracking-tight">
             Votre tontine mérite mieux qu'un <em className="italic text-primary">carnet</em>.
           </motion.h1>
           <motion.p {...stagger(2)} className="mt-6 text-lg leading-relaxed text-ink-soft">
@@ -136,7 +136,7 @@ export default function Landing() {
       <section className="mx-auto max-w-3xl px-5 py-16 text-center md:py-24">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-wide text-primary">Le vrai problème</p>
-          <p className="mt-4 font-fraunces text-[clamp(1.6rem,3.4vw,2.6rem)] font-medium leading-snug">
+          <p className="mt-4 font-display text-[clamp(1.6rem,3.4vw,2.6rem)] font-medium leading-snug">
             Une tontine repose sur la <em className="italic text-primary">confiance</em>. Mais un carnet s'égare, une somme est contestée, et personne ne peut prouver qui a payé.
           </p>
           <p className="mt-5 text-ink-soft">TontineSecure garde la mémoire de chaque cotisation et de chaque versement — pour que la confiance ne repose plus sur la mémoire de quelqu'un.</p>
@@ -146,7 +146,7 @@ export default function Landing() {
       {/* ③ COMMENT ÇA MARCHE */}
       <section ref={howRef} className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <Reveal className="mb-12 text-center">
-          <h2 className="font-fraunces text-[clamp(1.8rem,4vw,3rem)] font-medium">Comment ça marche</h2>
+          <h2 className="font-display text-[clamp(1.8rem,4vw,3rem)] font-medium">Comment ça marche</h2>
           <p className="mt-3 text-ink-soft">Trois étapes, et la rotation tourne toute seule.</p>
         </Reveal>
         <div className="grid items-start gap-10 md:grid-cols-[1fr_auto]">
@@ -177,7 +177,7 @@ export default function Landing() {
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             <Reveal>
               <p className="text-sm font-medium uppercase tracking-wide text-gold">La validation croisée</p>
-              <h2 className="mt-4 font-fraunces text-[clamp(1.9rem,4vw,3.2rem)] font-medium leading-tight">Deux personnes se font confiance <em className="italic text-gold">et se contrôlent</em>.</h2>
+              <h2 className="mt-4 font-display text-[clamp(1.9rem,4vw,3.2rem)] font-medium leading-tight">Deux personnes se font confiance <em className="italic text-gold">et se contrôlent</em>.</h2>
               <p className="mt-5 text-ink-inverse/70">C'est l'esprit même de la tontine : celui qui paie déclare son versement, celui qui reçoit le confirme. Aucun paiement n'est validé unilatéralement. La technologie ne remplace pas la confiance — elle la protège.</p>
               <Link to="/register" className="mt-8 inline-flex items-center gap-2 rounded-pill bg-gold px-6 py-3 font-semibold text-bg-deep hover:opacity-90">Commencer <ArrowRight size={18} /></Link>
             </Reveal>
@@ -200,7 +200,7 @@ export default function Landing() {
         <div className="grid gap-10 md:grid-cols-2 md:items-center">
           <Reveal>
             <p className="text-sm font-medium uppercase tracking-wide text-primary">Score de fiabilité</p>
-            <h2 className="mt-4 font-fraunces text-[clamp(1.8rem,4vw,3rem)] font-medium">Cotisez à temps, gagnez la <em className="italic text-primary">confiance</em>.</h2>
+            <h2 className="mt-4 font-display text-[clamp(1.8rem,4vw,3rem)] font-medium">Cotisez à temps, gagnez la <em className="italic text-primary">confiance</em>.</h2>
             <p className="mt-5 text-ink-soft">Chaque cotisation validée à temps fait grimper votre score. Ce n'est pas une punition — c'est une réputation qui vous ouvre les portes des meilleurs groupes.</p>
           </Reveal>
           <Reveal delay={0.1}>
@@ -223,7 +223,7 @@ export default function Landing() {
 
       {/* ⑥ TÉMOIGNAGES */}
       <section className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-        <Reveal className="mb-12 text-center"><h2 className="font-fraunces text-[clamp(1.8rem,4vw,3rem)] font-medium">Ils ont digitalisé leur tontine</h2></Reveal>
+        <Reveal className="mb-12 text-center"><h2 className="font-display text-[clamp(1.8rem,4vw,3rem)] font-medium">Ils ont digitalisé leur tontine</h2></Reveal>
         <div className="grid gap-6 md:grid-cols-3">
           {TEMOIGNAGES.map((t, i) => (
             <Reveal key={t.name} delay={i * 0.08}>
@@ -241,7 +241,7 @@ export default function Landing() {
 
       {/* ⑦ FAQ */}
       <section className="mx-auto max-w-3xl px-5 py-16 md:py-24">
-        <Reveal className="mb-10 text-center"><h2 className="font-fraunces text-[clamp(1.8rem,4vw,3rem)] font-medium">Questions fréquentes</h2></Reveal>
+        <Reveal className="mb-10 text-center"><h2 className="font-display text-[clamp(1.8rem,4vw,3rem)] font-medium">Questions fréquentes</h2></Reveal>
         <div className="divide-y divide-line rounded-sheet border border-line bg-surface">
           {FAQ.map(([q, a], i) => <FaqItem key={i} q={q} a={a} />)}
         </div>
@@ -249,10 +249,10 @@ export default function Landing() {
 
       {/* ⑧ CTA FINAL */}
       <section className="mx-auto max-w-6xl px-5 pb-24">
-        <div className="overflow-hidden rounded-sheet bg-shimmer p-8 text-white shadow-lift md:p-12">
+        <div className="overflow-hidden rounded-sheet bg-hero p-8 text-white shadow-lift md:p-12">
           <div className="grid items-center gap-10 md:grid-cols-[1fr_auto]">
             <div>
-              <h2 className="font-fraunces text-[clamp(1.9rem,4vw,3rem)] font-medium leading-tight">Prêt à faire tourner votre tontine ?</h2>
+              <h2 className="font-display text-[clamp(1.9rem,4vw,3rem)] font-medium leading-tight">Prêt à faire tourner votre tontine ?</h2>
               <p className="mt-3 max-w-md text-white/85">Créez votre compte en une minute. Gratuit, transparent, entre vous.</p>
               <form onSubmit={(e) => { e.preventDefault(); navigate('/register'); }} className="mt-6 flex flex-wrap gap-3">
                 <input className="min-w-[9rem] flex-1 rounded-pill border-0 px-4 py-3 text-ink outline-none" placeholder="Votre prénom" />
@@ -268,7 +268,7 @@ export default function Landing() {
       {/* ⑨ FOOTER */}
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-ink-soft sm:flex-row">
-          <div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-card bg-shimmer text-white"><Coins size={14} /></span><span className="font-fraunces font-semibold text-ink">TontineSecure</span></div>
+          <div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-card bg-hero text-white"><Coins size={14} /></span><span className="font-display font-semibold text-ink">TontineSecure</span></div>
           <p className="text-center text-xs text-ink-faint">Natt · Mbotaay, digitalisées sans perdre l'esprit — projet académique DIC1, Développement Web.</p>
           <div className="flex gap-4 text-xs"><a className="hover:text-primary" href="#">Confidentialité</a><a className="hover:text-primary" href="#">Conditions</a></div>
         </div>
