@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { useNotifications, useConfirmContribution, useDisputeContribution, useMarkRead } from '../lib/queries';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
+import Celebration from '../components/Celebration';
 
 const META = {
   contribution_declaree: { Icon: Coins, cls: 'bg-gold-soft text-gold' },
@@ -28,6 +29,7 @@ export default function Notifications() {
   const [confirmTarget, setConfirmTarget] = useState(null);
   const [disputeTarget, setDisputeTarget] = useState(null);
   const [motif, setMotif] = useState('');
+  const [celebrate, setCelebrate] = useState(false);
 
   if (isLoading) return <Loading />;
   const notifs = data?.notifications ?? [];
@@ -35,7 +37,7 @@ export default function Notifications() {
 
   const doConfirm = async () => {
     const t = confirmTarget; setConfirmTarget(null);
-    try { await confirm.mutateAsync(t.contributionId); await markRead.mutateAsync(t.notifId); setToast('Réception confirmée ✅ La cotisation est validée.'); }
+    try { await confirm.mutateAsync(t.contributionId); await markRead.mutateAsync(t.notifId); setCelebrate(true); }
     catch (e) { setToast(e.response?.data?.message ?? 'Action impossible.'); }
   };
   const doDispute = async () => {
@@ -118,6 +120,7 @@ export default function Notifications() {
       </Modal>
 
       <Toast message={toast} onDone={() => setToast(null)} />
+      <Celebration open={celebrate} variant="cotisation" onDone={() => setCelebrate(false)} />
     </div>
   );
 }

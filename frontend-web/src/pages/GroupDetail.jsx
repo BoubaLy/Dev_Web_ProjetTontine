@@ -10,6 +10,7 @@ import {
   useStartCycle, useValidateMember, useCloseCycle, formatFCFA,
 } from '../lib/queries';
 import { Loading, EmptyState, StatusPill, Avatar, ProgressBar, Modal, Field, Toast, Spinner } from '../components/ui';
+import Celebration from '../components/Celebration';
 import { CONTRIB_STATUS, GROUP_STATUS, scoreBadge } from '../lib/status';
 import RotationRing from '../components/RotationRing';
 
@@ -31,6 +32,7 @@ export default function GroupDetail() {
   const [toast, setToast] = useState(null);
   const [code, setCode] = useState(null);
   const [declareOpen, setDeclareOpen] = useState(false);
+  const [cycleClosed, setCycleClosed] = useState(false);
 
   if (isLoading || !group) return <Loading />;
 
@@ -94,7 +96,7 @@ export default function GroupDetail() {
 
       {/* Tableau de bord admin */}
       {isAdmin && group.statut === 'en_cours' && cycle && (
-        <AdminDashboard cycleId={cycle.id} groupId={id} onToast={setToast} />
+        <AdminDashboard cycleId={cycle.id} groupId={id} onToast={setToast} onCelebrate={() => setCycleClosed(true)} />
       )}
 
       {/* Actions admin — groupe ouvert */}
@@ -168,6 +170,7 @@ export default function GroupDetail() {
         <DeclareModal cycle={cycle} groupId={id} onClose={() => setDeclareOpen(false)} onDone={(msg) => { setDeclareOpen(false); setToast(msg); }} />
       )}
       <Toast message={toast} onDone={() => setToast(null)} />
+      <Celebration open={cycleClosed} variant="cycle" onDone={() => setCycleClosed(false)} />
     </div>
   );
 }
@@ -233,13 +236,13 @@ function CycleCard({ cycle, members = [], benefIdx = 0, onDeclare }) {
   );
 }
 
-function AdminDashboard({ cycleId, groupId, onToast }) {
+function AdminDashboard({ cycleId, groupId, onToast, onCelebrate }) {
   const { data, isLoading } = useDashboard(cycleId);
   const closeCycle = useCloseCycle(groupId);
   if (isLoading || !data) return <div className="card p-5"><Spinner /></div>;
 
   const onClose = async () => {
-    try { await closeCycle.mutateAsync(cycleId); onToast('Cycle clôturé. Versement au bénéficiaire en cours.'); }
+    try { await closeCycle.mutateAsync(cycleId); onCelebrate?.(); }
     catch (e) { onToast(e.response?.data?.message ?? 'Clôture impossible.'); }
   };
 
