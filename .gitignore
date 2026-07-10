@@ -37,3 +37,13 @@ backend/bootstrap/cache/*.php
 # backups locaux (jamais de secrets versionnés)
 *.bak
 backend/.env.dev.bak
+
+# --- App mobile (conservée en local, non versionnée) ---
+frontend/
+
+# --- Documentation interne (gardée en local, hors repo) ---
+# Seuls README.md et GUIDE_UTILISATION.md restent versionnés.
+docs/
+/GUIDE.md
+/DEPLOYMENT.md
+frontend-web/PROGRESS-app-vivante.md
