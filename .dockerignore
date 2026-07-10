@@ -1,0 +1,33 @@
+# Contexte de build a la racine (image Railway combinee).
+# On exclut tout ce qui est local/genere/secret pour ne pas polluer l'image.
+
+.git
+.gitignore
+
+# --- Backend (Laravel) ---
+backend/.env
+backend/.env.*
+backend/vendor
+backend/node_modules
+backend/bootstrap/cache/*.php
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/.phpunit.result.cache
+backend/tests
+backend/Dockerfile
+backend/Dockerfile.railway
+
+# --- Frontend web (React + Vite) ---
+frontend-web/node_modules
+frontend-web/dist
+frontend-web/.env
+frontend-web/.env.*.local
+frontend-web/Dockerfile
+frontend-web/Dockerfile.railway
+
+# --- Non necessaire a l'image ---
+frontend/
+docs/
+**/.DS_Store
