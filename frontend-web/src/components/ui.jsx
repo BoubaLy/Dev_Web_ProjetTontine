@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, isValidElement } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Inbox } from 'lucide-react';
 import { CONTRIB_STATUS } from '../lib/status';
 import { duration, easing, variants } from '../motion/tokens';
 
@@ -27,7 +27,7 @@ export function StatusPill({ status }) {
   return <span key={status} className={`pill badge-pop ${s.cls}`}>{s.label}</span>;
 }
 
-export function EmptyState({ icon = '📭', title, message, action }) {
+export function EmptyState({ icon, title, message, action }) {
   return (
     <motion.div
       className="flex flex-col items-center justify-center gap-2 py-14 text-center"
@@ -35,7 +35,9 @@ export function EmptyState({ icon = '📭', title, message, action }) {
       initial="hidden"
       animate="show"
     >
-      <div className="mb-1 grid h-16 w-16 place-items-center rounded-full bg-primary-soft text-2xl">{icon}</div>
+      <div className="mb-1 grid h-16 w-16 place-items-center rounded-full bg-primary-soft text-primary">
+        {isValidElement(icon) ? icon : <Inbox size={26} strokeWidth={1.8} />}
+      </div>
       <h3 className="text-lg font-semibold text-ink">{title}</h3>
       {message && <p className="max-w-sm text-sm text-ink-soft">{message}</p>}
       {action && <div className="mt-3">{action}</div>}
@@ -44,7 +46,7 @@ export function EmptyState({ icon = '📭', title, message, action }) {
 }
 
 export function Field({ label, error, hint, children }) {
-  // Élément <label> englobant → association implicite avec le contrôle de formulaire
+  // Élément <label> englobant -> association implicite avec le contrôle de formulaire
   // qu'il contient (accessibilité : inputs correctement étiquetés, AA).
   return (
     <label className="mb-4 block">

@@ -4,14 +4,14 @@ import { AnimatedNumber } from './motion';
 
 /**
  * JAUGE DE SCORE DE FIABILITÉ (brief §3.5).
- * Anneau qui se remplit, teinte interpolée `opal-accent` → `opal-gold` selon le
+ * Anneau qui se remplit, teinte interpolée `opal-accent`-> `opal-gold`selon le
  * niveau. JAMAIS de rouge, même pour un score bas : on n'humilie pas l'utilisateur
  * (le rouge reste réservé aux erreurs système). Le chiffre monte en count-up
  * synchronisé avec l'arc. reduced-motion : arc plein figé + chiffre direct
  * (géré par AnimatedNumber).
  */
 
-// Interpolation accent(#8DA9C4) → teal(#2B6E64) → gold(#C6974F) selon le score.
+// Interpolation accent(#8DA9C4) -> teal(#2B6E64) -> gold(#C6974F) selon le score.
 function scoreColor(score) {
   const s = Math.max(0, Math.min(100, score)) / 100;
   const stops = [

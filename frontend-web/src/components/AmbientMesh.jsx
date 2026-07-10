@@ -9,7 +9,7 @@ import { useReducedMotion } from 'framer-motion';
  *
  * Jamais concurrent du texte : opacité basse (≈ 5-10 % effectif), teinte unique,
  * transform/opacity uniquement. Couche `absolute inset-0 -z-10` (parent en
- * `relative isolate`), `pointer-events-none`, `overflow-hidden` interne → 0 scroll
+ * `relative isolate`), `pointer-events-none`, `overflow-hidden`interne -> 0 scroll
  * horizontal. Animation coupée hors-écran (IntersectionObserver) et gelée si
  * `prefers-reduced-motion`.
  *
@@ -18,7 +18,7 @@ import { useReducedMotion } from 'framer-motion';
  */
 
 const VARIANTS = {
-  // App connectée : trame de points STATIQUE, sans vagues → pro & épuré, zéro mouvement.
+  // App connectée : trame de points STATIQUE, sans vagues -> pro & épuré, zéro mouvement.
   light: { tint: '#2B6E64', opacity: 0.4, waves: 0, dot: 28, still: true },
   soft: { tint: '#2B6E64', opacity: 0.3, waves: 0, dot: 30, still: true },
   // Landing / auth : motif complet vivant (points qui respirent + vagues).
@@ -32,7 +32,7 @@ const WAVES = [
   { top: 70, periods: 2, amp: 30, cls: 'pattern-wave-3' },
 ];
 
-// Onde sinusoïdale sur 2000 unités = 2 copies identiques (période entière) → boucle
+// Onde sinusoïdale sur 2000 unités = 2 copies identiques (période entière) -> boucle
 // sans couture avec translateX(-50%).
 function sine(amp, periods) {
   const W = 2000;

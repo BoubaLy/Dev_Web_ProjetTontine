@@ -5,7 +5,7 @@ import { duration, easing } from '../motion/tokens';
 /**
  * MOMENT SIGNATURE ④ — transitions de page.
  *
- * Chaque route entre avec un fondu + légère montée (y: 16 → 0) câblé sur les
+ * Chaque route entre avec un fondu + légère montée (y: 16 -> 0) câblé sur les
  * tokens de durée/easing. Animation d'entrée seule (robuste avec <Outlet>).
  * La sortie est omise intentionnellement (évite les artefacts de layout
  * quand on navigue vers une page de taille différente).

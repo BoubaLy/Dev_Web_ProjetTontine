@@ -33,7 +33,7 @@ export default function AdminDisputes() {
     <div className="relative isolate space-y-6">
       <h1 className="text-2xl font-semibold text-ink">Litiges — arbitrage</h1>
       {list.length === 0 ? (
-        <div className="card"><EmptyState icon="⚖️" title="Aucun litige" message="Les signalements à arbitrer apparaîtront ici." /></div>
+        <div className="card"><EmptyState icon=""title="Aucun litige"message="Les signalements à arbitrer apparaîtront ici."/></div>
       ) : (
         <Stagger className="space-y-3">
           {list.map((d) => {

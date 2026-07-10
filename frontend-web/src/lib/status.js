@@ -1,4 +1,4 @@
-// Statuts de cotisation → libellé + classes Tailwind (couleur = sens, jamais déco).
+// Statuts de cotisation -> libellé + classes Tailwind (couleur = sens, jamais déco).
 export const CONTRIB_STATUS = {
   a_payer: { label: 'À payer', cls: 'bg-gold-soft text-gold' },
   en_attente: { label: 'À payer', cls: 'bg-gold-soft text-gold' },

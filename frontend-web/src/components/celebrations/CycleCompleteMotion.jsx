@@ -20,7 +20,7 @@ export default function CycleCompleteMotion({
   open,
   total,
   format = (v) => `${Math.round(v).toLocaleString('fr-FR')} FCFA`,
-  title = 'Cycle clôturé 🎉',
+  title = 'Cycle clôturé ',
   subtitle = 'Versement au bénéficiaire en cours. La rotation avance sereinement.',
   onDone,
   holdMs = 3800,

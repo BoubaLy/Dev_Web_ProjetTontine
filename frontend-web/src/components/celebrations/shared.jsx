@@ -10,7 +10,7 @@ import { duration, easing } from '../../motion/tokens';
  * rend les 3 moments mémorables.
  *
  * Contraintes transverses : transform/opacity/filter uniquement ; auto-dismiss ;
- * si prefers-reduced-motion → version sobre (pas de particules/onde/vibreur).
+ * si prefers-reduced-motion -> version sobre (pas de particules/onde/vibreur).
  */
 
 // Palette imposée — jamais de multicolore criard (teal, lavande, or, vert).

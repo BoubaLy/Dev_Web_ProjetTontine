@@ -49,7 +49,7 @@ export default function Otp() {
                 initial={reduce ? { pathLength: 1 } : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, ease: easing.standard, delay: 0.1 }} />
             </svg>
           </motion.div>
-          <h1 className="text-xl font-semibold text-ink">Compte vérifié 🎉</h1>
+          <h1 className="text-xl font-semibold text-ink">Compte vérifié </h1>
           <p className="text-sm text-ink-soft">Redirection vers la connexion…</p>
         </div>
       </AuthLayout>

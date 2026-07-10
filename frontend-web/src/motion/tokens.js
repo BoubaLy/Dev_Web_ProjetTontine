@@ -5,8 +5,8 @@
  * par cohérence, par les keyframes CSS de l'arrière-plan ambiant.
  *
  * Hiérarchie :
- *   "moment signature" → durées slow/ambient, easing bounce/gentle
- *   "micro-interaction" → durées instant/fast, easing standard
+ * "moment signature"-> durées slow/ambient, easing bounce/gentle
+ * "micro-interaction"-> durées instant/fast, easing standard
  */
 
 export const duration = {
@@ -38,17 +38,17 @@ export const amplitude = {
  * Usage : `<motion.div variants={variants.fadeUp} initial="hidden" whileInView="show" />`
  */
 export const variants = {
-  /* Apparition bas → haut (scroll reveal standard) */
+  /* Apparition bas -> haut (scroll reveal standard) */
   fadeUp: {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: duration.base, ease: easing.standard } },
   },
-  /* Apparition droite → gauche */
+  /* Apparition droite -> gauche */
   fadeLeft: {
     hidden: { opacity: 0, x: 24 },
     show: { opacity: 1, x: 0, transition: { duration: duration.base, ease: easing.standard } },
   },
-  /* Scale de 0.92 → 1 (cards, modales) */
+  /* Scale de 0.92 -> 1 (cards, modales) */
   scaleIn: {
     hidden: { opacity: 0, scale: 0.92 },
     show: { opacity: 1, scale: 1, transition: { duration: duration.base, ease: easing.standard } },

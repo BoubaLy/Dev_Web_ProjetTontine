@@ -53,7 +53,7 @@ export default function Kyc() {
       <section>
         <h2 className="mb-3 text-lg font-semibold text-ink">Mes pièces</h2>
         {isLoading ? <Loading /> : (docs ?? []).length === 0 ? (
-          <div className="card"><EmptyState icon="🗂️" title="Aucune pièce déposée" message="Ajoutez une pièce ci-dessus pour lancer la vérification." /></div>
+          <div className="card"><EmptyState icon=""title="Aucune pièce déposée"message="Ajoutez une pièce ci-dessus pour lancer la vérification."/></div>
         ) : (
           <div className="space-y-2">
             {docs.map((d) => {

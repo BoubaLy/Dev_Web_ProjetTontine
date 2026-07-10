@@ -20,7 +20,7 @@ class ReliabilityScoreService
 
     /**
      * Badge de fiabilité associé à un score (US-17) :
-     * 🟢 Fiable ≥ 90, 🟡 Correct 70-89, 🔴 À risque < 70.
+     * Fiable ≥ 90, Correct 70-89, À risque < 70.
      *
      * @return array{niveau: string, label: string, couleur: string}
      */

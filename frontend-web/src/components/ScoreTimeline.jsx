@@ -8,7 +8,7 @@ import { formatFCFA } from '../lib/queries';
  * construisent le score. Chaque point = une cotisation ; sa couleur porte le sens
  * (validé = success, en retard/litige = danger, à payer = gold). JAMAIS de rouge
  * d'ambiance : le danger n'apparaît que sur un point réellement problématique.
- * Hover / focus clavier → tooltip glassmorphism avec le détail du cycle concerné.
+ * Hover / focus clavier -> tooltip glassmorphism avec le détail du cycle concerné.
  *
  * Alimentée par les données réelles (`useMyHistory`) — pas de score/point inventé.
  */

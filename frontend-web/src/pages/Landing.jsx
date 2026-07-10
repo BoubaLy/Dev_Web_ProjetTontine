@@ -269,7 +269,7 @@ export default function Landing() {
               Épargne rotative · Natt · Mbotaay
             </motion.span>
 
-            {/* Titre cinétique — chaque mot apparaît avec blur → net */}
+            {/* Titre cinétique — chaque mot apparaît avec blur -> net */}
             <h1 className="mt-5 font-display text-[clamp(2.75rem,6vw,5.25rem)] font-medium leading-[1.05] tracking-tight hero-glow">
               {TITLE_WORDS.map((w, i) => (
                 <motion.span key={i} {...wordAnim(i)} className="mr-[0.28em] inline-block">
@@ -446,7 +446,7 @@ export default function Landing() {
                 <span className="flex items-center gap-2 font-semibold">
                   <Star size={18} className="text-gold" fill="#C6974F" /> Votre score
                 </span>
-                <span className="pill bg-success/10 text-success">🟢 Fiable</span>
+                <span className="pill bg-success/10 text-success"><span className="h-2 w-2 rounded-full bg-success" /> Fiable</span>
               </div>
               <p className="my-3 font-mono text-4xl font-semibold">96 %</p>
 
@@ -462,9 +462,9 @@ export default function Landing() {
               </div>
 
               <div className="mt-5 grid grid-cols-3 gap-3 text-center text-xs">
-                {[['🟢', 'Fiable', '≥ 90%'], ['🟡', 'Correct', '70-89%'], ['🔴', 'À risque', '< 70%']].map(([e, l, r]) => (
+                {[['bg-success', 'Fiable', '>= 90%'], ['bg-gold', 'Correct', '70-89%'], ['bg-danger', 'A risque', '< 70%']].map(([dot, l, r]) => (
                   <div key={l} className="rounded-card bg-surface-alt py-3">
-                    <div>{e}</div>
+                    <div className="flex justify-center"><span className={`h-2.5 w-2.5 rounded-full ${dot}`} /></div>
                     <div className="mt-1 font-medium text-ink">{l}</div>
                     <div className="font-mono text-ink-faint">{r}</div>
                   </div>

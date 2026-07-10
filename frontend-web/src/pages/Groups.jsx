@@ -24,7 +24,7 @@ export default function Groups() {
 
       {list.length === 0 ? (
         <div className="card">
-          <EmptyState icon="👥" title="Aucune tontine pour l'instant"
+          <EmptyState icon=""title="Aucune tontine pour l'instant"
             message="Créez votre premier groupe ou rejoignez-en un avec un code d'invitation partagé par un administrateur."
             action={<Link to="/groupes/nouveau" className="btn-primary">Créer une tontine</Link>} />
         </div>

@@ -201,7 +201,7 @@ export default function Layout() {
                 </button>
               </div>
 
-              {/* Clic sur un item → navigation + fermeture (le clic remonte au conteneur). */}
+              {/* Clic sur un item -> navigation + fermeture (le clic remonte au conteneur). */}
               <nav className="flex flex-1 flex-col gap-1 overflow-y-auto" onClick={() => setMenuOpen(false)}>
                 <Item to="/tableau-de-bord" icon={Home} label="Accueil" layoutId="nav-active-mobile" />
                 <Item to="/groupes" icon={Users} label="Mes tontines" layoutId="nav-active-mobile" />
@@ -228,7 +228,7 @@ export default function Layout() {
 
       {/* ===== CONTENU ===== */}
       {/* Fond ambiant UNIQUE, plein-largeur (couvre toute la zone de contenu, pas
-          seulement la colonne centrée → plus d'espace vide à gauche/droite). */}
+          seulement la colonne centrée -> plus d'espace vide à gauche/droite). */}
       <main className="relative isolate min-h-screen md:pl-64">
         <AmbientMesh variant="light" />
         <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">

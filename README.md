@@ -7,7 +7,7 @@ avec paiement **P2P déclaratif et validation croisée** (Wave / Orange Money).
 
 Projet académique — DIC1, Développement Web.
 
-> 📖 **Comment utiliser l'application : voir [`GUIDE_UTILISATION.md`](GUIDE_UTILISATION.md).**
+> **Comment utiliser l'application : voir [`GUIDE_UTILISATION.md`](GUIDE_UTILISATION.md).**
 
 ---
 

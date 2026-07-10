@@ -8,7 +8,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Split vendor : React + framer-motion + data sortent du chunk d'entrée
-        // monolithique → téléchargements parallèles (HTTP/2) + meilleur cache entre
+        // monolithique -> téléchargements parallèles (HTTP/2) + meilleur cache entre
         // visites. GSAP reste dans HowItWorksStory (déjà lazy, après le hero).
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;

@@ -56,7 +56,7 @@ export default function History() {
       </div>
 
       {items.length === 0 ? (
-        <div className="card"><EmptyState icon="📦" title={tab === 'cotisations' ? 'Aucune cotisation' : 'Aucun versement'} message="Votre historique apparaîtra ici au fil des cycles." /></div>
+        <div className="card"><EmptyState icon=""title={tab === 'cotisations'? 'Aucune cotisation': 'Aucun versement'} message="Votre historique apparaîtra ici au fil des cycles."/></div>
       ) : (
         <div className="space-y-2">
           {items.map((it) => {

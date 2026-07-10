@@ -18,7 +18,7 @@ use RuntimeException;
  * Cœur du système P2P déclaratif avec validation croisée (v2.1).
  *
  * Le payeur déclare sa transaction (référence SMS Mobile Money), puis le
- * bénéficiaire du tour la confirme (→ `valide`) ou la conteste (→ `litige`).
+ * bénéficiaire du tour la confirme (-> `valide`) ou la conteste (-> `litige`).
  */
 class ContributionService
 {

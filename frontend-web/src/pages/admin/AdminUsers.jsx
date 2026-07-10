@@ -6,9 +6,9 @@ import { Stagger, StaggerItem } from '../../components/motion';
 import { scoreBadge } from '../../lib/status';
 
 const KYC = {
-  verifie: { label: 'KYC ✓', cls: 'bg-success-soft text-success' },
-  en_attente: { label: 'KYC ?', cls: 'bg-gold-soft text-gold' },
-  rejete: { label: 'KYC ✗', cls: 'bg-danger-soft text-danger' },
+  verifie: { label: 'KYC verifie', cls: 'bg-success-soft text-success' },
+  en_attente: { label: 'KYC en attente', cls: 'bg-gold-soft text-gold' },
+  rejete: { label: 'KYC rejete', cls: 'bg-danger-soft text-danger' },
 };
 
 export default function AdminUsers() {
@@ -49,7 +49,7 @@ export default function AdminUsers() {
                   ? <button className="btn-secondary w-full py-2 text-sm" onClick={() => toggle(u)}><Sun size={16} /> Dégeler le compte</button>
                   : <button className="btn-danger w-full py-2 text-sm" onClick={() => toggle(u)}><Snowflake size={16} /> Geler le compte</button>
               )}
-              {u.est_gele && <p className="text-xs text-danger">⚠️ Compte gelé — ne peut ni cotiser, ni recevoir, ni se connecter (RG-06).</p>}
+              {u.est_gele && <p className="text-xs text-danger">Compte gelé — ne peut ni cotiser, ni recevoir, ni se connecter (RG-06).</p>}
             </StaggerItem>
           );
         })}

@@ -12,7 +12,7 @@ import AuthShowcase from './AuthShowcase';
  *
  * Correction #3 : UN SEUL fond clair continu (`opal-bg`) sur toute la page + un motif
  * unique plus présent à droite (côté visuel) qui s'estompe en dégradé vers le formulaire.
- * Plus de bloc sombre collé au formulaire → aucune coupure verticale : les deux zones
+ * Plus de bloc sombre collé au formulaire -> aucune coupure verticale : les deux zones
  * font partie du même espace continu.
  *
  * `showcaseStep` : optionnel — pilote l'arc du panneau depuis un wizard (inscription).
@@ -24,7 +24,7 @@ export default function AuthLayout({ children, showcaseStep = null }) {
     <div className="relative isolate flex min-h-screen flex-col overflow-hidden bg-bg lg:flex-row">
       {/* Fond continu : motif sur toute la page… */}
       <AmbientMesh variant="hero" />
-      {/* …estompé en dégradé vers la gauche (formulaire) → « trace atténuée » qui s'invite
+      {/* …estompé en dégradé vers la gauche (formulaire) -> « trace atténuée » qui s'invite
           depuis le panneau visuel, sans ligne de démarcation. Sert aussi de scrim (AA). */}
       <div
         className="pointer-events-none absolute inset-0 -z-10"

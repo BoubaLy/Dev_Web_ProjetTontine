@@ -26,7 +26,7 @@ export default function Login() {
 
   return (
     <AuthLayout>
-      <h1 className="text-2xl font-semibold text-ink">Bon retour 👋</h1>
+      <h1 className="text-2xl font-semibold text-ink">Bon retour </h1>
       <p className="mt-1 text-sm text-ink-soft">Connectez-vous pour retrouver vos tontines.</p>
 
       <form onSubmit={submit} className="mt-6">

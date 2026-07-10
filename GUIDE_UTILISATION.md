@@ -31,14 +31,14 @@ docker compose up -d --build
 3. Un **code de vérification (OTP)** est envoyé **par email**. Saisissez-le pour activer le compte.
 4. Connectez-vous avec votre **téléphone + mot de passe**.
 
-> 🔐 En mode démo, le code OTP peut s'afficher à l'écran ou dans les logs du serveur.
+> En mode démo, le code OTP peut s'afficher à l'écran ou dans les logs du serveur.
 
 ---
 
 ## 3. Vérifier son identité (KYC)
 
 Certaines actions exigent une identité vérifiée.
-1. **Profil → Vérification d'identité (KYC)**.
+1. **Profil -> Vérification d'identité (KYC)**.
 2. Envoyez une photo de votre **CNI** ou **passeport**.
 3. Un **super-administrateur** valide (ou rejette) votre pièce. Une fois validée, vous pouvez
    rejoindre et gérer des tontines.
@@ -48,7 +48,7 @@ Certaines actions exigent une identité vérifiée.
 ## 4. Créer ou rejoindre une tontine
 
 ### Créer une tontine (vous en devenez l'administrateur)
-1. **Mes tontines → Créer** (wizard en 4 étapes).
+1. **Mes tontines -> Créer** (wizard en 4 étapes).
 2. Choisissez :
    - **Type** : *Rotative* (chacun reçoit le pot à son tour — la tontine classique) ou
      *Accumulative* (caisse commune épargnée ensemble).
@@ -59,7 +59,7 @@ Certaines actions exigent une identité vérifiée.
 
 ### Ajouter des membres (administrateur)
 1. Dans le détail du groupe, **générez un code d'invitation** et partagez-le.
-2. Les invités saisissent le code via **Mes tontines → Rejoindre**.
+2. Les invités saisissent le code via **Mes tontines -> Rejoindre**.
 3. Vous **validez** chaque demande d'adhésion.
 
 ### Démarrer le cycle
@@ -79,7 +79,7 @@ est généré et le **premier bénéficiaire** est désigné.
 3. Quand **toutes** les cotisations sont validées, l'administrateur **clôture le cycle** :
    le **pot est versé** au bénéficiaire et le tour suivant démarre automatiquement.
 
-> 💡 Le bénéficiaire du tour ne cotise pas son propre tour. Le tableau de bord montre le
+> Le bénéficiaire du tour ne cotise pas son propre tour. Le tableau de bord montre le
 > **pot attendu** (« À recevoir ») quand c'est votre tour.
 
 ---
@@ -96,7 +96,7 @@ En cas de problème (paiement non reçu, contestation) :
 ## 7. Score de fiabilité
 
 - Chaque membre a un **score** (0–100) qui reflète la ponctualité de ses cotisations.
-- Badge : 🟢 Fiable (≥ 90) · 🟡 Correct (70–89) · 🔴 À risque (< 70).
+- Badge : Fiable (≥ 90) · Correct (70–89) · À risque (< 70).
 - Un bon score inspire confiance aux groupes. Visible sur le **Profil** et le **tableau de bord**.
 
 ---
@@ -115,7 +115,7 @@ En cas de problème (paiement non reçu, contestation) :
 
 - **Rester connecté** : la session dure 7 jours ; au rechargement vous restez sur votre tableau
   de bord (la page d'accueil publique n'apparaît que si vous êtes déconnecté — ou via
-  **Profil → Voir la page d'accueil publique**).
+  **Profil -> Voir la page d'accueil publique**).
 - **Notifications** : cloche en haut (mobile) ou onglet Notifications — les actions à faire
   (confirmer un paiement) y apparaissent en priorité.
 - **Un compte gelé** ne peut ni cotiser, ni recevoir, ni se connecter (le temps d'un litige).

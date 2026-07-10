@@ -9,7 +9,7 @@ use Laravel\Sanctum\Sanctum;
 use Tests\Concerns\BuildsTontine;
 use Tests\TestCase;
 
-/** US-10 — Déclaration d'une cotisation (payeur) → statut `declare_paye`. */
+/** US-10 — Déclaration d'une cotisation (payeur) -> statut `declare_paye`. */
 class ContributionDeclarationTest extends TestCase
 {
     use RefreshDatabase, BuildsTontine;

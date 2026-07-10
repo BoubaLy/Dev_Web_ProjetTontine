@@ -60,11 +60,11 @@ export default function Profile() {
         <h1 className="mt-3 text-xl font-semibold">{user?.prenom} {user?.nom}</h1>
         <p className="font-mono text-sm text-white/70">{user?.telephone}</p>
         <span className="mt-3 inline-block rounded-pill bg-white/20 px-4 py-1 text-sm">
-          {user?.role === 'super_admin' ? '🛡️ Super-administrateur' : 'Membre'}
+          {user?.role === 'super_admin'? 'Super-administrateur': 'Membre'}
         </span>
       </div>
 
-      {/* Score de fiabilité — jauge (accent→gold, jamais rouge) + frise temporelle */}
+      {/* Score de fiabilité — jauge (accent->gold, jamais rouge) + frise temporelle */}
       <div className="card p-5">
         <div className="flex items-center gap-5">
           <ScoreGauge score={score} size={104} label="Fiabilité" />

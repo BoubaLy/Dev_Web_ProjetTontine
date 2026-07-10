@@ -140,7 +140,7 @@ export default function GroupDetail() {
           <Link to="/litiges" className="inline-flex items-center gap-1 text-sm font-medium text-danger"><TriangleAlert size={15} /> Signaler un litige</Link>
         </div>
         {membres.length === 0 ? (
-          <div className="card"><EmptyState icon="👤" title="Aucun membre" message="Invitez des membres avec un code." /></div>
+          <div className="card"><EmptyState icon=""title="Aucun membre"message="Invitez des membres avec un code."/></div>
         ) : (
           <Stagger className="space-y-2">
             {membres.map((m) => {
@@ -218,7 +218,7 @@ function CycleCard({ cycle, members = [], benefIdx = 0, onDeclare }) {
           </div>
           <div>
             <p className="text-xs text-ink-soft">Bénéficiaire du tour n°{cycle.numero_periode}</p>
-            <p className="font-semibold text-ink">{benef ? `${benef.prenom} ${benef.nom}` : '—'}{cycle.est_beneficiaire && ' — c\'est vous 🎉'}</p>
+            <p className="font-semibold text-ink">{benef? `${benef.prenom} ${benef.nom}`: '—'}{cycle.est_beneficiaire && '— c\'est vous '}</p>
             {benef?.telephone && <p className="flex items-center gap-1 text-xs text-ink-faint"><Phone size={12} /> {benef.telephone}</p>}
           </div>
         </div>

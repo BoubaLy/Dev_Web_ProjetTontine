@@ -1,6 +1,6 @@
 # =====================================================================
 # TontineSecure — orchestration de production (self-hosting)
-# caddy (HTTPS auto + web app) → nginx → php-fpm (app) → mysql,
+# caddy (HTTPS auto + web app) -> nginx -> php-fpm (app) -> mysql,
 # avec workers queue & scheduler.
 # Prérequis : backend/.env (copié depuis backend/.env.production.example)
 #             + variables SITE_ADDRESS / DB_* (voir DEPLOYMENT.md).

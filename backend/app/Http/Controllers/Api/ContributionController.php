@@ -25,7 +25,7 @@ class ContributionController extends Controller
     {
     }
 
-    /** US-10 — Déclarer une cotisation (payeur) → statut `declare_paye`. */
+    /** US-10 — Déclarer une cotisation (payeur) -> statut `declare_paye`. */
     public function store(DeclareContributionRequest $request, Cycle $cycle): JsonResponse
     {
         try {
@@ -42,7 +42,7 @@ class ContributionController extends Controller
         return $this->success($contribution, 'Cotisation déclarée. En attente de validation du bénéficiaire.', 201);
     }
 
-    /** US-11.b — Confirmer la réception (bénéficiaire) → statut `valide`. */
+    /** US-11.b — Confirmer la réception (bénéficiaire) -> statut `valide`. */
     public function confirm(Request $request, Contribution $contribution): JsonResponse
     {
         if (! $request->user()->can('valider', $contribution)) {
@@ -58,7 +58,7 @@ class ContributionController extends Controller
         return $this->success($contribution, 'Réception confirmée. Cotisation validée.');
     }
 
-    /** US-11.b — Signaler une anomalie (bénéficiaire) → statut `litige` + litige. */
+    /** US-11.b — Signaler une anomalie (bénéficiaire) -> statut `litige`+ litige. */
     public function dispute(Request $request, Contribution $contribution): JsonResponse
     {
         if (! $request->user()->can('valider', $contribution)) {

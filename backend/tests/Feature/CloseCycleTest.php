@@ -35,7 +35,7 @@ class CloseCycleTest extends TestCase
     {
         ['cycle' => $cycle, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine(3);
 
-        // Seulement 2 des 3 payeurs sont validés → RG-08 non satisfaite.
+        // Seulement 2 des 3 payeurs sont validés -> RG-08 non satisfaite.
         $this->cotisationValide($cycle, $payers->get(0));
         $this->cotisationValide($cycle, $payers->get(1));
 
@@ -79,7 +79,7 @@ class CloseCycleTest extends TestCase
             'statut' => 'en_cours',
         ]);
 
-        // Score de fiabilité recalculé (cotisation validée à temps → 100%).
+        // Score de fiabilité recalculé (cotisation validée à temps -> 100%).
         $this->assertEquals(100.0, (float) $payers->first()->fresh()->score_fiabilite);
     }
 
@@ -89,7 +89,7 @@ class CloseCycleTest extends TestCase
         foreach ($payers as $payeur) {
             $this->cotisationValide($cycle, $payeur);
         }
-        // RG-06 : le bénéficiaire est gelé (litige en cours) → versement bloqué.
+        // RG-06 : le bénéficiaire est gelé (litige en cours) -> versement bloqué.
         $beneficiaire->update(['est_gele' => true]);
 
         Sanctum::actingAs($admin);

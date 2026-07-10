@@ -61,14 +61,14 @@ export default function Notifications() {
       )}
 
       {notifs.length === 0 ? (
-        <div className="card"><EmptyState icon="🔔" title="Aucune notification" message="Les rappels, validations et alertes apparaîtront ici." /></div>
+        <div className="card"><EmptyState icon=""title="Aucune notification"message="Les rappels, validations et alertes apparaîtront ici."/></div>
       ) : (
         <Stagger className="space-y-3">
           {notifs.map((n) => {
             const meta = META[n.type] ?? { Icon: BellRing, cls: 'bg-surface-alt text-ink-soft' };
             const Icon = meta.Icon;
             const actionRequise = n.action_requise;
-            // Déclaration déjà traitée par ce bénéficiaire → on montre le résultat.
+            // Déclaration déjà traitée par ce bénéficiaire -> on montre le résultat.
             const traitee = n.type === 'contribution_declaree' && !actionRequise
               ? (n.contribution_statut === 'valide' ? 'confirme' : n.contribution_statut === 'litige' ? 'conteste' : null)
               : null;
@@ -79,7 +79,7 @@ export default function Notifications() {
                 <div className="flex items-start gap-3">
                   <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${meta.cls}`}><Icon size={18} /></div>
                   <div className="flex-1">
-                    {actionRequise && <span className="pill mb-1 bg-gold text-white">⏳ Action requise</span>}
+                    {actionRequise && <span className="pill mb-1 bg-gold text-white">Action requise</span>}
                     <p className="text-sm text-ink">{n.data?.message ?? n.type}</p>
                     <p className="mt-1 text-xs text-ink-faint">{timeAgo(n.created_at)}</p>
                     {traitee === 'confirme' && <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-success"><CircleCheck size={14} /> Vous avez confirmé la réception</p>}

@@ -72,7 +72,7 @@ export default function CreateGroup() {
       <div className="relative isolate mx-auto flex max-w-lg flex-col items-center gap-4 py-10 text-center">
         <RotationRing members={slots} progress={1} beneficiaryIndex={-1} centerLabel="Nouvelle" centerValue="tontine" size={260} animate />
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: duration.base, ease: easing.standard }}>
-          <h2 className="font-display text-xl font-semibold text-ink">« {f.nom} » est née 🎉</h2>
+          <h2 className="font-display text-xl font-semibold text-ink">« {f.nom} » est née </h2>
           <p className="mt-1 text-sm text-ink-soft">Invitez vos membres pour lancer le premier tour…</p>
         </motion.div>
       </div>

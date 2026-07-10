@@ -25,13 +25,13 @@ use Illuminate\Support\Str;
  *
  * Comptes (mot de passe : « password ») :
  *   Super-Admin (support) : +221770000000
- *   Awa Diop (admin/démo)  : +221771111111  ← compte à présenter
+ * Awa Diop (admin/démo) : +221771111111 <- compte à présenter
  *   Modou Fall             : +221772222222  (bénéficiaire du tour en cours)
  *   Bineta Sow             : +221773333333
  *   Ousmane Ndiaye         : +221774444444  (a déclaré, en attente de validation)
- *   Fatou Ba               : +221775555555  (en retard → litige)
+ * Fatou Ba : +221775555555 (en retard -> litige)
  *   Cheikh Diallo          : +221776666666
- *   Aminata Sarr           : +221777777777  (KYC en attente → à valider par le Support)
+ * Aminata Sarr : +221777777777 (KYC en attente -> à valider par le Support)
  */
 class DemoSeeder extends Seeder
 {
@@ -150,7 +150,7 @@ class DemoSeeder extends Seeder
         ]);
 
         // === Notifications (canal database) pour peupler l'onglet ===
-        $modou->notify(new ContributionDeclared($decl));       // Ousmane a déclaré → Modou (bénéficiaire)
+        $modou->notify(new ContributionDeclared($decl)); // Ousmane a déclaré -> Modou (bénéficiaire)
         $awa->notify(new PayoutReceived($payout1));             // Awa a reçu son versement (tour 1)
         $awa->notify(new ContributionReminder($c2, 9));         // Rappel d'échéance
         $awa->notify(new DisputeOpened($dispute));              // Awa (admin g1) alertée du litige

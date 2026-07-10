@@ -32,7 +32,7 @@ export default function Disputes() {
       </div>
 
       {list.length === 0 ? (
-        <div className="card"><EmptyState icon="⚖️" title="Aucun litige" message="Vos signalements et leur suivi apparaîtront ici." /></div>
+        <div className="card"><EmptyState icon=""title="Aucun litige"message="Vos signalements et leur suivi apparaîtront ici."/></div>
       ) : (
         <Stagger className="space-y-3">
           {list.map((d) => {

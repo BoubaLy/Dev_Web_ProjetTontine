@@ -8,7 +8,7 @@ use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-/** US-17 — Score de fiabilité et badge (🟢 ≥90, 🟡 70-89, 🔴 <70). */
+/** US-17 — Score de fiabilité et badge ( ≥90, 70-89, <70). */
 class ReliabilityScoreTest extends TestCase
 {
     use RefreshDatabase;

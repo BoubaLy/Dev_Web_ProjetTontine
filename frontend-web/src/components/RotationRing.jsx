@@ -14,7 +14,7 @@ import { CONTRIB_STATUS } from '../lib/status';
  *  - `interactive` (app) : chaque avatar devient un bouton FOCUSABLE au clavier ;
  *    clic/focus ouvre une mini-carte glass avec le statut de paiement du membre
  *    pour le tour en cours. Le halo du bénéficiaire pulse UNE fois toutes les ~5 s
- *    (opacité 100→85→100), jamais un clignotement rapide (brief §4).
+ * (opacité 100->85->100), jamais un clignotement rapide (brief §4).
  *
  * `members` : `[{ name, status?, isYou? }]` — `status` = clé de CONTRIB_STATUS.
  */

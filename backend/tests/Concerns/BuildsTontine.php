@@ -37,7 +37,7 @@ trait BuildsTontine
             'code_invitation' => Str::upper(Str::random(8)),
         ], $groupAttrs));
 
-        // L'admin adhère en premier → ordre 1 → bénéficiaire du tour 1.
+        // L'admin adhère en premier -> ordre 1 -> bénéficiaire du tour 1.
         GroupMember::create([
             'group_id' => $group->id,
             'user_id' => $admin->id,

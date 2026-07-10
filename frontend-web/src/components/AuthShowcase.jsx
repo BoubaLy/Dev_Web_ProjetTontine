@@ -8,7 +8,7 @@ import RotationRing from './RotationRing';
  * PANNEAU NARRATIF DES PAGES AUTH (brief « Site Vivant » §2.1 + correction #3).
  * Cercle de Rotation amplifié + mini-scène en boucle douce (membres qui rejoignent,
  * arc qui se remplit, légende). Panneau désormais TRANSPARENT (plus de bloc sombre) :
- * il partage le fond clair continu du `AuthLayout` → aucune coupure avec le formulaire.
+ * il partage le fond clair continu du `AuthLayout`-> aucune coupure avec le formulaire.
  *
  * `compact` : version bandeau (mobile, en haut du formulaire).
  * `step` : optionnel — synchronise l'arc sur l'étape d'un wizard (inscription §2.2).

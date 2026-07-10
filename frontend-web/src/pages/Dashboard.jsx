@@ -61,7 +61,7 @@ export default function Dashboard() {
 
   // « À recevoir » : un versement réellement en attente, sinon le pot ATTENDU quand c'est
   // ton tour d'être bénéficiaire du cycle en cours (le bénéficiaire ne cotise pas son
-  // propre tour → pot ≈ montant × (nb membres actifs − 1)).
+  // propre tour -> pot ≈ montant × (nb membres actifs − 1)).
   const potAttendu = fc?.est_beneficiaire && fMembers.length > 1
     ? Number(fc.montant_cotisation || 0) * (fMembers.length - 1)
     : 0;
@@ -81,7 +81,7 @@ export default function Dashboard() {
         <div>
           <p className="text-sm capitalize text-ink-soft">{DATE_FR}</p>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold text-ink">Bonjour {user?.prenom} 👋</h1>
+            <h1 className="text-2xl font-semibold text-ink">Bonjour {user?.prenom} </h1>
             <span className={`pill ${role.c}`}>{role.l}</span>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function Dashboard() {
                   <p className="mt-1 flex items-center gap-1 text-sm text-ink-soft">
                     <Crown size={14} className="text-gold" />
                     Bénéficiaire : <b className="text-ink">{fc.beneficiaire ? `${fc.beneficiaire.prenom} ${fc.beneficiaire.nom}` : '—'}</b>
-                    {fc.est_beneficiaire && " (c'est vous 🎉)"}
+                    {fc.est_beneficiaire && "(c'est vous)"}
                   </p>
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-xs text-ink-soft">Votre cotisation :</span> <StatusPill status={fc.ma_cotisation_statut} />
@@ -123,7 +123,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="card flex h-full flex-col items-center justify-center p-6 text-center">
-                <EmptyState icon="🔄" title="Aucun cycle en cours"
+                <EmptyState icon=""title="Aucun cycle en cours"
                   message="Démarrez une tontine pour voir le Cercle de Rotation s'animer ici."
                   action={<Link to="/groupes/nouveau" className="btn-primary">Créer une tontine</Link>} />
               </div>
@@ -171,7 +171,7 @@ export default function Dashboard() {
           </div>
           {groups.length === 0 ? (
             <div className="card">
-              <EmptyState icon="👥" title="Aucune tontine pour l'instant"
+              <EmptyState icon=""title="Aucune tontine pour l'instant"
                 message="Créez votre premier groupe ou rejoignez-en un avec un code d'invitation."
                 action={<Link to="/groupes/nouveau" className="btn-primary">Créer une tontine</Link>} />
             </div>

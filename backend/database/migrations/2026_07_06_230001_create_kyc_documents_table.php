@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->enum('type_document', ['cni', 'passeport']);
-            // Chemin de stockage chiffré au repos (encrypted cast, §9) → text.
+            // Chemin de stockage chiffré au repos (encrypted cast, §9) -> text.
             $table->text('chemin_fichier');
             $table->enum('statut', ['en_attente', 'valide', 'rejete'])->default('en_attente');
             // Super-Admin ayant validé/rejeté le document (validation manuelle MVP).

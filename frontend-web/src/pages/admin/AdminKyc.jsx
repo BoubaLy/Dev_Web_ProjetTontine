@@ -27,7 +27,7 @@ export default function AdminKyc() {
     <div className="relative isolate space-y-6">
       <h1 className="text-2xl font-semibold text-ink">Vérifications KYC</h1>
       {(docs ?? []).length === 0 ? (
-        <div className="card"><EmptyState icon="✅" title="Aucune pièce en attente" message="Toutes les vérifications d'identité sont à jour." /></div>
+        <div className="card"><EmptyState icon=""title="Aucune pièce en attente"message="Toutes les vérifications d'identité sont à jour."/></div>
       ) : (
         <Stagger className="space-y-3">
           {docs.map((d) => {

@@ -45,7 +45,7 @@ export default function ScoreLevelUpMotion({
               <TrendingUp size={18} />
             </motion.span>
             <div className="text-left">
-              <p className="text-sm font-semibold text-ink">Score : niveau « {level} » 🎉</p>
+              <p className="text-sm font-semibold text-ink">Score : niveau « {level} » </p>
               <p className="text-xs text-ink-soft">
                 {typeof score === 'number' ? `Votre fiabilité atteint ${Math.round(score)}%.` : 'Votre fiabilité progresse.'}
               </p>

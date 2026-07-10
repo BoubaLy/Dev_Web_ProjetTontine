@@ -5,7 +5,7 @@ import { duration, easing } from '../motion/tokens';
 /**
  * INDICATEUR DE FORCE DE MOT DE PASSE (brief §2.2).
  * Barre qui progresse de façon FLUIDE (largeur animée, pas un saut de couleur) +
- * critères qui se cochent (coche qui se dessine). Teinte danger→gold→success selon
+ * critères qui se cochent (coche qui se dessine). Teinte danger->gold->success selon
  * le niveau. reduced-motion : transitions instantanées.
  *
  * Critères alignés sur la validation backend : 8+ caractères, majuscule, minuscule, chiffre.

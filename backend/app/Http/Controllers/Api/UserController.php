@@ -13,7 +13,7 @@ class UserController extends Controller
 {
     use ApiResponse;
 
-    /** US-17 — Score de fiabilité d'un membre + badge (🟢/🟡/🔴). */
+    /** US-17 — Score de fiabilité d'un membre + badge (//). */
     public function reliabilityScore(User $user): JsonResponse
     {
         $score = (float) $user->score_fiabilite;
