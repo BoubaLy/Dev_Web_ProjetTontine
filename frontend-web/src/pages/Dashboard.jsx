@@ -40,8 +40,8 @@ export default function Dashboard() {
   const versements = histQ.data?.versements ?? [];
   const epargne = sum(cotisations, (c) => c.statut === 'valide');
   const recu = sum(versements, (v) => v.statut === 'verse');
-  const aRecevoir = sum(versements, (v) => v.statut === 'en_attente');
-  const score = user?.score_fiabilite;
+  const versementEnAttente = sum(versements, (v) => v.statut === 'en_attente');
+  const score = Number(user?.score_fiabilite); // l'API sérialise un décimal en chaîne ("100.00")
 
   const isSuper = user?.role === 'super_admin';
   const isAdmin = groups.some((g) => g.admin_id === user?.id);
@@ -58,6 +58,15 @@ export default function Dashboard() {
   }));
   const fBenefIdx = fc ? Math.max(fMembers.findIndex((m) => m.user_id === fc.beneficiaire?.id), 0) : 0;
   const showFeatured = fg && fc && fRing.length > 0;
+
+  // « À recevoir » : un versement réellement en attente, sinon le pot ATTENDU quand c'est
+  // ton tour d'être bénéficiaire du cycle en cours (le bénéficiaire ne cotise pas son
+  // propre tour → pot ≈ montant × (nb membres actifs − 1)).
+  const potAttendu = fc?.est_beneficiaire && fMembers.length > 1
+    ? Number(fc.montant_cotisation || 0) * (fMembers.length - 1)
+    : 0;
+  const aRecevoir = versementEnAttente > 0 ? versementEnAttente : potAttendu;
+  const aRecevoirEstime = versementEnAttente === 0 && potAttendu > 0;
 
   const activite = [
     ...cotisations.map((c) => ({ ...c, t: 'cotisation' })),
@@ -133,7 +142,7 @@ export default function Dashboard() {
 
           {/* Score de fiabilité */}
           <motion.div variants={bentoCell} className="col-span-1 flex flex-col items-center justify-center gap-1 rounded-card border border-line bg-surface p-4 shadow-soft">
-            {typeof score === 'number'
+            {Number.isFinite(score)
               ? <ScoreGauge score={score} size={92} />
               : <p className="py-4 text-center text-xs text-ink-faint">Score bientôt disponible</p>}
             <Link to="/profil" className="text-xs font-medium text-primary">Détails ›</Link>
@@ -144,6 +153,7 @@ export default function Dashboard() {
             <div className="mb-1 grid h-9 w-9 place-items-center rounded-full bg-gold-soft text-gold"><CalendarClock size={18} /></div>
             <p className="text-xs text-ink-soft">À recevoir</p>
             <p className="font-mono text-lg font-semibold text-ink"><AnimatedNumber value={aRecevoir} format={formatFCFA} /></p>
+            {aRecevoirEstime && <p className="mt-0.5 text-[11px] text-gold">Pot attendu de ton tour</p>}
           </motion.div>
         </motion.div>
 

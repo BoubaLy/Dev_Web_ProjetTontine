@@ -49,6 +49,8 @@ export default function App() {
     <Routes>
       {/* Landing publique */}
       <Route path="/" element={token && !loading ? <Navigate to="/tableau-de-bord" replace /> : <Landing />} />
+      {/* Vitrine consultable même connecté (démos / soutenance) — sans redirection */}
+      <Route path="/decouvrir" element={<Landing />} />
       <Route path="/login" element={token && !loading ? <Navigate to="/tableau-de-bord" replace /> : <Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/otp" element={<Otp />} />

@@ -41,6 +41,10 @@
     box-shadow: 0 0 0 3px rgba(43, 110, 100, 0.12), 0 1px 3px rgba(43, 110, 100, 0.08);
   }
   .label { @apply block text-xs font-medium text-ink-soft mb-1; }
+  /* Champs nombre : on retire les flèches +/- (incrément de 1 inutile sur des montants). */
+  .input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+  .input[type='number']::-webkit-outer-spin-button,
+  .input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .pill { @apply inline-flex items-center gap-1 rounded-pill px-3 py-1 text-xs font-medium; }
 
   /* Glassmorphism — couche multi-blur utilisée sur navbar + modales */

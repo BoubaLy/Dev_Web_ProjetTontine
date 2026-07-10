@@ -123,7 +123,14 @@ export default function CreateGroup() {
             )}
             {step === 1 && (
               <>
-                <Field label="Type de tontine"><Seg value={f.type} onChange={(v) => set('type', v)} options={[['rotative', 'Rotative'], ['accumulative', 'Accumulative']]} /></Field>
+                <Field label="Type de tontine">
+                  <Seg value={f.type} onChange={(v) => set('type', v)} options={[['rotative', 'Rotative'], ['accumulative', 'Accumulative']]} />
+                  <p className="mt-1.5 text-xs text-ink-soft">
+                    {f.type === 'rotative'
+                      ? 'Rotative : à chaque tour, un membre reçoit la totalité du pot. Chacun reçoit une fois, à son tour (la tontine classique).'
+                      : 'Accumulative : les cotisations s’accumulent dans une caisse commune épargnée ensemble, versée selon les règles du groupe (ex. en fin de cycle).'}
+                  </p>
+                </Field>
                 <Field label="Cotisation par tour (FCFA)" error={erreur}><input className="input font-mono" type="number" placeholder="Ex. 50000" value={f.montant_cotisation} onChange={(e) => set('montant_cotisation', e.target.value)} /></Field>
                 <Field label="Fréquence"><Seg value={f.frequence} onChange={(v) => set('frequence', v)} options={[['hebdomadaire', 'Hebdomadaire'], ['mensuelle', 'Mensuelle']]} /></Field>
               </>
@@ -132,14 +139,21 @@ export default function CreateGroup() {
               <>
                 <Field label="Nombre de membres max" hint={`${bornes} selon le type`} error={erreur}><input className="input" type="number" value={f.nb_membres_max} onChange={(e) => set('nb_membres_max', e.target.value)} /></Field>
                 <div className="flex gap-3">
-                  <Field label="Pénalité (%)" hint="1 à 2,5"><input className="input" type="number" step="0.5" value={f.penalite_pourcentage} onChange={(e) => set('penalite_pourcentage', e.target.value)} /></Field>
+                  <Field label="Pénalité de retard (%)" hint="Entre 1 % et 2,5 % (plafond fixé par les règles)"><input className="input" type="number" step="0.5" min="1" max="2.5" value={f.penalite_pourcentage} onChange={(e) => set('penalite_pourcentage', e.target.value)} /></Field>
                   <Field label="Délai de grâce (jours)"><input className="input" type="number" value={f.delai_grace_jours} onChange={(e) => set('delai_grace_jours', e.target.value)} /></Field>
                 </div>
               </>
             )}
             {step === 3 && (
               <>
-                <Field label="Méthode de rotation" error={erreur}><Seg value={f.methode_rotation} onChange={(v) => set('methode_rotation', v)} options={[['aleatoire', 'Aléatoire'], ['manuelle', 'Manuelle']]} /></Field>
+                <Field label="Ordre de passage" error={erreur}>
+                  <Seg value={f.methode_rotation} onChange={(v) => set('methode_rotation', v)} options={[['aleatoire', 'Aléatoire'], ['manuelle', 'Manuelle']]} />
+                  <p className="mt-1.5 text-xs text-ink-soft">
+                    {f.methode_rotation === 'aleatoire'
+                      ? 'Aléatoire : l’ordre de passage est tiré au sort au démarrage du cycle — équitable, personne ne choisit.'
+                      : 'Manuelle : l’ordre suit l’ordre d’arrivée des membres (le 1er inscrit passe en premier). Le réglage tour par tour arrivera dans une prochaine version.'}
+                  </p>
+                </Field>
                 {/* Récapitulatif avant création */}
                 <div className="mt-3 rounded-card bg-surface-alt p-4 text-sm">
                   <p className="mb-2 font-semibold text-ink">Récapitulatif</p>

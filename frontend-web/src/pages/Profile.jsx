@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Contact, Mail, ShieldCheck, LogOut, ChevronRight } from 'lucide-react';
+import { Contact, Mail, ShieldCheck, LogOut, ChevronRight, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useMyHistory } from '../lib/queries';
 import { Avatar } from '../components/ui';
@@ -89,6 +89,7 @@ export default function Profile() {
         <Row icon={Contact} title="Vérification d'identité (KYC)" value={KYC[user?.statut_kyc] ?? '—'} to="/kyc" />
         <Row icon={Mail} title="Email" value={user?.email ?? 'Non renseigné'} />
         <Row icon={ShieldCheck} title="Rôle" value={user?.role === 'super_admin' ? 'Super-administrateur' : 'Membre'} />
+        <Row icon={Globe} title="Voir la page d'accueil publique" value="La vitrine du site" to="/decouvrir" />
       </div>
 
       <button onClick={onLogout} className="btn-danger w-full"><LogOut size={18} /> Se déconnecter</button>
