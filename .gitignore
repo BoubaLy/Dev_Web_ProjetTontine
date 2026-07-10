@@ -33,3 +33,7 @@ backend/bootstrap/cache/*.php
 
 # Garder les dossiers vides versionnés
 !**/.gitkeep
+
+# backups locaux (jamais de secrets versionnés)
+*.bak
+backend/.env.dev.bak
