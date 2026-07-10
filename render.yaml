@@ -1,0 +1,54 @@
+# Blueprint Render - TontineSecure
+# Le service web (Caddy sert la SPA React et proxifie /api vers Laravel/php-fpm)
+# se connecte a une base MySQL externe hebergee sur Aiven (plan gratuit).
+# Render lit ce fichier via "New + -> Blueprint".
+#
+# Les variables DB_* (marquees sync:false) sont a renseigner dans le dashboard
+# Render a partir des identifiants de connexion Aiven (host, port, base, user,
+# mot de passe). DB_SSL=true car Aiven impose le TLS.
+
+services:
+  - type: web
+    name: tontinesecure
+    runtime: docker
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      # Cle Laravel (valeur "base64:..."), a renseigner dans le dashboard.
+      - key: APP_KEY
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      # --- Base MySQL Aiven (a renseigner depuis la console Aiven) ---
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Aiven impose le TLS. Fournir le certificat CA d'Aiven en "Secret File"
+      # nomme ca.pem dans le dashboard Render (monte sous /etc/secrets/ca.pem),
+      # puis garder ce chemin ci-dessous. DB_SSL=true assouplit la verification
+      # du nom d'hote si besoin.
+      - key: MYSQL_ATTR_SSL_CA
+        value: /etc/secrets/ca.pem
+      - key: DB_SSL
+        value: "true"
+      # Jobs executes en ligne (pas de worker) + OTP dans les logs.
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: OTP_CHANNEL
+        value: log
+      # Charge les donnees de demo au premier deploiement (a repasser a false ensuite).
+      - key: RUN_SEED
+        value: "true"

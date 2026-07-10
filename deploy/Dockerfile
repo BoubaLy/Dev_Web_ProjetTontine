@@ -1,8 +1,10 @@
 # =====================================================================
-# TontineSecure - image Railway TOUT-EN-UN (un seul service).
+# TontineSecure - image TOUT-EN-UN (un seul service web).
 # Caddy sert la SPA React (dist/) et proxifie /api vers Laravel (php-fpm),
-# le tout sur $PORT. Reste a ajouter le service MySQL de Railway => 2 services.
+# le tout sur $PORT. A completer par une base (PostgreSQL sur Render,
+# ou MySQL) => 2 composants au total.
 # Contexte de build = racine du depot (acces a backend/ et frontend-web/).
+# Support MySQL ET PostgreSQL (pdo_mysql + pdo_pgsql).
 # =====================================================================
 
 # --- Etape 1 : build du frontend (React + Vite) ---
@@ -23,8 +25,8 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-in
 # --- Etape 3 : runtime PHP 8.4 + Caddy ---
 FROM php:8.4-fpm AS app
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libzip-dev libpng-dev libonig-dev unzip \
-    && docker-php-ext-install pdo_mysql mbstring bcmath zip gd opcache \
+        libzip-dev libpng-dev libonig-dev libpq-dev unzip \
+    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring bcmath zip gd opcache \
     && rm -rf /var/lib/apt/lists/*
 
 # Binaire Caddy (statique) recupere depuis l'image officielle.
@@ -39,8 +41,8 @@ RUN composer dump-autoload --no-dev --optimize --no-interaction \
 
 # SPA compilee + config Caddy + script de demarrage.
 COPY --from=front /front/dist /srv
-COPY railway/Caddyfile /etc/caddy/Caddyfile
-COPY railway/start.sh /usr/local/bin/start.sh
+COPY deploy/Caddyfile /etc/caddy/Caddyfile
+COPY deploy/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 CMD ["/usr/local/bin/start.sh"]

@@ -1,8 +1,9 @@
 #!/bin/sh
 # =====================================================================
-# Demarrage TontineSecure sur Railway (un seul conteneur : Caddy + php-fpm).
-# Mappe les variables MySQL de Railway vers Laravel, migre, met en cache,
-# puis lance php-fpm (arriere-plan) et Caddy (premier plan, sur $PORT).
+# Demarrage TontineSecure (un seul conteneur : Caddy + php-fpm).
+# La base est fournie par variables d'environnement (DB_CONNECTION=pgsql sur
+# Render, ou mysql). Si un plugin MySQL expose MYSQL*, on les mappe vers DB_*.
+# Migre, met en cache, puis lance php-fpm (arriere-plan) et Caddy sur $PORT.
 # =====================================================================
 set -e
 cd /var/www/html
