@@ -3,6 +3,7 @@ import { TriangleAlert } from 'lucide-react';
 import { useDisputes, useCreateDispute, useGroups } from '../lib/queries';
 import { DISPUTE_STATUS } from '../lib/status';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
+import AmbientMesh from '../components/AmbientMesh';
 
 export default function Disputes() {
   const { data: disputes, isLoading } = useDisputes();
@@ -24,7 +25,8 @@ export default function Disputes() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="relative isolate space-y-6">
+      <AmbientMesh variant="soft" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-ink">Litiges</h1>
         <button className="btn-danger" onClick={() => setOpen(true)}><TriangleAlert size={18} /> Signaler</button>

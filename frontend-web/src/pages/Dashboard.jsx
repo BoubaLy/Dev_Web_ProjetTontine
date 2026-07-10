@@ -66,7 +66,7 @@ export default function Dashboard() {
   ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
 
   return (
-    <div className="relative">
+    <div className="relative isolate">
       <AmbientMesh variant="light" />
 
       <div className="relative z-10 space-y-8">

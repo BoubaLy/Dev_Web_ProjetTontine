@@ -13,7 +13,9 @@ export default {
         gold: { DEFAULT: '#C6974F', soft: '#F4EBD9' },
         success: { DEFAULT: '#4C9A6A', soft: '#E0EFE6' },
         danger: { DEFAULT: '#B8604B', soft: '#F3E2DC' },
-        ink: { DEFAULT: '#152322', soft: '#54655F', faint: '#8A9997', inverse: '#F2F6F4' },
+        // ink-faint darkeni de #8A9997 → #647570 pour passer le contraste AA (4.5:1) sur bg
+        // clair, tout en restant visiblement plus doux que ink-soft (hiérarchie préservée).
+        ink: { DEFAULT: '#152322', soft: '#54655F', faint: '#647570', inverse: '#F2F6F4' },
         line: '#DEE7E4',
       },
       fontFamily: {

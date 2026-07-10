@@ -3,6 +3,7 @@ import { Gavel, Search } from 'lucide-react';
 import { useDisputes, useInvestigateDispute, useResolveDispute } from '../../lib/queries';
 import { DISPUTE_STATUS } from '../../lib/status';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../../components/ui';
+import AmbientMesh from '../../components/AmbientMesh';
 
 export default function AdminDisputes() {
   const { data: disputes, isLoading } = useDisputes();
@@ -29,7 +30,8 @@ export default function AdminDisputes() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="relative isolate space-y-6">
+      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Litiges — arbitrage</h1>
       {list.length === 0 ? (
         <div className="card"><EmptyState icon="⚖️" title="Aucun litige" message="Les signalements à arbitrer apparaîtront ici." /></div>

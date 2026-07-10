@@ -3,6 +3,7 @@ import { Plus, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroups } from '../lib/queries';
 import { Loading, EmptyState } from '../components/ui';
+import AmbientMesh from '../components/AmbientMesh';
 import GroupCard from '../components/GroupCard';
 
 export default function Groups() {
@@ -12,7 +13,8 @@ export default function Groups() {
   const list = groups ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="relative isolate space-y-6">
+      <AmbientMesh variant="light" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-ink">Mes tontines</h1>
         <div className="flex gap-2">

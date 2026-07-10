@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, UserPlus } from 'lucide-react';
 import { useJoinGroup } from '../lib/queries';
 import { Field, Spinner } from '../components/ui';
+import AmbientMesh from '../components/AmbientMesh';
 
 export default function JoinGroup() {
   const navigate = useNavigate();
@@ -27,7 +28,8 @@ export default function JoinGroup() {
   };
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
+    <div className="relative isolate mx-auto max-w-md space-y-6">
+      <AmbientMesh variant="soft" />
       <Link to="/groupes" className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-primary"><ArrowLeft size={16} /> Mes tontines</Link>
       <div className="text-center">
         <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-full bg-primary-soft text-primary"><UserPlus size={28} /></div>

@@ -69,7 +69,7 @@ export default function GroupDetail() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative isolate">
       <AmbientMesh variant="light" />
       <div className="relative z-10 space-y-6">
       <Link to="/groupes" className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-primary"><ArrowLeft size={16} /> Mes tontines</Link>

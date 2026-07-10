@@ -44,27 +44,29 @@ export function EmptyState({ icon = '📭', title, message, action }) {
 }
 
 export function Field({ label, error, hint, children }) {
+  // Élément <label> englobant → association implicite avec le contrôle de formulaire
+  // qu'il contient (accessibilité : inputs correctement étiquetés, AA).
   return (
-    <div className="mb-4">
-      {label && <label className="label">{label}</label>}
+    <label className="mb-4 block">
+      {label && <span className="label">{label}</span>}
       {children}
       {(error || hint) && (
         <AnimatePresence>
           {(error || hint) && (
-            <motion.p
+            <motion.span
               key={error || hint}
-              className={`mt-1 text-xs ${error ? 'text-danger' : 'text-ink-faint'}`}
+              className={`mt-1 block text-xs ${error ? 'text-danger' : 'text-ink-soft'}`}
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: duration.fast, ease: easing.standard }}
             >
               {error || hint}
-            </motion.p>
+            </motion.span>
           )}
         </AnimatePresence>
       )}
-    </div>
+    </label>
   );
 }
 

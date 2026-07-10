@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Snowflake, Sun, ShieldCheck } from 'lucide-react';
 import { useAdminUsers, useFreezeUser } from '../../lib/queries';
 import { Loading, Avatar, Toast } from '../../components/ui';
+import AmbientMesh from '../../components/AmbientMesh';
 import { scoreBadge } from '../../lib/status';
 
 const KYC = {
@@ -23,7 +24,8 @@ export default function AdminUsers() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="space-y-6">
+    <div className="relative isolate space-y-6">
+      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Comptes</h1>
       <div className="space-y-3">
         {(users ?? []).map((u) => {

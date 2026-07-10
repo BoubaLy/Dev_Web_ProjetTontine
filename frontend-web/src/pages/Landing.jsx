@@ -245,6 +245,7 @@ export default function Landing() {
         </div>
       </header>
 
+      <main>
       {/* ===== FOND VIVANT « Opal Aurora » (hero + problème) ===== */}
       <div className="relative overflow-hidden">
         <OpalAurora />
@@ -585,6 +586,8 @@ export default function Landing() {
       </section>
 
       {/* ⑨ FOOTER */}
+      </main>
+
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-ink-soft sm:flex-row">
           <div className="flex items-center gap-2">

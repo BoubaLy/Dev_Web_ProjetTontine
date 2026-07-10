@@ -6,6 +6,7 @@ import { useCreateGroup, formatFCFA } from '../lib/queries';
 import { Field, Spinner } from '../components/ui';
 import { duration, easing } from '../motion/tokens';
 import RotationRing from '../components/RotationRing';
+import AmbientMesh from '../components/AmbientMesh';
 
 const Seg = ({ value, onChange, options }) => (
   <div className="flex gap-2 rounded-pill bg-surface-alt p-1">
@@ -69,7 +70,8 @@ export default function CreateGroup() {
   if (born) {
     const slots = Array.from({ length: Math.max(Number(f.nb_membres_max) || 5, 2) }, () => ({ name: '? ?' }));
     return (
-      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 py-10 text-center">
+      <div className="relative isolate mx-auto flex max-w-lg flex-col items-center gap-4 py-10 text-center">
+        <AmbientMesh variant="light" />
         <RotationRing members={slots} progress={1} beneficiaryIndex={-1} centerLabel="Nouvelle" centerValue="tontine" size={260} animate />
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: duration.base, ease: easing.standard }}>
           <h2 className="font-display text-xl font-semibold text-ink">« {f.nom} » est née 🎉</h2>
@@ -86,7 +88,8 @@ export default function CreateGroup() {
   };
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="relative isolate mx-auto max-w-lg space-y-6">
+      <AmbientMesh variant="soft" />
       <Link to="/groupes" className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-primary"><ArrowLeft size={16} /> Mes tontines</Link>
 
       <div>
@@ -94,7 +97,7 @@ export default function CreateGroup() {
         {/* Barre de progression réelle + libellés d'étape */}
         <div className="mt-3 flex items-center justify-between text-xs font-medium">
           {STEPS.map((label, i) => (
-            <span key={label} className={i <= step ? 'text-primary' : 'text-ink-faint'}>
+            <span key={label} className={i <= step ? 'text-primary' : 'text-ink-soft'}>
               {i < step ? <Check size={13} className="mr-0.5 inline" /> : `${i + 1}. `}{label}
             </span>
           ))}

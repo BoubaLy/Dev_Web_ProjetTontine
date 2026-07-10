@@ -5,6 +5,7 @@ import {
 import { useNotifications, useConfirmContribution, useDisputeContribution, useMarkRead } from '../lib/queries';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
 import { CotisationSuccessMotion } from '../components/celebrations';
+import AmbientMesh from '../components/AmbientMesh';
 
 const META = {
   contribution_declaree: { Icon: Coins, cls: 'bg-gold-soft text-gold' },
@@ -49,7 +50,8 @@ export default function Notifications() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="relative isolate space-y-6">
+      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Notifications</h1>
 
       {actions > 0 && (

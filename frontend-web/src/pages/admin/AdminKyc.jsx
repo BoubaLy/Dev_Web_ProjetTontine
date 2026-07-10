@@ -3,6 +3,7 @@ import { Eye, Check, X } from 'lucide-react';
 import api from '../../lib/api';
 import { useKycPending, useValidateKyc } from '../../lib/queries';
 import { Loading, EmptyState, Avatar, Toast, Spinner } from '../../components/ui';
+import AmbientMesh from '../../components/AmbientMesh';
 
 export default function AdminKyc() {
   const { data: docs, isLoading } = useKycPending();
@@ -23,7 +24,8 @@ export default function AdminKyc() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="space-y-6">
+    <div className="relative isolate space-y-6">
+      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Vérifications KYC</h1>
       {(docs ?? []).length === 0 ? (
         <div className="card"><EmptyState icon="✅" title="Aucune pièce en attente" message="Toutes les vérifications d'identité sont à jour." /></div>
