@@ -3,13 +3,15 @@
 Application mobile de digitalisation des tontines rotatives/accumulatives, avec
 paiement **P2P déclaratif et validation croisée** (Wave / Orange Money).
 
-**Stack :** React Native (Expo SDK 57) · Laravel 12 (API REST) · MySQL 8 · Sanctum
+**Stack :** **React + Vite** (Web app — front actuel) · Laravel 12 (API REST) · MySQL 8 · Sanctum
+_(le dossier `frontend/` React Native/Expo est conservé en référence, plus maintenu)._
 
 Projet académique — DIC1, Développement Web.
 
-> 📚 **Toute la documentation est indexée dans [`GUIDE.md`](GUIDE.md)** : guide de
-> présentation/démo, user stories, rôles & permissions, apprentissage Laravel & React
-> Native, architecture, sources et déploiement.
+> 📚 **Documentation indexée dans [`GUIDE.md`](GUIDE.md).** Documents clés :
+> - 🧭 **[État des lieux du projet](docs/ETAT_DES_LIEUX.md)** — synthèse globale (tout le projet).
+> - 📐 **[Diagrammes (classes + cas d'usage)](docs/DIAGRAMMES.md)** — reverse engineering, prêt à dessiner.
+> - 🚀 **[Déploiement Railway](docs/DEPLOIEMENT_RAILWAY.md)** — mise en ligne pas-à-pas.
 
 ---
 
@@ -17,10 +19,11 @@ Projet académique — DIC1, Développement Web.
 
 ```
 tontinesecure/
-├── backend/     API Laravel 12 (Sanctum, Services, Jobs, Notifications, Policies, tests)
-├── frontend/    App React Native / Expo (design system « Opal », navigation, hooks)
-├── docs/        Cahier des charges + guides (présentation, apprentissage, architecture…)
-├── GUIDE.md     Point d'entrée de la documentation
+├── backend/       API Laravel 12 (Sanctum, Services, Jobs, Notifications, Policies, tests)
+├── frontend-web/  Web App React + Vite (design system « Opal », SPA) — FRONT ACTUEL
+├── frontend/      App React Native / Expo (référence, plus maintenue)
+├── docs/          Cahier des charges + guides + état des lieux + diagrammes + déploiement
+├── GUIDE.md       Point d'entrée de la documentation
 └── DEPLOYMENT.md + docker-compose.yml   Déploiement (Caddy HTTPS auto + nginx + MySQL)
 ```
 

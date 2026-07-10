@@ -1,0 +1,22 @@
+# =====================================================================
+# TontineSecure — image Railway de la Web App (React + Vite) servie par Caddy.
+# L'API est sur un AUTRE service Railway → on bake son URL au build via
+# VITE_API_URL (build arg). Caddy sert la SPA sur $PORT (HTTPS géré par Railway).
+# (Le Dockerfile « classique » frontend-web/Dockerfile reste pour docker-compose.)
+# =====================================================================
+
+# --- Étape 1 : build statique Vite ---
+FROM node:22-alpine AS build
+WORKDIR /app
+# URL publique de l'API backend (ex. https://xxx.up.railway.app/api/v1).
+# Défini comme variable de service Railway → passé en build arg.
+ARG VITE_API_URL=/api/v1
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN echo "VITE_API_URL=$VITE_API_URL" > .env.production && npm run build
+
+# --- Étape 2 : Caddy statique sur $PORT ---
+FROM caddy:2-alpine
+COPY --from=build /app/dist /srv
+COPY docker/Caddyfile.railway /etc/caddy/Caddyfile

@@ -1,0 +1,27 @@
+# Nginx pour Railway — écoute sur le port fourni par la plateforme (${PORT}).
+# `envsubst '${PORT}'` ne remplace QUE ${PORT} (les $uri, $document_root… d'nginx
+# sont préservés).
+server {
+    listen ${PORT};
+    server_name _;
+
+    root /var/www/html/public;
+    index index.php;
+
+    client_max_body_size 8M; # tolérance upload KYC (< 5 Mo côté applicatif)
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS $http_x_forwarded_proto if_not_empty;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}

@@ -1,0 +1,9 @@
+# Caddy pour Railway — sert la SPA React sur le port fourni ($PORT).
+# Pas de TLS ici : Railway assure le HTTPS au niveau de son edge.
+# L'API est appelée directement sur l'URL publique du backend (VITE_API_URL au build).
+:{$PORT:80} {
+	encode gzip
+	root * /srv
+	try_files {path} /index.html
+	file_server
+}
