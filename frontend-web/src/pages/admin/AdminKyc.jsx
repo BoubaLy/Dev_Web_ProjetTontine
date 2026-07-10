@@ -3,7 +3,7 @@ import { Eye, Check, X } from 'lucide-react';
 import api from '../../lib/api';
 import { useKycPending, useValidateKyc } from '../../lib/queries';
 import { Loading, EmptyState, Avatar, Toast, Spinner } from '../../components/ui';
-import AmbientMesh from '../../components/AmbientMesh';
+import { Stagger, StaggerItem } from '../../components/motion';
 
 export default function AdminKyc() {
   const { data: docs, isLoading } = useKycPending();
@@ -25,16 +25,15 @@ export default function AdminKyc() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Vérifications KYC</h1>
       {(docs ?? []).length === 0 ? (
         <div className="card"><EmptyState icon="✅" title="Aucune pièce en attente" message="Toutes les vérifications d'identité sont à jour." /></div>
       ) : (
-        <div className="space-y-3">
+        <Stagger className="space-y-3">
           {docs.map((d) => {
             const nom = `${d.user?.prenom ?? ''} ${d.user?.nom ?? ''}`.trim();
             return (
-              <div key={d.id} className="card space-y-3 p-4">
+              <StaggerItem key={d.id} className="card space-y-3 p-4">
                 <div className="flex items-center gap-3">
                   <Avatar name={nom} size={44} />
                   <div className="flex-1"><p className="font-semibold text-ink">{nom}</p><p className="text-xs text-ink-soft">{d.type_document === 'cni' ? "Carte d'identité" : 'Passeport'} · {d.user?.telephone}</p></div>
@@ -44,10 +43,10 @@ export default function AdminKyc() {
                   <button className="btn-danger flex-1 py-2 text-sm" onClick={() => decider(d.id, 'rejete')}><X size={16} /> Rejeter</button>
                   <button className="btn-primary flex-1 py-2 text-sm" onClick={() => decider(d.id, 'valide')} disabled={validate.isPending}><Check size={16} /> Valider</button>
                 </div>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       )}
       <Toast message={toast} onDone={() => setToast(null)} />
     </div>

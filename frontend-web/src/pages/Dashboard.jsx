@@ -9,7 +9,6 @@ import { duration, easing } from '../motion/tokens';
 import GroupCard from '../components/GroupCard';
 import RotationRing from '../components/RotationRing';
 import ScoreGauge from '../components/ScoreGauge';
-import AmbientMesh from '../components/AmbientMesh';
 
 const sum = (arr, pred) => arr.filter(pred).reduce((t, x) => t + Number(x.montant || 0), 0);
 const DATE_FR = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -67,7 +66,6 @@ export default function Dashboard() {
 
   return (
     <div className="relative isolate">
-      <AmbientMesh variant="light" />
 
       <div className="relative z-10 space-y-8">
         {/* En-tête */}

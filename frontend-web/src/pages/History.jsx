@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { useMyHistory, formatFCFA } from '../lib/queries';
 import { Loading, EmptyState, StatusPill } from '../components/ui';
-import AmbientMesh from '../components/AmbientMesh';
 
 const sum = (arr, pred) => arr.filter(pred).reduce((t, x) => t + Number(x.montant || 0), 0);
 
@@ -43,7 +42,6 @@ export default function History() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Mon historique</h1>
 
       <div className="grid grid-cols-2 gap-3">

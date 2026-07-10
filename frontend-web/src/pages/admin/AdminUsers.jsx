@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Snowflake, Sun, ShieldCheck } from 'lucide-react';
 import { useAdminUsers, useFreezeUser } from '../../lib/queries';
 import { Loading, Avatar, Toast } from '../../components/ui';
-import AmbientMesh from '../../components/AmbientMesh';
+import { Stagger, StaggerItem } from '../../components/motion';
 import { scoreBadge } from '../../lib/status';
 
 const KYC = {
@@ -25,15 +25,14 @@ export default function AdminUsers() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Comptes</h1>
-      <div className="space-y-3">
+      <Stagger className="space-y-3">
         {(users ?? []).map((u) => {
           const kyc = KYC[u.statut_kyc] ?? KYC.en_attente;
           const isSuper = u.role === 'super_admin';
           const sb = scoreBadge(u.score_fiabilite);
           return (
-            <div key={u.id} className="card space-y-3 p-4">
+            <StaggerItem key={u.id} className="card space-y-3 p-4">
               <div className="flex items-center gap-3">
                 <Avatar name={`${u.prenom} ${u.nom}`} size={44} />
                 <div className="flex-1">
@@ -51,10 +50,10 @@ export default function AdminUsers() {
                   : <button className="btn-danger w-full py-2 text-sm" onClick={() => toggle(u)}><Snowflake size={16} /> Geler le compte</button>
               )}
               {u.est_gele && <p className="text-xs text-danger">⚠️ Compte gelé — ne peut ni cotiser, ni recevoir, ni se connecter (RG-06).</p>}
-            </div>
+            </StaggerItem>
           );
         })}
-      </div>
+      </Stagger>
       <Toast message={toast} onDone={() => setToast(null)} />
     </div>
   );

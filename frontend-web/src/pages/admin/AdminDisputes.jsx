@@ -3,7 +3,7 @@ import { Gavel, Search } from 'lucide-react';
 import { useDisputes, useInvestigateDispute, useResolveDispute } from '../../lib/queries';
 import { DISPUTE_STATUS } from '../../lib/status';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../../components/ui';
-import AmbientMesh from '../../components/AmbientMesh';
+import { Stagger, StaggerItem } from '../../components/motion';
 
 export default function AdminDisputes() {
   const { data: disputes, isLoading } = useDisputes();
@@ -31,16 +31,15 @@ export default function AdminDisputes() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Litiges — arbitrage</h1>
       {list.length === 0 ? (
         <div className="card"><EmptyState icon="⚖️" title="Aucun litige" message="Les signalements à arbitrer apparaîtront ici." /></div>
       ) : (
-        <div className="space-y-3">
+        <Stagger className="space-y-3">
           {list.map((d) => {
             const s = DISPUTE_STATUS[d.statut] ?? DISPUTE_STATUS.ouvert;
             return (
-              <div key={d.id} className="card space-y-3 p-4">
+              <StaggerItem key={d.id} className="card space-y-3 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-ink">{d.group?.nom ?? 'Groupe'}</p>
@@ -56,10 +55,10 @@ export default function AdminDisputes() {
                     <button className="btn-primary flex-1 py-2 text-sm" onClick={() => setTarget(d)}><Gavel size={16} /> Clôturer</button>
                   </div>
                 )}
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       )}
 
       <Modal open={!!target} onClose={() => setTarget(null)} title="Clôturer le litige"

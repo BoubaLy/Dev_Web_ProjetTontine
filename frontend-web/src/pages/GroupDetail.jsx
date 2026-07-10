@@ -10,10 +10,10 @@ import {
   useStartCycle, useValidateMember, useCloseCycle, formatFCFA,
 } from '../lib/queries';
 import { Loading, EmptyState, StatusPill, Avatar, ProgressBar, Modal, Field, Toast, Spinner } from '../components/ui';
+import { Stagger, StaggerItem } from '../components/motion';
 import { CycleCompleteMotion } from '../components/celebrations';
 import { CONTRIB_STATUS, GROUP_STATUS, scoreBadge } from '../lib/status';
 import RotationRing from '../components/RotationRing';
-import AmbientMesh from '../components/AmbientMesh';
 
 const MEMBER_STATUS = {
   en_attente: { label: 'En attente', cls: 'bg-gold-soft text-gold' },
@@ -70,7 +70,6 @@ export default function GroupDetail() {
 
   return (
     <div className="relative isolate">
-      <AmbientMesh variant="light" />
       <div className="relative z-10 space-y-6">
       <Link to="/groupes" className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-primary"><ArrowLeft size={16} /> Mes tontines</Link>
 
@@ -143,7 +142,7 @@ export default function GroupDetail() {
         {membres.length === 0 ? (
           <div className="card"><EmptyState icon="👤" title="Aucun membre" message="Invitez des membres avec un code." /></div>
         ) : (
-          <div className="space-y-2">
+          <Stagger className="space-y-2">
             {membres.map((m) => {
               const ms = MEMBER_STATUS[m.statut] ?? MEMBER_STATUS.en_attente;
               const nom = `${m.user?.prenom ?? ''} ${m.user?.nom ?? ''}`.trim() || m.user?.telephone;
@@ -151,7 +150,7 @@ export default function GroupDetail() {
               const score = m.user?.score_fiabilite;
               const sb = score != null ? scoreBadge(score) : null;
               return (
-                <div key={m.id ?? m.user_id} className="card flex items-center gap-3 p-3">
+                <StaggerItem key={m.id ?? m.user_id} className="card flex items-center gap-3 p-3">
                   <Avatar name={nom} size={40} />
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-2 truncate font-medium text-ink">{nom}{isBenef && <Crown size={14} className="text-gold" />}</p>
@@ -168,10 +167,10 @@ export default function GroupDetail() {
                   ) : (
                     <span className={`pill ${ms.cls}`}>{ms.label}</span>
                   )}
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </Stagger>
         )}
       </section>
 
@@ -264,18 +263,18 @@ function AdminDashboard({ cycleId, groupId, onToast, onCelebrate }) {
         <span className="font-mono font-semibold text-success">{data.taux_collecte}% collecté</span>
       </div>
       <ProgressBar value={(data.taux_collecte ?? 0) / 100} />
-      <div className="mt-4 space-y-2">
+      <Stagger className="mt-4 space-y-2">
         {data.membres.map((m) => (
-          <div key={m.user_id} className="flex items-center gap-3 border-b border-line pb-2 last:border-0">
+          <StaggerItem key={m.user_id} className="flex items-center gap-3 border-b border-line pb-2 last:border-0">
             <Avatar name={m.nom} size={34} />
             <div className="flex-1">
               <p className="text-sm font-medium text-ink">{m.nom}</p>
               <p className="text-xs text-ink-faint">{m.est_beneficiaire ? 'Bénéficiaire du tour' : `Ordre ${m.ordre_rotation ?? '—'}`}</p>
             </div>
             <StatusPill status={m.est_beneficiaire ? 'beneficiaire' : m.statut} />
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
       <button className="btn-primary mt-4 w-full" disabled={!data.peut_cloturer || closeCycle.isPending} onClick={onClose}>
         <LockKeyhole size={18} /> Clôturer le cycle
       </button>

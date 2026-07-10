@@ -3,7 +3,7 @@ import { Plus, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroups } from '../lib/queries';
 import { Loading, EmptyState } from '../components/ui';
-import AmbientMesh from '../components/AmbientMesh';
+import { Stagger, StaggerItem } from '../components/motion';
 import GroupCard from '../components/GroupCard';
 
 export default function Groups() {
@@ -14,7 +14,6 @@ export default function Groups() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="light" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-ink">Mes tontines</h1>
         <div className="flex gap-2">
@@ -30,9 +29,9 @@ export default function Groups() {
             action={<Link to="/groupes/nouveau" className="btn-primary">Créer une tontine</Link>} />
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {list.map((g) => <GroupCard key={g.id} group={g} admin={g.admin_id === user?.id} />)}
-        </div>
+        <Stagger className="grid gap-3 sm:grid-cols-2">
+          {list.map((g) => <StaggerItem key={g.id}><GroupCard group={g} admin={g.admin_id === user?.id} /></StaggerItem>)}
+        </Stagger>
       )}
     </div>
   );

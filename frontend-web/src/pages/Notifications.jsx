@@ -4,8 +4,8 @@ import {
 } from 'lucide-react';
 import { useNotifications, useConfirmContribution, useDisputeContribution, useMarkRead } from '../lib/queries';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
+import { Stagger, StaggerItem } from '../components/motion';
 import { CotisationSuccessMotion } from '../components/celebrations';
-import AmbientMesh from '../components/AmbientMesh';
 
 const META = {
   contribution_declaree: { Icon: Coins, cls: 'bg-gold-soft text-gold' },
@@ -51,7 +51,6 @@ export default function Notifications() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Notifications</h1>
 
       {actions > 0 && (
@@ -64,7 +63,7 @@ export default function Notifications() {
       {notifs.length === 0 ? (
         <div className="card"><EmptyState icon="🔔" title="Aucune notification" message="Les rappels, validations et alertes apparaîtront ici." /></div>
       ) : (
-        <div className="space-y-3">
+        <Stagger className="space-y-3">
           {notifs.map((n) => {
             const meta = META[n.type] ?? { Icon: BellRing, cls: 'bg-surface-alt text-ink-soft' };
             const Icon = meta.Icon;
@@ -75,7 +74,8 @@ export default function Notifications() {
               : null;
 
             return (
-              <div key={n.id} className={`p-4 ${actionRequise ? 'glass-elevated rounded-card border border-gold/40' : !n.lu ? 'card border-l-4 border-l-primary' : 'card'}`}>
+              <StaggerItem key={n.id}>
+              <div className={`p-4 ${actionRequise ? 'glass-elevated rounded-card border border-gold/40' : !n.lu ? 'card border-l-4 border-l-primary' : 'card'}`}>
                 <div className="flex items-start gap-3">
                   <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${meta.cls}`}><Icon size={18} /></div>
                   <div className="flex-1">
@@ -98,9 +98,10 @@ export default function Notifications() {
                   </div>
                 )}
               </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       )}
 
       {/* Friction volontaire avant l'action financière */}

@@ -7,7 +7,6 @@ import { Avatar } from '../components/ui';
 import { scoreBadge } from '../lib/status';
 import ScoreGauge from '../components/ScoreGauge';
 import ScoreTimeline from '../components/ScoreTimeline';
-import AmbientMesh from '../components/AmbientMesh';
 import { ScoreLevelUpMotion } from '../components/celebrations';
 
 const KYC = { verifie: 'Vérifié', en_attente: 'En attente', rejete: 'Rejeté' };
@@ -56,7 +55,6 @@ export default function Profile() {
   return (
     <div className="relative isolate space-y-5">
       {/* Écran calme : fond ambiant en intensité `soft` (très atténué) — la lisibilité prime. */}
-      <AmbientMesh variant="soft" />
       <div className="overflow-hidden rounded-sheet bg-hero p-6 text-center text-white shadow-raised">
         <div className="mx-auto w-fit"><Avatar name={`${user?.prenom} ${user?.nom}`} size={72} /></div>
         <h1 className="mt-3 text-xl font-semibold">{user?.prenom} {user?.nom}</h1>

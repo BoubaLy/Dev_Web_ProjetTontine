@@ -6,7 +6,7 @@ import {
 } from 'framer-motion';
 import { ArrowRight, ArrowDown, Coins, Star, Plus, Minus, ChevronRight } from 'lucide-react';
 import RotationRing from '../components/RotationRing';
-import OpalAurora from '../components/OpalAurora';
+import AmbientMesh from '../components/AmbientMesh';
 /* GSAP chargé en diff après le hero — Lighthouse mobile */
 const HowItWorksStory = lazy(() => import('../components/HowItWorksStory'));
 import { Avatar } from '../components/ui';
@@ -246,9 +246,9 @@ export default function Landing() {
       </header>
 
       <main>
-      {/* ===== FOND VIVANT « Opal Aurora » (hero + problème) ===== */}
-      <div className="relative overflow-hidden">
-        <OpalAurora />
+      {/* ===== FOND VIVANT « motif » (hero + problème) ===== */}
+      <div className="relative isolate overflow-hidden">
+        <AmbientMesh variant="hero" />
 
         {/* ① HERO */}
         <section
@@ -379,9 +379,9 @@ export default function Landing() {
         <HowItWorksStory />
       </Suspense>
 
-      {/* ④ CONFIANCE — section sombre avec Aurora variant dark */}
-      <section className="relative bg-bg-deep text-ink-inverse overflow-hidden">
-        <OpalAurora variant="dark" />
+      {/* ④ CONFIANCE — section sombre avec motif clair */}
+      <section className="relative isolate bg-bg-deep text-ink-inverse overflow-hidden">
+        <AmbientMesh variant="deep" />
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-20 md:py-28">
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             <Reveal>

@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ShieldCheck, Users, CircleCheck } from 'lucide-react';
 import { duration, easing } from '../motion/tokens';
-import AmbientMesh from './AmbientMesh';
 import RotationRing from './RotationRing';
 
 /**
- * PANNEAU NARRATIF DES PAGES AUTH (brief « Site Vivant » §2.1).
- * Cercle de Rotation amplifié + fond Opal Aurora en intensité `showcase`, avec une
- * mini-scène en boucle DOUCE : les membres rejoignent, l'arc se remplit, une légende
- * décrit l'action en cours. C'est un moment d'accroche, pas un écran de travail.
+ * PANNEAU NARRATIF DES PAGES AUTH (brief « Site Vivant » §2.1 + correction #3).
+ * Cercle de Rotation amplifié + mini-scène en boucle douce (membres qui rejoignent,
+ * arc qui se remplit, légende). Panneau désormais TRANSPARENT (plus de bloc sombre) :
+ * il partage le fond clair continu du `AuthLayout` → aucune coupure avec le formulaire.
  *
  * `compact` : version bandeau (mobile, en haut du formulaire).
  * `step` : optionnel — synchronise l'arc sur l'étape d'un wizard (inscription §2.2).
@@ -36,7 +35,6 @@ export default function AuthShowcase({ compact = false, step = null }) {
   const reduce = useReducedMotion();
   const [i, setI] = useState(reduce ? DEMO.length - 1 : 0);
 
-  // Boucle douce (désactivée si un `step` externe pilote la scène, ou reduced-motion).
   useEffect(() => {
     if (reduce || step != null) return undefined;
     const id = setInterval(() => setI((v) => (v + 1) % DEMO.length), 2600);
@@ -44,16 +42,14 @@ export default function AuthShowcase({ compact = false, step = null }) {
   }, [reduce, step]);
 
   const active = step != null ? Math.min(step, DEMO.length - 1) : i;
-  const shown = active + 1;                       // membres visibles dans la couronne
+  const shown = active + 1;
   const members = DEMO.slice(0, shown);
   const progress = shown / DEMO.length;
   const ringSize = compact ? 120 : 300;
 
   return (
-    <div className={`relative isolate flex h-full w-full flex-col items-center justify-center overflow-hidden bg-night ${compact ? 'rounded-sheet py-6' : 'px-8 py-12'}`}>
-      <AmbientMesh variant="deep" />
-
-      <div className="relative z-10 flex flex-col items-center text-center">
+    <div className={`relative flex h-full w-full flex-col items-center justify-center ${compact ? 'py-4' : 'px-8 py-12'}`}>
+      <div className="flex flex-col items-center text-center">
         {!compact && (
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 12 }}
@@ -61,8 +57,8 @@ export default function AuthShowcase({ compact = false, step = null }) {
             transition={{ duration: duration.base, ease: easing.standard }}
             className="mb-8"
           >
-            <h2 className="font-display text-3xl font-semibold text-ink-inverse">La tontine, en confiance.</h2>
-            <p className="mt-2 max-w-sm text-sm text-ink-inverse/70">
+            <h2 className="font-display text-3xl font-semibold text-ink">La tontine, en confiance.</h2>
+            <p className="mt-2 max-w-sm text-sm text-ink-soft">
               Épargne rotative traçable, validation croisée des paiements, score de fiabilité.
             </p>
           </motion.div>
@@ -84,7 +80,7 @@ export default function AuthShowcase({ compact = false, step = null }) {
             <AnimatePresence mode="wait">
               <motion.p
                 key={active}
-                className="flex items-center gap-2 text-sm font-medium text-ink-inverse/85"
+                className="flex items-center gap-2 text-sm font-medium text-ink-soft"
                 initial={reduce ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduce ? {} : { opacity: 0, y: -8 }}

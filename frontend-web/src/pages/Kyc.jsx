@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ShieldCheck, Upload, FileCheck2 } from 'lucide-react';
 import { useMyKyc, useUploadKyc } from '../lib/queries';
 import { Loading, EmptyState, Toast, Spinner } from '../components/ui';
-import AmbientMesh from '../components/AmbientMesh';
 
 const STATUT = {
   en_attente: { label: 'En attente', cls: 'bg-gold-soft text-gold' },
@@ -29,7 +28,6 @@ export default function Kyc() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="soft" />
       <h1 className="text-2xl font-semibold text-ink">Vérification d'identité (KYC)</h1>
 
       <div className="flex items-center gap-3 rounded-card bg-surface-alt p-4 text-sm text-ink-soft">

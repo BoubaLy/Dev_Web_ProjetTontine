@@ -3,7 +3,7 @@ import { TriangleAlert } from 'lucide-react';
 import { useDisputes, useCreateDispute, useGroups } from '../lib/queries';
 import { DISPUTE_STATUS } from '../lib/status';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
-import AmbientMesh from '../components/AmbientMesh';
+import { Stagger, StaggerItem } from '../components/motion';
 
 export default function Disputes() {
   const { data: disputes, isLoading } = useDisputes();
@@ -26,7 +26,6 @@ export default function Disputes() {
 
   return (
     <div className="relative isolate space-y-6">
-      <AmbientMesh variant="soft" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-ink">Litiges</h1>
         <button className="btn-danger" onClick={() => setOpen(true)}><TriangleAlert size={18} /> Signaler</button>
@@ -35,11 +34,11 @@ export default function Disputes() {
       {list.length === 0 ? (
         <div className="card"><EmptyState icon="⚖️" title="Aucun litige" message="Vos signalements et leur suivi apparaîtront ici." /></div>
       ) : (
-        <div className="space-y-3">
+        <Stagger className="space-y-3">
           {list.map((d) => {
             const s = DISPUTE_STATUS[d.statut] ?? DISPUTE_STATUS.ouvert;
             return (
-              <div key={d.id} className="card space-y-2 p-4">
+              <StaggerItem key={d.id} className="card space-y-2 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-ink">{d.group?.nom ?? 'Groupe'}</p>
@@ -49,10 +48,10 @@ export default function Disputes() {
                 </div>
                 <p className="text-sm text-ink-soft">{d.description}</p>
                 {d.resolution && <p className="text-xs text-success">Décision : {d.resolution}</p>}
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       )}
 
       <Modal open={open} onClose={() => setOpen(false)} title="Signaler un litige"

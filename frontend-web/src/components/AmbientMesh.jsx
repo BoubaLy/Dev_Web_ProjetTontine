@@ -2,30 +2,49 @@ import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 
 /**
- * FOND AMBIANT DU SITE — « Opal Aurora » décliné par contexte.
- * Même système partout (blobs flous des classes `.aurora-*`, grain SVG, dérive lente
- * via les mêmes keyframes/durées désynchronisées), mais la COMPOSITION change selon
- * la densité de la page (brief « Site Vivant » §1) :
- *   - `light`    : pages de contenu (dashboard, détail de groupe) — 3 blobs, discret.
- *   - `soft`     : pages denses en données (historique, admin, notifications) — 2 blobs,
- *                  très atténué (la lisibilité prime).
- *   - `showcase` : moments d'accroche (panneau auth) — 5 blobs, intensité marquée.
- *   - `deep`     : overlays sur `bg-deep` (célébration de cycle).
+ * FOND AMBIANT DU SITE — « motif discret » (remplace les anciens blobs colorés qui
+ * concurrençaient le texte). UNE seule teinte très peu opaque sur `bg` propre :
+ *   - grille de points qui « respire » (opacity),
+ *   - vagues SVG tracées en `stroke` (pas de `fill`) qui dérivent lentement.
  *
- * Garde-fous (checklist §3) : `pointer-events-none`, couche `absolute inset-0` en `-z-10`
- * SOUS le contenu — le parent doit porter `relative isolate` (isolation = le fond reste
- * derrière le contenu de la page sans jamais passer devant, ni fuir derrière la sidebar).
- * **`overflow-hidden` porté par le composant lui-même** → aucun blob ne crée de scroll
- * horizontal. PAS de vignette dure (source de la « délimitation » visible précédemment).
- * Animation coupée hors-écran (IntersectionObserver) et gelée si `prefers-reduced-motion`.
+ * Jamais concurrent du texte : opacité basse (≈ 5-10 % effectif), teinte unique,
+ * transform/opacity uniquement. Couche `absolute inset-0 -z-10` (parent en
+ * `relative isolate`), `pointer-events-none`, `overflow-hidden` interne → 0 scroll
+ * horizontal. Animation coupée hors-écran (IntersectionObserver) et gelée si
+ * `prefers-reduced-motion`.
+ *
+ * Variantes selon la densité de la page :
+ *   light (dashboard, groupe) · soft (pages denses) · hero (landing) · deep (panneau sombre).
  */
 
-const COMPOSITIONS = {
-  light: { blobs: ['a', 'b', 'c'], dark: false, opacity: 0.5, grain: 0.05 },
-  soft: { blobs: ['a', 'c'], dark: false, opacity: 0.3, grain: 0.04 },
-  showcase: { blobs: ['a', 'b', 'c', 'd', 'e'], dark: false, opacity: 0.95, grain: 0.06 },
-  deep: { blobs: ['a', 'b', 'c', 'd'], dark: true, opacity: 0.85, grain: 0.05 },
+const VARIANTS = {
+  // App connectée : trame de points STATIQUE, sans vagues → pro & épuré, zéro mouvement.
+  light: { tint: '#2B6E64', opacity: 0.4, waves: 0, dot: 28, still: true },
+  soft: { tint: '#2B6E64', opacity: 0.3, waves: 0, dot: 30, still: true },
+  // Landing / auth : motif complet vivant (points qui respirent + vagues).
+  hero: { tint: '#2B6E64', opacity: 0.55, waves: 3, dot: 24 },
+  deep: { tint: '#8FE0D3', opacity: 0.4, waves: 3, dot: 26 },
 };
+
+const WAVES = [
+  { top: 12, periods: 3, amp: 34, cls: 'pattern-wave-1' },
+  { top: 44, periods: 4, amp: 26, cls: 'pattern-wave-2' },
+  { top: 70, periods: 2, amp: 30, cls: 'pattern-wave-3' },
+];
+
+// Onde sinusoïdale sur 2000 unités = 2 copies identiques (période entière) → boucle
+// sans couture avec translateX(-50%).
+function sine(amp, periods) {
+  const W = 2000;
+  const yBase = 100;
+  let d = '';
+  for (let i = 0; i <= 120; i++) {
+    const x = (W / 120) * i;
+    const y = yBase + amp * Math.sin((x / W) * periods * 2 * 2 * Math.PI);
+    d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+  }
+  return d.trim();
+}
 
 export default function AmbientMesh({ variant = 'light', className = '' }) {
   const ref = useRef(null);
@@ -40,33 +59,39 @@ export default function AmbientMesh({ variant = 'light', className = '' }) {
     return () => io.disconnect();
   }, []);
 
+  const v = VARIANTS[variant] ?? VARIANTS.light;
   const play = onScreen && !reduce ? 'running' : 'paused';
-  const c = COMPOSITIONS[variant] ?? COMPOSITIONS.light;
-  const grainBlend = c.dark ? 'mix-blend-screen' : 'mix-blend-multiply';
+  const waves = WAVES.slice(0, v.waves);
 
   return (
     <div
       ref={ref}
       aria-hidden
       className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden ${className}`}
-      style={{ opacity: c.opacity }}
+      style={{ color: v.tint, opacity: v.opacity }}
     >
-      {c.blobs.map((k) => (
-        <span
-          key={k}
-          className={`aurora-blob aurora-${k} ${c.dark ? `aurora-dark-${k}` : ''}`}
-          style={{ animationPlayState: play }}
-        />
-      ))}
-
-      {/* Grain tactile (feTurbulence natif — pas de coût JS) */}
-      <svg className={`absolute inset-0 h-full w-full ${grainBlend}`} style={{ opacity: c.grain }} aria-hidden>
-        <filter id={`grain-${variant}`}>
-          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter={`url(#grain-${variant})`} />
+      {/* Grille de points — respire (landing) ou statique (app connectée, `still`) */}
+      <svg className={`${v.still ? '' : 'pattern-dots'} absolute inset-0 h-full w-full`} style={{ animationPlayState: play }}>
+        <defs>
+          <pattern id={`dg-${variant}`} width={v.dot} height={v.dot} patternUnits="userSpaceOnUse">
+            <circle cx="1.4" cy="1.4" r="1.3" fill="currentColor" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#dg-${variant})`} />
       </svg>
+
+      {/* Vagues (stroke) qui dérivent lentement, à différentes vitesses/sens */}
+      {waves.map((w, i) => (
+        <svg
+          key={i}
+          className={`pattern-wave ${w.cls} absolute`}
+          viewBox="0 0 2000 200"
+          preserveAspectRatio="none"
+          style={{ top: `${w.top}%`, left: 0, width: '200%', height: '28%', animationPlayState: play }}
+        >
+          <path d={sine(w.amp, w.periods)} fill="none" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.55" />
+        </svg>
+      ))}
     </div>
   );
 }

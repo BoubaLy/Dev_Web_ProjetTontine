@@ -149,6 +149,42 @@ export function StaggerList({ items = [], render, className = '', gap = 'gap-4' 
 }
 
 /* ================================================================
+   STAGGER / STAGGER ITEM — apparition en cascade d'une liste au montage
+   (quand les données arrivent). Wrappers legers, transform/opacity only,
+   neutres si prefers-reduced-motion. Conserve le layout du conteneur
+   (grid/flex/space-y) : on ne fait qu'envelopper chaque élément.
+   ================================================================ */
+export function Stagger({ children, className = '', gap = 0.05, as = 'div' }) {
+  const reduce = useReducedMotion();
+  const M = motion[as] ?? motion.div;
+  return (
+    <M
+      className={className}
+      variants={{ hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : gap, delayChildren: 0.03 } } }}
+      initial="hidden"
+      animate="show"
+    >
+      {children}
+    </M>
+  );
+}
+
+export function StaggerItem({ children, className = '' }) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      variants={{
+        hidden: { opacity: 0, y: reduce ? 0 : 12 },
+        show: { opacity: 1, y: 0, transition: { duration: duration.base, ease: easing.standard } },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ================================================================
    GLOW BUTTON — bouton avec halo lumineux animé au hover.
    Réservé aux CTA principaux (pas sur tous les éléments).
    ================================================================ */

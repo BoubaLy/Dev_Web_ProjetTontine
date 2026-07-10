@@ -114,7 +114,27 @@
 }
 
 /* ============================================================
-   ARRIÈRE-PLAN « OPAL AURORA » — Aurora UI 2026
+   ARRIÈRE-PLAN « MOTIF » — remplace les blobs colorés Aurora.
+   UNE seule teinte (currentColor du wrapper), très faible opacité :
+   - grille de points qui « respire » (opacity),
+   - vagues SVG en stroke qui dérivent lentement (translateX).
+   transform/opacity uniquement. Jamais concurrent du texte.
+   ============================================================ */
+.pattern-dots { animation: dot-breathe 10s ease-in-out infinite; will-change: opacity; }
+@keyframes dot-breathe {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.9; }
+}
+/* Chaque vague = un SVG de largeur 200% (2 copies identiques) → translateX(-50%)
+   correspond à un nombre entier de périodes = boucle sans couture. */
+.pattern-wave { will-change: transform; animation-name: wave-drift; animation-timing-function: linear; animation-iteration-count: infinite; }
+.pattern-wave-1 { animation-duration: 28s; }
+.pattern-wave-2 { animation-duration: 38s; animation-direction: reverse; }
+.pattern-wave-3 { animation-duration: 48s; }
+@keyframes wave-drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ============================================================
+   ARRIÈRE-PLAN « OPAL AURORA » — Aurora UI 2026 (legacy : démo /aurora)
    Durées ~ token duration.ambient (12s) avec variations ;
    easing = token gentle. 5 blobs pour plus de profondeur.
    ============================================================ */
@@ -305,6 +325,7 @@
 @media (prefers-reduced-motion: reduce) {
   /* Animations CSS */
   .aurora-blob { animation: none !important; }
+  .pattern-dots, .pattern-wave { animation: none !important; }
   .shimmer-text { animation: none; color: #2B6E64; background: none; -webkit-background-clip: unset; background-clip: unset; }
   .btn:not(:disabled):active { transform: none; }
   .card-interactive:hover { transform: none; }
