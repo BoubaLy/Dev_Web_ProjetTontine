@@ -53,6 +53,7 @@ services:
         value: "false"
       - key: OTP_CHANNEL
         value: log
-      # Charge les donnees de demo au premier deploiement (a repasser a false ensuite).
+      # true = base repartie a neuf + donnees de demo (uniquement au 1er deploiement).
+      # false = on applique seulement les nouvelles migrations, les donnees sont conservees.
       - key: RUN_SEED
-        value: "true"
+        value: "false"
