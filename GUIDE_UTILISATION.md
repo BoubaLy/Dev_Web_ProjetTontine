@@ -28,10 +28,11 @@ docker compose up -d --build
 
 1. Sur la page d'accueil, cliquez **S'inscrire**.
 2. Renseignez **prénom, nom, téléphone, email, mot de passe** (wizard en 3 étapes).
-3. Un **code de vérification (OTP)** est envoyé **par email**. Saisissez-le pour activer le compte.
-4. Connectez-vous avec votre **téléphone + mot de passe**.
+3. Le compte est créé et vous êtes **connecté directement**.
 
-> En mode démo, le code OTP peut s'afficher à l'écran ou dans les logs du serveur.
+> La vérification par code (OTP par email) est présente dans le code mais **désactivée
+> pour cette version MVP** (`OTP_ENABLED=false`). Pour la réactiver : passer `OTP_ENABLED=true`
+> et configurer un service d'envoi d'emails (`MAIL_*`).
 
 ---
 

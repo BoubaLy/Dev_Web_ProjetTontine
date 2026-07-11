@@ -44,7 +44,12 @@ export default function Register() {
     setErreur(null); setLoading(true);
     try {
       const data = await register(f);
-      navigate('/otp', { state: { telephone: f.telephone, email: f.email, otpHint: data.otp_hint } });
+      if (data.otp_required === false) {
+        // MVP sans OTP : deja connecte -> direction le tableau de bord.
+        navigate('/tableau-de-bord');
+      } else {
+        navigate('/otp', { state: { telephone: f.telephone, email: f.email, otpHint: data.otp_hint } });
+      }
     } catch (err) {
       const apiErr = err.response?.data?.errors;
       setErreur(apiErr ? Object.values(apiErr)[0][0] : err.response?.data?.message ?? 'Inscription impossible.');

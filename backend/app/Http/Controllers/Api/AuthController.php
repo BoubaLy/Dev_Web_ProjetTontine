@@ -26,15 +26,25 @@ class AuthController extends Controller
     {
         $user = User::create($request->only(['nom', 'prenom', 'telephone', 'email', 'password']));
 
-        $this->otp->generateAndSend($user);
+        $otpEnabled = (bool) config('services.otp.enabled', true);
+
+        if ($otpEnabled) {
+            $this->otp->generateAndSend($user);
+            $message = 'Compte créé. Un code de vérification a été envoyé à votre email.';
+        } else {
+            // MVP : pas d'étape OTP -> compte vérifié directement.
+            $user->forceFill(['telephone_verifie_le' => now()])->save();
+            $message = 'Compte créé. Vous êtes connecté.';
+        }
 
         $token = $user->createToken('mobile')->plainTextToken;
 
         return $this->success([
             'user' => $user,
             'token' => $token,
-            'otp_hint' => config('app.debug') ? OtpService::DEV_CODE : null,
-        ], 'Compte créé. Un code de vérification a été envoyé à votre email.', 201);
+            'otp_required' => $otpEnabled,
+            'otp_hint' => ($otpEnabled && config('app.debug')) ? OtpService::DEV_CODE : null,
+        ], $message, 201);
     }
 
     /** US-01 — Vérification du code OTP reçu par SMS (simulé en dev). */

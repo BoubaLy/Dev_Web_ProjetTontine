@@ -36,8 +36,11 @@ return [
     ],
 
     // Canal de vérification OTP : email (défaut prod, gratuit) | sms | log.
+    // 'enabled' => false désactive l'étape OTP (MVP) : l'inscription vérifie
+    // directement le compte, sans code ni email.
     'otp' => [
         'channel' => env('OTP_CHANNEL'),
+        'enabled' => filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOL),
     ],
 
     // Envoi de SMS (OTP / alertes). Pilote choisi par OTP_SMS_DRIVER.

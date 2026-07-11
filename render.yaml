@@ -44,9 +44,13 @@ services:
         value: /etc/secrets/ca.pem
       - key: DB_SSL
         value: "true"
-      # Jobs executes en ligne (pas de worker) + OTP dans les logs.
+      # Jobs executes en ligne (pas de worker).
       - key: QUEUE_CONNECTION
         value: sync
+      # MVP : etape OTP desactivee (inscription = connexion directe, sans email).
+      # Repasser a true + configurer MAIL_* pour reactiver la verification par email.
+      - key: OTP_ENABLED
+        value: "false"
       - key: OTP_CHANNEL
         value: log
       # Charge les donnees de demo au premier deploiement (a repasser a false ensuite).

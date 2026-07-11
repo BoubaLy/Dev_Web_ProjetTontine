@@ -28,7 +28,13 @@ export function AuthProvider({ children }) {
 
   const register = async (payload) => {
     const { data } = await api.post('/auth/register', payload);
-    return data.data; // { user, token, otp_hint }
+    const d = data.data; // { user, token, otp_required, otp_hint }
+    // MVP sans OTP : le compte est deja verifie -> on connecte directement.
+    if (d.otp_required === false && d.token) {
+      persist(d.token);
+      setUser(d.user);
+    }
+    return d;
   };
 
   const verifyOtp = async (telephone, code) => {
