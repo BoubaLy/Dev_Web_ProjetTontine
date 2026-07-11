@@ -7,7 +7,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useGroups, useNotifications } from '../lib/queries';
 import PageTransition from './PageTransition';
-import AmbientMesh from './AmbientMesh';
 import { duration, easing } from '../motion/tokens';
 
 /** Vrai dès que la page a défilé de quelques pixels (navbar glassmorphism). */
@@ -227,10 +226,9 @@ export default function Layout() {
       </AnimatePresence>
 
       {/* ===== CONTENU ===== */}
-      {/* Fond ambiant UNIQUE, plein-largeur (couvre toute la zone de contenu, pas
-          seulement la colonne centrée -> plus d'espace vide à gauche/droite). */}
+      {/* Fond neutre dans l'app connectee : plus de pointilles, on garde une lecture
+          calme et lisible (le motif ambiant reste reserve a la vitrine). */}
       <main className="relative isolate min-h-screen md:pl-64">
-        <AmbientMesh variant="light" />
         <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
           <PageTransition />
         </div>

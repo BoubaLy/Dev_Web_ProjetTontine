@@ -21,11 +21,12 @@ const VARIANTS = {
   // App connectée : trame de points STATIQUE, sans vagues -> pro & épuré, zéro mouvement.
   light: { tint: '#2B6E64', opacity: 0.4, waves: 0, dot: 28, still: true },
   soft: { tint: '#2B6E64', opacity: 0.3, waves: 0, dot: 30, still: true },
-  // Landing / auth : motif complet vivant (points qui respirent + vagues).
   hero: { tint: '#2B6E64', opacity: 0.55, waves: 3, dot: 24 },
-  deep: { tint: '#8FE0D3', opacity: 0.4, waves: 3, dot: 26 },
-  // Hero de la vitrine : points qui respirent mais SANS vagues.
-  heroCalm: { tint: '#2B6E64', opacity: 0.55, waves: 0, dot: 24 },
+  // Validation croisee : vagues conservees, points plus transparents.
+  deep: { tint: '#8FE0D3', opacity: 0.4, waves: 3, dot: 26, dotOpacity: 0.3 },
+  // Vitrine (1re section) + auth : points qui clignotent en douceur, tres faibles
+  // pour ne pas gener la lecture.
+  heroCalm: { tint: '#2B6E64', opacity: 0.34, waves: 0, dot: 26, dotOpacity: 0.75 },
 };
 
 const WAVES = [
@@ -79,7 +80,7 @@ export default function AmbientMesh({ variant = 'light', className = '' }) {
             <circle cx="1.4" cy="1.4" r="1.3" fill="currentColor" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill={`url(#dg-${variant})`} />
+        <rect width="100%" height="100%" fill={`url(#dg-${variant})`} opacity={v.dotOpacity ?? 1} />
       </svg>
 
       {/* Vagues (stroke) qui dérivent lentement, à différentes vitesses/sens */}
