@@ -2,12 +2,12 @@
   <defs>
     <linearGradient id="ts" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#6FBEB4"/>
-      <stop offset="0.5" stop-color="#47A197"/>
+      <stop offset="0.45" stop-color="#47A197"/>
       <stop offset="1" stop-color="#33847C"/>
     </linearGradient>
   </defs>
   <rect width="512" height="512" fill="url(#ts)"/>
-  <g transform="translate(160 160) scale(8)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(128 128) scale(10.6667)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="8" cy="8" r="6"/>
     <path d="M18.09 10.37A6 6 0 1 1 10.34 18"/>
     <path d="M7 6h1v4"/>

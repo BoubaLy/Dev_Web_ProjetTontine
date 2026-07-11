@@ -22,11 +22,11 @@ const VARIANTS = {
   light: { tint: '#2B6E64', opacity: 0.4, waves: 0, dot: 28, still: true },
   soft: { tint: '#2B6E64', opacity: 0.3, waves: 0, dot: 30, still: true },
   hero: { tint: '#2B6E64', opacity: 0.55, waves: 3, dot: 24 },
-  // Validation croisee : vagues conservees, points plus transparents.
-  deep: { tint: '#8FE0D3', opacity: 0.4, waves: 3, dot: 26, dotOpacity: 0.3 },
-  // Vitrine (1re section) + auth : points qui clignotent en douceur, tres faibles
-  // pour ne pas gener la lecture.
-  heroCalm: { tint: '#2B6E64', opacity: 0.34, waves: 0, dot: 26, dotOpacity: 0.75 },
+  // Validation croisee : vagues conservees, points bicolores (teal + or) tres transparents.
+  deep: { tint: '#8FE0D3', dot2: '#C6974F', opacity: 0.4, waves: 3, dot: 26, dotOpacity: 0.3 },
+  // Vitrine (1re section) + auth : points bicolores (teal + or) qui clignotent en
+  // douceur, tres faibles pour ne pas gener la lecture.
+  heroCalm: { tint: '#2B6E64', dot2: '#C6974F', opacity: 0.34, waves: 0, dot: 26, dotOpacity: 0.8 },
 };
 
 const WAVES = [
@@ -78,6 +78,8 @@ export default function AmbientMesh({ variant = 'light', className = '' }) {
         <defs>
           <pattern id={`dg-${variant}`} width={v.dot} height={v.dot} patternUnits="userSpaceOnUse">
             <circle cx="1.4" cy="1.4" r="1.3" fill="currentColor" />
+            {/* Point secondaire (2e couleur du site), decale d'un demi-pas -> trame bicolore */}
+            {v.dot2 && <circle cx={v.dot / 2 + 1.4} cy={v.dot / 2 + 1.4} r="1.3" fill={v.dot2} />}
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill={`url(#dg-${variant})`} opacity={v.dotOpacity ?? 1} />
