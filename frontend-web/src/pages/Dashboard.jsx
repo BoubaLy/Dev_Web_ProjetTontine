@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, UserPlus, ArrowDownLeft, ArrowUpRight, Sparkles, ArrowRight, Crown, CalendarClock } from 'lucide-react';
+import { Plus, UserPlus, ArrowDownLeft, ArrowUpRight, ArrowRight, Crown, CalendarClock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroups, useMyHistory, useGroup, useCurrentCycle, formatFCFA } from '../lib/queries';
 import { EmptyState, StatusPill } from '../components/ui';
@@ -206,8 +206,7 @@ export default function Dashboard() {
           </section>
         )}
 
-        <div className="flex items-center gap-3 rounded-card bg-surface-alt p-4 text-sm text-ink-soft">
-          <Sparkles size={18} className="text-gold" />
+        <div className="rounded-card bg-surface-alt p-4 text-sm text-ink-soft">
           Cotisez à temps pour faire grimper votre score de fiabilité, gage de confiance auprès des groupes.
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useEffect, isValidElement } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Inbox } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { X, Inbox, Coins } from 'lucide-react';
 import { CONTRIB_STATUS } from '../lib/status';
 import { duration, easing, variants } from '../motion/tokens';
 
@@ -10,10 +10,41 @@ export function Spinner({ className = '' }) {
   );
 }
 
+/**
+ * Chargement de marque : le logo TontineSecure au centre, entoure d'un arc
+ * "shimmer" qui tourne, avec une respiration douce du logo. Coupe en reduced-motion.
+ */
 export function Loading({ label = 'Chargement…' }) {
+  const reduce = useReducedMotion();
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16 text-ink-soft">
-      <Spinner /><span className="text-sm">{label}</span>
+    <div className="flex flex-col items-center justify-center gap-4 py-16 text-ink-soft">
+      <div className="relative grid h-16 w-16 place-items-center">
+        <motion.svg
+          className="absolute inset-0 h-full w-full"
+          viewBox="0 0 64 64"
+          animate={reduce ? {} : { rotate: 360 }}
+          transition={{ duration: 1, ease: 'linear', repeat: Infinity }}
+        >
+          <defs>
+            <linearGradient id="loaderShimmer" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#8DA9C4" />
+              <stop offset="0.5" stopColor="#2B6E64" />
+              <stop offset="1" stopColor="#C6974F" />
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="29" fill="none" stroke="#EAF0EF" strokeWidth="3" />
+          <circle cx="32" cy="32" r="29" fill="none" stroke="url(#loaderShimmer)" strokeWidth="3"
+            strokeLinecap="round" strokeDasharray="70 200" />
+        </motion.svg>
+        <motion.span
+          className="grid h-11 w-11 place-items-center rounded-card bg-hero text-white shadow-soft"
+          animate={reduce ? {} : { scale: [1, 0.9, 1] }}
+          transition={{ duration: 1.4, ease: 'easeInOut', repeat: Infinity }}
+        >
+          <Coins size={22} />
+        </motion.span>
+      </div>
+      <span className="text-sm">{label}</span>
     </div>
   );
 }

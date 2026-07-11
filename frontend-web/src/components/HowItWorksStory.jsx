@@ -51,8 +51,8 @@ function Fragment({ step }) {
         <p className="text-sm">Ousmane a déclaré <span className="font-mono">25 000 FCFA</span>. Vérifiez votre solde puis confirmez.</p>
       </div>
       <div className="mt-3 flex gap-2">
-        <div className="flex-1 grid place-items-center rounded-pill border border-danger py-2 text-xs font-semibold text-danger">Je n'ai rien reçu</div>
-        <div className="flex-1 grid place-items-center rounded-pill bg-primary py-2 text-xs font-semibold text-white">J'ai bien reçu</div>
+        <div className="flex flex-1 items-center justify-center whitespace-nowrap rounded-pill border border-danger px-3 py-2 text-xs font-semibold text-danger">Je n'ai rien reçu</div>
+        <div className="flex flex-1 items-center justify-center whitespace-nowrap rounded-pill bg-primary px-3 py-2 text-xs font-semibold text-white">J'ai bien reçu</div>
       </div>
       <p className="mt-3 flex items-center justify-center gap-1 text-sm font-medium text-success"><ArrowUpRight size={14} /> Cotisation validée · score +1</p>
     </div>
