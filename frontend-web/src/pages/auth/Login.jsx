@@ -44,9 +44,6 @@ export default function Login() {
       <p className="mt-5 text-center text-sm text-ink-soft">
         Pas encore de compte ? <Link to="/register" className="font-medium text-primary">S'inscrire</Link>
       </p>
-      <p className="mt-2 text-center text-xs text-ink-soft">
-        Démo : <span className="font-mono">+221771111111</span> / <span className="font-mono">password</span>
-      </p>
     </AuthLayout>
   );
 }
