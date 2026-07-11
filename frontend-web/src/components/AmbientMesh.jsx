@@ -24,6 +24,8 @@ const VARIANTS = {
   // Landing / auth : motif complet vivant (points qui respirent + vagues).
   hero: { tint: '#2B6E64', opacity: 0.55, waves: 3, dot: 24 },
   deep: { tint: '#8FE0D3', opacity: 0.4, waves: 3, dot: 26 },
+  // Hero de la vitrine : points qui respirent mais SANS vagues.
+  heroCalm: { tint: '#2B6E64', opacity: 0.55, waves: 0, dot: 24 },
 };
 
 const WAVES = [

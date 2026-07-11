@@ -246,9 +246,9 @@ export default function Landing() {
       </header>
 
       <main>
-      {/* ===== FOND VIVANT « motif » (hero + problème) ===== */}
+      {/* ===== FOND « motif » (hero + problème) - points sans vagues ===== */}
       <div className="relative isolate overflow-hidden">
-        <AmbientMesh variant="hero" />
+        <AmbientMesh variant="heroCalm" />
 
         {/* ① HERO */}
         <section
