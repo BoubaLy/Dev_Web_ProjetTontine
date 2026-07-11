@@ -47,10 +47,52 @@ export function useStartCycle(groupId) {
 export const useCurrentCycle = (groupId) => useQuery({ queryKey: keys.currentCycle(groupId), queryFn: () => api.get(`/groups/${groupId}/cycles/current`).then(unwrap), enabled: !!groupId, retry: false });
 export const useDashboard = (cycleId) => useQuery({ queryKey: keys.dashboard(cycleId), queryFn: () => api.get(`/cycles/${cycleId}/dashboard`).then(unwrap), enabled: !!cycleId });
 
+// Rotative : tirage au sort du beneficiaire apres collecte complete.
+export function useDrawCycle(groupId) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (cycleId) => api.post(`/cycles/${cycleId}/draw`).then(unwrap),
+    onSuccess: (_d, cycleId) => {
+      qc.invalidateQueries({ queryKey: keys.dashboard(cycleId) });
+      qc.invalidateQueries({ queryKey: keys.currentCycle(groupId) });
+    },
+  });
+}
+
+// Rotative : cloture du tour avec le recu televerse (multipart).
 export function useCloseCycle(groupId) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (cycleId) => api.post(`/cycles/${cycleId}/close`).then(unwrap),
+    mutationFn: ({ cycleId, recu }) => {
+      const form = new FormData();
+      form.append('recu', recu);
+      return api.post(`/cycles/${cycleId}/close`, form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(unwrap);
+    },
+    onSuccess: (_d, { cycleId }) => {
+      qc.invalidateQueries({ queryKey: keys.dashboard(cycleId) });
+      qc.invalidateQueries({ queryKey: keys.currentCycle(groupId) });
+      qc.invalidateQueries({ queryKey: keys.group(groupId) });
+    },
+  });
+}
+
+// Accumulative : cloturer la periode courante et ouvrir la suivante.
+export function useAdvanceCycle(groupId) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (cycleId) => api.post(`/cycles/${cycleId}/advance`).then(unwrap),
+    onSuccess: (_d, cycleId) => {
+      qc.invalidateQueries({ queryKey: keys.dashboard(cycleId) });
+      qc.invalidateQueries({ queryKey: keys.currentCycle(groupId) });
+    },
+  });
+}
+
+// Accumulative : restitution a l'echeance (chaque membre recupere ses versements).
+export function useSettleGroup(groupId) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.post(`/groups/${groupId}/settle`).then(unwrap),
     onSuccess: () => { qc.invalidateQueries({ queryKey: keys.currentCycle(groupId) }); qc.invalidateQueries({ queryKey: keys.group(groupId) }); },
   });
 }
@@ -67,13 +109,29 @@ export function useDeclareContribution(cycleId, groupId) {
     },
   });
 }
-export function useConfirmContribution() {
+// L'admin valide un depot reel -> statut `valide`.
+export function useValidateContribution(cycleId, groupId) {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: (id) => api.patch(`/contributions/${id}/confirm`).then(unwrap), onSuccess: () => { qc.invalidateQueries({ queryKey: keys.notifications }); qc.invalidateQueries({ queryKey: keys.myHistory }); } });
+  return useMutation({
+    mutationFn: (id) => api.patch(`/contributions/${id}/validate`).then(unwrap),
+    onSuccess: () => {
+      if (cycleId) qc.invalidateQueries({ queryKey: keys.dashboard(cycleId) });
+      if (groupId) qc.invalidateQueries({ queryKey: keys.currentCycle(groupId) });
+      qc.invalidateQueries({ queryKey: keys.notifications });
+      qc.invalidateQueries({ queryKey: keys.myHistory });
+    },
+  });
 }
-export function useDisputeContribution() {
+export function useDisputeContribution(cycleId) {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: ({ contributionId, description }) => api.patch(`/contributions/${contributionId}/dispute`, { description }).then(unwrap), onSuccess: () => qc.invalidateQueries({ queryKey: keys.notifications }) });
+  return useMutation({
+    mutationFn: ({ contributionId, description }) => api.patch(`/contributions/${contributionId}/dispute`, { description }).then(unwrap),
+    onSuccess: () => {
+      if (cycleId) qc.invalidateQueries({ queryKey: keys.dashboard(cycleId) });
+      qc.invalidateQueries({ queryKey: keys.notifications });
+      qc.invalidateQueries({ queryKey: keys.disputes });
+    },
+  });
 }
 export const useMyHistory = () => useQuery({ queryKey: keys.myHistory, queryFn: () => api.get('/me/contributions').then(unwrap) });
 

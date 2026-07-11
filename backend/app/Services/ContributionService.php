@@ -15,10 +15,11 @@ use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 /**
- * Cœur du système P2P déclaratif avec validation croisée (v2.1).
+ * Cycle financier (v3) : declaration par le membre, VALIDATION PAR L'ADMIN.
  *
- * Le payeur déclare sa transaction (référence SMS Mobile Money), puis le
- * bénéficiaire du tour la confirme (-> `valide`) ou la conteste (-> `litige`).
+ * Chaque membre declare son depot (reference Mobile Money). L'admin verifie le
+ * depot reel puis passe la cotisation de « en attente » a « validee » (ou la
+ * conteste -> litige). Historique infalsifiable qui remplace le carnet papier.
  */
 class ContributionService
 {
@@ -29,22 +30,25 @@ class ContributionService
     }
 
     /**
-     * US-10 — Déclaration d'une cotisation par le payeur.
+     * Declaration d'une cotisation par un membre -> statut `declare_paye`.
      *
-     * @throws RuntimeException règle métier violée (gel, bénéficiaire, doublon…).
+     * @throws RuntimeException regle metier violee (gel, doublon, tour clos...).
      */
     public function declarer(Cycle $cycle, User $payeur, string $methode, string $reference): Contribution
     {
+        $cycle->loadMissing('group');
+
         if ($cycle->statut !== 'en_cours') {
-            throw new RuntimeException('La période de collecte de ce cycle est close.');
+            throw new RuntimeException('La periode de collecte de ce tour est close.');
+        }
+
+        // Rotative : plus aucune declaration une fois le beneficiaire tire au sort.
+        if (! $cycle->group->estAccumulative() && $cycle->tirageEffectue()) {
+            throw new RuntimeException('La collecte de ce tour est close (le beneficiaire a ete tire au sort).');
         }
 
         if ($payeur->est_gele) {
-            throw new RuntimeException('Compte gelé : vous ne pouvez pas cotiser tant qu\'un litige est en cours (RG-06).');
-        }
-
-        if ($cycle->beneficiaire_id === $payeur->id) {
-            throw new RuntimeException('Le bénéficiaire du tour ne cotise pas envers lui-même.');
+            throw new RuntimeException('Compte gele : vous ne pouvez pas cotiser tant qu\'un litige est en cours.');
         }
 
         $estMembreActif = $cycle->group->adhesions()
@@ -53,15 +57,15 @@ class ContributionService
             ->exists();
 
         if (! $estMembreActif) {
-            throw new RuntimeException('Vous n\'êtes pas un membre actif de ce groupe.');
+            throw new RuntimeException('Vous n\'etes pas un membre actif de ce groupe.');
         }
 
         $existante = $cycle->contributions()->where('user_id', $payeur->id)->first();
         if ($existante && in_array($existante->statut, ['declare_paye', 'valide'], true)) {
-            throw new RuntimeException('Vous avez déjà déclaré votre cotisation pour cette période.');
+            throw new RuntimeException('Vous avez deja declare votre cotisation pour cette periode.');
         }
 
-        return DB::transaction(function () use ($cycle, $payeur, $methode, $reference, $existante) {
+        return DB::transaction(function () use ($cycle, $payeur, $methode, $reference) {
             $penalite = $this->penalites->calculer($cycle->group, $cycle);
 
             $contribution = Contribution::updateOrCreate(
@@ -78,19 +82,19 @@ class ContributionService
                 ]
             );
 
-            Log::info('[Cotisation] Déclarée', [
+            Log::info('[Cotisation] Declaree', [
                 'contribution_id' => $contribution->id,
                 'cycle_id' => $cycle->id,
                 'payeur_id' => $payeur->id,
                 'penalite' => $penalite,
             ]);
 
-            // Notifie le bénéficiaire pour validation croisée (US-11.b).
-            if ($beneficiaire = $cycle->beneficiaire) {
-                $beneficiaire->notify(new ContributionDeclared($contribution));
+            // Notifie l'admin du groupe : un depot est a verifier puis a valider.
+            if ($admin = $cycle->group->admin) {
+                $admin->notify(new ContributionDeclared($contribution));
             }
 
-            // RG-09 — alerte l'admin si non validée sous 48h.
+            // Rappel a l'admin si la cotisation n'est pas validee sous 48h.
             EscalateUnvalidatedContributionJob::dispatch($contribution->id)
                 ->delay(now()->addHours(48));
 
@@ -98,24 +102,24 @@ class ContributionService
         });
     }
 
-    /** US-11.b — Le bénéficiaire confirme la réception des fonds. */
-    public function confirmer(Contribution $contribution, User $beneficiaire): Contribution
+    /** L'admin verifie le depot reel et valide la cotisation -> `valide`. */
+    public function valider(Contribution $contribution, User $admin): Contribution
     {
-        $this->assujettirBeneficiaire($contribution, $beneficiaire);
+        $this->assurerAValider($contribution);
 
-        return DB::transaction(function () use ($contribution, $beneficiaire) {
+        return DB::transaction(function () use ($contribution, $admin) {
             $contribution->update([
                 'statut' => 'valide',
-                'valide_par' => $beneficiaire->id,
+                'valide_par' => $admin->id,
                 'valide_le' => now(),
                 'paye_le' => now(),
             ]);
 
             $this->scores->recalculer($contribution->user);
 
-            Log::info('[Cotisation] Validée', [
+            Log::info('[Cotisation] Validee par l\'admin', [
                 'contribution_id' => $contribution->id,
-                'beneficiaire_id' => $beneficiaire->id,
+                'admin_id' => $admin->id,
             ]);
 
             $contribution->user->notify(new ContributionValidated($contribution));
@@ -124,52 +128,46 @@ class ContributionService
         });
     }
 
-    /** US-11.b — Le bénéficiaire conteste la déclaration : ouverture d'un litige. */
-    public function contester(Contribution $contribution, User $beneficiaire, string $motif): Dispute
+    /** L'admin conteste une declaration (depot introuvable) -> `litige`. */
+    public function contester(Contribution $contribution, User $admin, string $motif): Dispute
     {
-        $this->assujettirBeneficiaire($contribution, $beneficiaire);
+        $this->assurerAValider($contribution);
 
-        return DB::transaction(function () use ($contribution, $beneficiaire, $motif) {
+        return DB::transaction(function () use ($contribution, $admin, $motif) {
             $contribution->update([
                 'statut' => 'litige',
-                'valide_par' => $beneficiaire->id,
+                'valide_par' => $admin->id,
                 'valide_le' => now(),
             ]);
 
-            // RG-06 — le payeur mis en cause est gelé le temps de l'investigation.
+            // Le membre mis en cause est gele le temps de l'investigation.
             $contribution->user->update(['est_gele' => true]);
 
             $dispute = Dispute::create([
                 'group_id' => $contribution->cycle->group_id,
-                'signale_par' => $beneficiaire->id,
+                'signale_par' => $admin->id,
                 'concerne_user_id' => $contribution->user_id,
                 'contribution_id' => $contribution->id,
                 'description' => $motif,
                 'statut' => 'ouvert',
             ]);
 
-            Log::warning('[Cotisation] Contestée — litige ouvert', [
+            Log::warning('[Cotisation] Contestee par l\'admin — litige ouvert', [
                 'contribution_id' => $contribution->id,
                 'dispute_id' => $dispute->id,
-                'beneficiaire_id' => $beneficiaire->id,
+                'admin_id' => $admin->id,
             ]);
 
-            // Notifie l'administrateur du groupe pour arbitrage.
-            if ($admin = $contribution->cycle->group->admin) {
-                $admin->notify(new DisputeOpened($dispute));
-            }
+            // Informe le membre concerne de l'ouverture du litige.
+            $contribution->user->notify(new DisputeOpened($dispute));
 
             return $dispute;
         });
     }
 
-    /** Garde-fou : seul le bénéficiaire du tour agit sur une déclaration le concernant. */
-    private function assujettirBeneficiaire(Contribution $contribution, User $beneficiaire): void
+    /** Garde-fou : la cotisation doit etre en attente de validation. */
+    private function assurerAValider(Contribution $contribution): void
     {
-        if ($contribution->cycle->beneficiaire_id !== $beneficiaire->id) {
-            throw new RuntimeException('Seul le bénéficiaire du tour peut valider ou contester cette cotisation.');
-        }
-
         if ($contribution->statut !== 'declare_paye') {
             throw new RuntimeException('Cette cotisation n\'est pas en attente de validation.');
         }

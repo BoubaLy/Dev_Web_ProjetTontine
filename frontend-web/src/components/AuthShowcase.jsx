@@ -26,8 +26,8 @@ const DEMO = [
 const CAPTIONS = [
   { Icon: Users, text: 'Awa crée la tontine et invite ses proches.' },
   { Icon: Users, text: 'Modou rejoint le groupe avec le code d’invitation.' },
-  { Icon: CircleCheck, text: 'Fatou déclare sa cotisation — validation croisée.' },
-  { Icon: CircleCheck, text: 'Cheikh reçoit et confirme le versement du tour.' },
+  { Icon: CircleCheck, text: 'Fatou déclare sa cotisation — l’admin la valide.' },
+  { Icon: CircleCheck, text: 'La collecte complète, le bénéficiaire est tiré au sort.' },
   { Icon: ShieldCheck, text: 'Chaque paiement est tracé, chaque membre en confiance.' },
 ];
 
@@ -59,7 +59,7 @@ export default function AuthShowcase({ compact = false, step = null }) {
           >
             <h2 className="font-display text-3xl font-semibold text-ink">La tontine, en confiance.</h2>
             <p className="mt-2 max-w-sm text-sm text-ink-soft">
-              Épargne rotative traçable, validation croisée des paiements, score de fiabilité.
+              Épargne rotative traçable, tirage au sort transparent, score de fiabilité.
             </p>
           </motion.div>
         )}

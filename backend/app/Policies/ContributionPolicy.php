@@ -6,15 +6,15 @@ use App\Models\Contribution;
 use App\Models\User;
 
 /**
- * Autorisations du cycle financier (§9) : un membre n'agit que sur ses propres
- * cotisations ; seul le bénéficiaire du tour valide/conteste une déclaration.
+ * Autorisations du cycle financier (v3) : la validation des depots est
+ * centralisee sur l'administrateur du groupe (verification du depot reel).
  */
 class ContributionPolicy
 {
-    /** Confirmer ou contester : réservé au bénéficiaire du tour concerné. */
+    /** Valider ou contester une cotisation : reserve a l'admin du groupe. */
     public function valider(User $user, Contribution $contribution): bool
     {
-        return $contribution->cycle->beneficiaire_id === $user->id;
+        return $contribution->cycle->group->admin_id === $user->id;
     }
 
     /** Consulter le tableau de bord d'un cycle : réservé à l'admin du groupe. */

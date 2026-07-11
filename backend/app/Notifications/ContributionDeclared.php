@@ -8,8 +8,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Notifie le bénéficiaire du tour qu'un membre a déclaré un paiement à son
- * encontre : il doit vérifier son solde Mobile Money puis valider ou contester.
+ * Notifie l'admin du groupe qu'un membre a declare un depot : il doit verifier
+ * le depot reel (Mobile Money) puis valider ou contester la cotisation.
  */
 class ContributionDeclared extends Notification
 {
@@ -35,7 +35,7 @@ class ContributionDeclared extends Notification
             'payeur' => trim("{$payeur->prenom} {$payeur->nom}"),
             'montant' => $this->contribution->montant,
             'reference' => $this->contribution->reference_transaction,
-            'message' => "{$payeur->prenom} {$payeur->nom} a déclaré un paiement de {$this->contribution->montant} FCFA. Confirmez la réception.",
+            'message' => "{$payeur->prenom} {$payeur->nom} a déclaré un dépôt de {$this->contribution->montant} FCFA. Vérifiez puis validez.",
         ];
     }
 
@@ -44,9 +44,9 @@ class ContributionDeclared extends Notification
         $payeur = $this->contribution->user;
 
         return (new MailMessage)
-            ->subject('TontineSecure — Paiement déclaré à valider')
+            ->subject('TontineSecure — Dépôt déclaré à valider')
             ->greeting("Bonjour {$notifiable->prenom},")
-            ->line("{$payeur->prenom} {$payeur->nom} a déclaré un paiement de {$this->contribution->montant} FCFA (réf. {$this->contribution->reference_transaction}).")
-            ->line('Vérifiez votre solde Mobile Money puis confirmez ou contestez la réception dans l\'application.');
+            ->line("{$payeur->prenom} {$payeur->nom} a déclaré un dépôt de {$this->contribution->montant} FCFA (réf. {$this->contribution->reference_transaction}).")
+            ->line('Vérifiez le dépôt réel puis validez ou contestez la cotisation dans l\'application.');
     }
 }

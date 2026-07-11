@@ -25,14 +25,15 @@ const RING_MEMBERS = [
 
 const TEMOIGNAGES = [
   { name: 'Awa Diop', ville: 'Dakar', txt: "Avant, on notait tout sur un carnet et il y avait toujours un doute. Là, chaque versement est confirmé par deux personnes. Plus de disputes." },
-  { name: 'Modou Fall', ville: 'Thiès', txt: "J'ai reçu mon tour à temps, et tout le groupe a vu que j'avais bien reçu les fonds. C'est transparent, on se fait confiance." },
+  { name: 'Modou Fall', ville: 'Thiès', txt: "J'ai été tiré au sort à mon tour, et tout le groupe a vu la collecte se remplir. C'est transparent, on se fait confiance." },
   { name: 'Bineta Sow', ville: 'Saint-Louis', txt: "Notre tontine de quartier tourne sans stress. Le score de fiabilité motive tout le monde à cotiser à temps." },
 ];
 
 const FAQ = [
   ['Que se passe-t-il en cas de litige ?', "N'importe quel membre peut signaler une anomalie. L'administrateur du groupe (ou le support) arbitre, et le compte concerné est gelé le temps de l'investigation — il ne peut ni cotiser ni recevoir tant que ce n'est pas résolu."],
   ['Mes données sont-elles en sécurité ?', "Oui. La connexion est protégée, vos pièces d'identité sont chiffrées et leur accès est réservé au support. On ne collecte que le nécessaire."],
-  ['Est-ce que ça marche avec Wave et Orange Money ?', "Oui. Vous effectuez votre transfert comme d'habitude, puis vous déclarez la référence reçue par SMS. Le bénéficiaire confirme la réception."],
+  ['Est-ce que ça marche avec Wave et Orange Money ?', "Oui. Vous effectuez votre transfert comme d'habitude, puis vous déclarez la référence reçue par SMS. L'administrateur vérifie le dépôt réel et le valide."],
+  ['Qui reçoit le pot à chaque tour ?', "Le bénéficiaire est tiré au sort une fois toutes les cotisations validées, parmi les membres qui n'ont pas encore gagné. Personne ne le connaît à l'avance : c'est équitable et scellé."],
   ['Dois-je payer un abonnement ?', "Non, l'application est gratuite (projet académique)."],
   ['Comment rejoindre une tontine existante ?', "Avec un code d'invitation que l'administrateur du groupe vous partage (WhatsApp / SMS). Vous le saisissez dans « Rejoindre »."],
 ];
@@ -385,15 +386,15 @@ export default function Landing() {
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-20 md:py-28">
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             <Reveal>
-              <p className="text-sm font-medium uppercase tracking-wide text-gold">La validation croisée</p>
+              <p className="text-sm font-medium uppercase tracking-wide text-gold">Traçabilité & tirage transparent</p>
               <h2 className="mt-4 font-display text-[clamp(1.9rem,4vw,3.2rem)] font-medium leading-tight">
-                Deux personnes se font confiance{' '}
-                <em className="italic text-gold">et se contrôlent</em>.
+                Un historique infalsifiable,{' '}
+                <em className="italic text-gold">un tirage équitable</em>.
               </h2>
               <p className="mt-5 text-ink-inverse/70">
-                C'est l'esprit même de la tontine : celui qui paie déclare son versement, celui qui
-                reçoit le confirme. Aucun paiement n'est validé unilatéralement. La technologie ne
-                remplace pas la confiance — elle la protège.
+                Chaque membre déclare son versement Mobile Money ; l'administrateur vérifie le dépôt
+                réel et le valide. Une fois la collecte complète, le bénéficiaire est tiré au sort —
+                personne ne le connaît à l'avance. Fini le carnet papier : tout est tracé et scellé.
               </p>
               <Magnetic>
                 <Link

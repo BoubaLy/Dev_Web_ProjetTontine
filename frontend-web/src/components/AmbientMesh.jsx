@@ -22,7 +22,7 @@ const VARIANTS = {
   light: { tint: '#2B6E64', opacity: 0.4, waves: 0, dot: 28, still: true },
   soft: { tint: '#2B6E64', opacity: 0.3, waves: 0, dot: 30, still: true },
   hero: { tint: '#2B6E64', opacity: 0.55, waves: 3, dot: 24 },
-  // Validation croisee : vagues conservees, points bicolores (teal + or) tres transparents.
+  // Section confiance (tracabilite) : vagues conservees, points bicolores tres transparents.
   deep: { tint: '#8FE0D3', dot2: '#C6974F', opacity: 0.4, waves: 3, dot: 26, dotOpacity: 0.3 },
   // Vitrine (1re section) + auth : points bicolores (teal + or) qui clignotent en
   // douceur, tres faibles pour ne pas gener la lecture.

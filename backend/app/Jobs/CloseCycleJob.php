@@ -10,8 +10,12 @@ use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 /**
- * Clôture automatique d'un cycle arrivé à échéance (US-11).
- * Peut être planifié quotidiennement ou déclenché manuellement par l'admin.
+ * Traitement des tours arrives a echeance (planifie quotidiennement).
+ *
+ *  - Accumulative : on avance automatiquement d'une periode une fois toutes les
+ *    cotisations validees (l'epargne continue jusqu'a la date d'echeance finale).
+ *  - Rotative : la cloture reste MANUELLE (elle exige le tirage au sort puis le
+ *    recu televerse par l'admin). On ne fait donc que journaliser.
  */
 class CloseCycleJob implements ShouldQueue
 {
@@ -29,11 +33,23 @@ class CloseCycleJob implements ShouldQueue
             return;
         }
 
+        // La rotative se cloture a la main (tirage + recu) : rien a automatiser.
+        if (! $cycle->group->estAccumulative()) {
+            return;
+        }
+
+        if (! $service->collecteComplete($cycle)) {
+            Log::info('[CloseCycleJob] Avance differee (collecte incomplete)', [
+                'cycle_id' => $cycle->id,
+            ]);
+
+            return;
+        }
+
         try {
-            $service->cloturer($cycle);
+            $service->avancerPeriodeAccumulative($cycle);
         } catch (RuntimeException $e) {
-            // Taux de collecte < 100% (RG-05/08) : on réessaiera au prochain passage.
-            Log::info('[CloseCycleJob] Clôture différée', [
+            Log::info('[CloseCycleJob] Avance differee', [
                 'cycle_id' => $cycle->id,
                 'raison' => $e->getMessage(),
             ]);

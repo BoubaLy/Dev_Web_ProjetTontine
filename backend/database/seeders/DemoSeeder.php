@@ -26,9 +26,9 @@ use Illuminate\Support\Str;
  * Comptes (mot de passe : « password ») :
  *   Super-Admin (support) : +221770000000
  * Awa Diop (admin/démo) : +221771111111 <- compte à présenter
- *   Modou Fall             : +221772222222  (bénéficiaire du tour en cours)
+ *   Modou Fall             : +221772222222  (cotisation validée, tour 2)
  *   Bineta Sow             : +221773333333
- *   Ousmane Ndiaye         : +221774444444  (a déclaré, en attente de validation)
+ *   Ousmane Ndiaye         : +221774444444  (a déclaré, en attente de validation admin)
  * Fatou Ba : +221775555555 (en retard -> litige)
  *   Cheikh Diallo          : +221776666666
  * Aminata Sarr : +221777777777 (KYC en attente -> à valider par le Support)
@@ -76,12 +76,13 @@ class DemoSeeder extends Seeder
             ]);
         }
 
-        // Cycle 1 — clôturé, versement effectué à Awa (ordre 1).
+        // Cycle 1 — cloture : tout le monde a cotise, Awa a ete tiree au sort.
         $c1 = Cycle::create([
             'group_id' => $g1->id, 'numero_periode' => 1, 'beneficiaire_id' => $awa->id,
-            'date_debut' => now()->subMonths(2), 'date_fin' => now()->subMonth(), 'statut' => 'cloture',
+            'date_debut' => now()->subMonths(2), 'date_fin' => now()->subMonth(),
+            'tirage_effectue_le' => now()->subMonth(), 'statut' => 'cloture',
         ]);
-        foreach ([$modou, $bineta, $ousmane, $fatou] as $u) {
+        foreach ([$awa, $modou, $bineta, $ousmane, $fatou] as $u) {
             Contribution::create([
                 'cycle_id' => $c1->id, 'user_id' => $u->id, 'montant' => 25000, 'statut' => 'valide',
                 'methode_paiement' => 'wave', 'reference_transaction' => 'WV-'.Str::upper(Str::random(6)),
@@ -89,21 +90,21 @@ class DemoSeeder extends Seeder
             ]);
         }
         $payout1 = Payout::create([
-            'cycle_id' => $c1->id, 'user_id' => $awa->id, 'montant' => 100000,
+            'cycle_id' => $c1->id, 'user_id' => $awa->id, 'montant' => 125000,
             'statut' => 'verse', 'verse_le' => now()->subMonth(),
         ]);
 
-        // Cycle 2 — en cours, bénéficiaire Modou (ordre 2).
+        // Cycle 2 — en cours, collecte en attente du TIRAGE (aucun beneficiaire encore).
         $c2 = Cycle::create([
-            'group_id' => $g1->id, 'numero_periode' => 2, 'beneficiaire_id' => $modou->id,
+            'group_id' => $g1->id, 'numero_periode' => 2, 'beneficiaire_id' => null,
             'date_debut' => now()->subDays(6), 'date_fin' => now()->addDays(9), 'statut' => 'en_cours',
         ]);
-        // Awa & Bineta ont payé (validé) ; Ousmane a déclaré (à valider) ; Fatou n'a rien fait.
-        foreach ([$awa, $bineta] as $u) {
+        // Modou & Bineta valides par l'admin (Awa) ; Ousmane a declare (a valider) ; Fatou n'a rien fait.
+        foreach ([$modou, $bineta] as $u) {
             Contribution::create([
                 'cycle_id' => $c2->id, 'user_id' => $u->id, 'montant' => 25000, 'statut' => 'valide',
                 'methode_paiement' => 'wave', 'reference_transaction' => 'WV-'.Str::upper(Str::random(6)),
-                'valide_par' => $modou->id, 'declare_le' => now()->subDays(3), 'valide_le' => now()->subDays(2), 'paye_le' => now()->subDays(2),
+                'valide_par' => $awa->id, 'declare_le' => now()->subDays(3), 'valide_le' => now()->subDays(2), 'paye_le' => now()->subDays(2),
             ]);
         }
         $decl = Contribution::create([
@@ -123,7 +124,7 @@ class DemoSeeder extends Seeder
         foreach ([$modou, $awa, $bineta, $cheikh, $fatou] as $i => $u) {
             GroupMember::create(['group_id' => $g2->id, 'user_id' => $u->id, 'ordre_rotation' => $i + 1, 'statut' => 'actif', 'date_adhesion' => now()->subWeeks(2)->addDays($i)]);
         }
-        $c3 = Cycle::create(['group_id' => $g2->id, 'numero_periode' => 1, 'beneficiaire_id' => $modou->id, 'date_debut' => now()->subDays(3), 'date_fin' => now()->addDays(4), 'statut' => 'en_cours']);
+        $c3 = Cycle::create(['group_id' => $g2->id, 'numero_periode' => 1, 'beneficiaire_id' => null, 'date_debut' => now()->subDays(3), 'date_fin' => now()->addDays(4), 'statut' => 'en_cours']);
         Contribution::create([
             'cycle_id' => $c3->id, 'user_id' => $awa->id, 'montant' => 50000, 'statut' => 'valide',
             'methode_paiement' => 'wave', 'reference_transaction' => 'WV-'.Str::upper(Str::random(6)),
@@ -136,7 +137,8 @@ class DemoSeeder extends Seeder
             'description' => 'Épargne accumulative pour un projet commun.',
             'type' => 'accumulative', 'montant_cotisation' => 15000, 'frequence' => 'mensuelle',
             'nb_membres_max' => 12, 'penalite_pourcentage' => 1.0, 'delai_grace_jours' => 5,
-            'methode_rotation' => 'manuelle', 'statut' => 'ouvert', 'code_invitation' => 'FEMMES26',
+            'methode_rotation' => 'aleatoire', 'statut' => 'ouvert', 'code_invitation' => 'FEMMES26',
+            'date_echeance' => now()->addMonths(5),
         ]);
         GroupMember::create(['group_id' => $g3->id, 'user_id' => $bineta->id, 'statut' => 'actif', 'date_adhesion' => now()->subWeek()]);
         GroupMember::create(['group_id' => $g3->id, 'user_id' => $awa->id, 'statut' => 'valide', 'date_adhesion' => now()->subDays(4)]);
@@ -150,7 +152,7 @@ class DemoSeeder extends Seeder
         ]);
 
         // === Notifications (canal database) pour peupler l'onglet ===
-        $modou->notify(new ContributionDeclared($decl)); // Ousmane a déclaré -> Modou (bénéficiaire)
+        $awa->notify(new ContributionDeclared($decl)); // Ousmane a declare -> Awa (admin) doit valider
         $awa->notify(new PayoutReceived($payout1));             // Awa a reçu son versement (tour 1)
         $awa->notify(new ContributionReminder($c2, 9));         // Rappel d'échéance
         $awa->notify(new DisputeOpened($dispute));              // Awa (admin g1) alertée du litige

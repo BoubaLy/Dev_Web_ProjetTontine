@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   Coins, CircleCheck, ShieldAlert, HandCoins, BellRing, Clock, Gavel, Check, X,
 } from 'lucide-react';
-import { useNotifications, useConfirmContribution, useDisputeContribution, useMarkRead } from '../lib/queries';
+import { useNotifications, useValidateContribution, useDisputeContribution, useMarkRead } from '../lib/queries';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
 import { Stagger, StaggerItem } from '../components/motion';
 import { CotisationSuccessMotion } from '../components/celebrations';
@@ -23,7 +23,7 @@ function timeAgo(d) {
 
 export default function Notifications() {
   const { data, isLoading } = useNotifications();
-  const confirm = useConfirmContribution();
+  const validate = useValidateContribution();
   const dispute = useDisputeContribution();
   const markRead = useMarkRead();
   const [toast, setToast] = useState(null);
@@ -38,7 +38,7 @@ export default function Notifications() {
 
   const doConfirm = async () => {
     const t = confirmTarget; setConfirmTarget(null);
-    try { await confirm.mutateAsync(t.contributionId); await markRead.mutateAsync(t.notifId); setCelebrate(true); }
+    try { await validate.mutateAsync(t.contributionId); await markRead.mutateAsync(t.notifId); setCelebrate(true); }
     catch (e) { setToast(e.response?.data?.message ?? 'Action impossible.'); }
   };
   const doDispute = async () => {
@@ -56,7 +56,7 @@ export default function Notifications() {
       {actions > 0 && (
         <div className="flex items-center gap-3 rounded-card border border-gold/40 bg-gold-soft px-4 py-3 text-sm text-ink">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gold text-white">{actions}</span>
-          <span><b>{actions === 1 ? 'Un paiement' : `${actions} paiements`}</b> {actions === 1 ? 'attend' : 'attendent'} votre confirmation. Vérifiez votre solde Mobile Money puis confirmez ou contestez.</span>
+          <span><b>{actions === 1 ? 'Un dépôt' : `${actions} dépôts`}</b> {actions === 1 ? 'attend' : 'attendent'} votre validation. Vérifiez le dépôt réel puis validez ou contestez.</span>
         </div>
       )}
 
@@ -82,7 +82,7 @@ export default function Notifications() {
                     {actionRequise && <span className="pill mb-1 bg-gold text-white">Action requise</span>}
                     <p className="text-sm text-ink">{n.data?.message ?? n.type}</p>
                     <p className="mt-1 text-xs text-ink-faint">{timeAgo(n.created_at)}</p>
-                    {traitee === 'confirme' && <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-success"><CircleCheck size={14} /> Vous avez confirmé la réception</p>}
+                    {traitee === 'confirme' && <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-success"><CircleCheck size={14} /> Vous avez validé ce dépôt</p>}
                     {traitee === 'conteste' && <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-danger"><ShieldAlert size={14} /> Vous avez contesté — litige ouvert</p>}
                   </div>
                   {/* Marquer lu : uniquement pour les notifs SANS action requise */}
@@ -93,8 +93,8 @@ export default function Notifications() {
 
                 {actionRequise && (
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                    <button className="btn-danger flex-1 py-2 text-sm" onClick={() => setDisputeTarget({ contributionId: n.data.contribution_id, notifId: n.id })}><X size={16} /> Je n'ai rien reçu</button>
-                    <button className="btn-primary flex-1 py-2 text-sm" onClick={() => setConfirmTarget({ contributionId: n.data.contribution_id, notifId: n.id })}><Check size={16} /> J'ai bien reçu l'argent</button>
+                    <button className="btn-danger flex-1 py-2 text-sm" onClick={() => setDisputeTarget({ contributionId: n.data.contribution_id, notifId: n.id })}><X size={16} /> Dépôt introuvable</button>
+                    <button className="btn-primary flex-1 py-2 text-sm" onClick={() => setConfirmTarget({ contributionId: n.data.contribution_id, notifId: n.id })}><Check size={16} /> Valider le dépôt</button>
                   </div>
                 )}
               </div>
@@ -105,12 +105,12 @@ export default function Notifications() {
       )}
 
       {/* Friction volontaire avant l'action financière */}
-      <Modal open={!!confirmTarget} onClose={() => setConfirmTarget(null)} title="Confirmer la réception ?"
+      <Modal open={!!confirmTarget} onClose={() => setConfirmTarget(null)} title="Valider ce dépôt ?"
         actions={<>
           <button className="btn-ghost" onClick={() => setConfirmTarget(null)}>Annuler</button>
-          <button className="btn-primary" onClick={doConfirm} disabled={confirm.isPending}>{confirm.isPending ? <Spinner className="h-5 w-5 border-white/40 border-t-white" /> : "Oui, j'ai bien reçu"}</button>
+          <button className="btn-primary" onClick={doConfirm} disabled={validate.isPending}>{validate.isPending ? <Spinner className="h-5 w-5 border-white/40 border-t-white" /> : 'Oui, dépôt confirmé'}</button>
         </>}>
-        Vérifiez d'abord votre solde Mobile Money réel. Cette action valide définitivement la cotisation et fait monter le score du payeur.
+        Vérifiez d'abord le dépôt réel sur le compte de collecte. Cette action valide définitivement la cotisation et fait monter le score du membre.
       </Modal>
 
       <Modal open={!!disputeTarget} onClose={() => setDisputeTarget(null)} title="Signaler une anomalie"

@@ -1,7 +1,8 @@
 # TontineSecure — Gestion Digitale de Tontines (ROSCA)
 
 Application de digitalisation des tontines rotatives/accumulatives (« Natt / Mbotaay »),
-avec paiement **P2P déclaratif et validation croisée** (Wave / Orange Money).
+avec paiement **déclaratif**, **validation des dépôts par l'administrateur** et **tirage au
+sort** transparent du bénéficiaire (Wave / Orange Money).
 
 **Stack :** **React + Vite** (Web app) · **Laravel 12** (API REST) · **MySQL 8** · **Sanctum**
 
@@ -59,4 +60,4 @@ npm run dev                   # http://localhost:5173
 ---
 
 Pour le mode d'emploi complet (inscription, création/adhésion à une tontine, cycle de
-cotisation, validation croisée, litiges, score, rôles), voir **[`GUIDE_UTILISATION.md`](GUIDE_UTILISATION.md)**.
+cotisation, tirage au sort, restitution accumulative, litiges, score, rôles), voir **[`GUIDE_UTILISATION.md`](GUIDE_UTILISATION.md)**.

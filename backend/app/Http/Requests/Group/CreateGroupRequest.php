@@ -24,7 +24,11 @@ class CreateGroupRequest extends FormRequest
             // Pénalité de retard : entre 1% et 2.5% (US-05).
             'penalite_pourcentage' => ['required', 'numeric', 'min:1', 'max:2.5'],
             'delai_grace_jours' => ['required', 'integer', 'min:0', 'max:30'],
-            'methode_rotation' => ['required', 'in:manuelle,aleatoire'],
+            // Le beneficiaire est desormais tire au sort apres collecte : champ
+            // conserve pour compatibilite mais optionnel (toujours aleatoire).
+            'methode_rotation' => ['nullable', 'in:manuelle,aleatoire'],
+            // Accumulative (coffre-fort) : date d'echeance finale obligatoire.
+            'date_echeance' => ['required_if:type,accumulative', 'nullable', 'date', 'after:today'],
         ];
     }
 

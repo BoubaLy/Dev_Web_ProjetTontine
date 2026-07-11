@@ -15,13 +15,20 @@ const Seg = ({ value, onChange, options }) => (
   </div>
 );
 
-const STEPS = ['Identité', 'Format', 'Règles', 'Rotation'];
+const STEPS = ['Identité', 'Format', 'Règles', 'Finalisation'];
+
+// Date par defaut (dans 5 mois) pour l'echeance d'une epargne accumulative.
+const defaultEcheance = () => {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 5);
+  return d.toISOString().slice(0, 10);
+};
 
 export default function CreateGroup() {
   const navigate = useNavigate();
   const create = useCreateGroup();
   const reduce = useReducedMotion();
-  const [f, setF] = useState({ nom: '', description: '', type: 'rotative', montant_cotisation: '', frequence: 'mensuelle', nb_membres_max: '', penalite_pourcentage: '2', delai_grace_jours: '3', methode_rotation: 'aleatoire' });
+  const [f, setF] = useState({ nom: '', description: '', type: 'rotative', montant_cotisation: '', frequence: 'mensuelle', nb_membres_max: '', penalite_pourcentage: '2', delai_grace_jours: '3', methode_rotation: 'aleatoire', date_echeance: defaultEcheance() });
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);          // sens de la transition (slide)
   const [erreur, setErreur] = useState(null);
@@ -48,6 +55,7 @@ export default function CreateGroup() {
 
   const submit = async () => {
     setErreur(null);
+    if (f.type === 'accumulative' && !f.date_echeance) return setErreur("Indiquez la date d'échéance de l'épargne.");
     try {
       const g = await create.mutateAsync({
         ...f,
@@ -55,6 +63,7 @@ export default function CreateGroup() {
         nb_membres_max: Number(f.nb_membres_max),
         penalite_pourcentage: Number(f.penalite_pourcentage),
         delai_grace_jours: Number(f.delai_grace_jours),
+        date_echeance: f.type === 'accumulative' ? f.date_echeance : null,
       });
       // Moment §3.2 : le Cercle de Rotation se dessine (naissance du groupe) puis redirection.
       setBorn(true);
@@ -127,11 +136,11 @@ export default function CreateGroup() {
                   <Seg value={f.type} onChange={(v) => set('type', v)} options={[['rotative', 'Rotative'], ['accumulative', 'Accumulative']]} />
                   <p className="mt-1.5 text-xs text-ink-soft">
                     {f.type === 'rotative'
-                      ? 'Rotative : à chaque tour, un membre reçoit la totalité du pot. Chacun reçoit une fois, à son tour (la tontine classique).'
-                      : 'Accumulative : les cotisations s’accumulent dans une caisse commune épargnée ensemble, versée selon les règles du groupe (ex. en fin de cycle).'}
+                      ? 'Rotative : à chaque tour, tout le monde cotise et un membre est tiré au sort pour recevoir le pot. Chacun gagne une fois.'
+                      : 'Accumulative (coffre-fort) : chacun épargne à son rythme jusqu’à une date d’échéance, puis récupère exactement le total de ses propres versements. Pas de tirage.'}
                   </p>
                 </Field>
-                <Field label="Cotisation par tour (FCFA)" error={erreur}><input className="input font-mono" type="number" placeholder="Ex. 50000" value={f.montant_cotisation} onChange={(e) => set('montant_cotisation', e.target.value)} /></Field>
+                <Field label={f.type === 'accumulative' ? 'Dépôt par période (FCFA)' : 'Cotisation par tour (FCFA)'} error={erreur}><input className="input font-mono" type="number" placeholder="Ex. 50000" value={f.montant_cotisation} onChange={(e) => set('montant_cotisation', e.target.value)} /></Field>
                 <Field label="Fréquence"><Seg value={f.frequence} onChange={(v) => set('frequence', v)} options={[['hebdomadaire', 'Hebdomadaire'], ['mensuelle', 'Mensuelle']]} /></Field>
               </>
             )}
@@ -146,23 +155,29 @@ export default function CreateGroup() {
             )}
             {step === 3 && (
               <>
-                <Field label="Ordre de passage" error={erreur}>
-                  <Seg value={f.methode_rotation} onChange={(v) => set('methode_rotation', v)} options={[['aleatoire', 'Aléatoire'], ['manuelle', 'Manuelle']]} />
-                  <p className="mt-1.5 text-xs text-ink-soft">
-                    {f.methode_rotation === 'aleatoire'
-                      ? 'Aléatoire : l’ordre de passage est tiré au sort au démarrage du cycle — équitable, personne ne choisit.'
-                      : 'Manuelle : l’ordre suit l’ordre d’arrivée des membres (le 1er inscrit passe en premier). Le réglage tour par tour arrivera dans une prochaine version.'}
-                  </p>
-                </Field>
+                {f.type === 'accumulative' ? (
+                  <Field label="Date d'échéance (restitution)" error={erreur} hint="Date de la fête / du projet : l'épargne est bloquée jusque-là">
+                    <input className="input" type="date" value={f.date_echeance} min={new Date().toISOString().slice(0, 10)} onChange={(e) => set('date_echeance', e.target.value)} />
+                    <p className="mt-1.5 text-xs text-ink-soft">À l'échéance, chaque membre récupère exactement le total de ses propres dépôts (un mois manqué n'impacte que lui).</p>
+                  </Field>
+                ) : (
+                  <div className="rounded-card bg-surface-alt p-4 text-sm text-ink-soft">
+                    <p className="mb-1 font-semibold text-ink">Tirage au sort transparent</p>
+                    À chaque tour, une fois toutes les cotisations validées par l'administrateur, le bénéficiaire est <b>tiré au sort</b> parmi les membres n'ayant pas encore gagné. Équitable et scellé : personne ne connaît le gagnant à l'avance.
+                  </div>
+                )}
                 {/* Récapitulatif avant création */}
                 <div className="mt-3 rounded-card bg-surface-alt p-4 text-sm">
                   <p className="mb-2 font-semibold text-ink">Récapitulatif</p>
                   <dl className="space-y-1 text-ink-soft">
                     <Recap k="Nom" v={f.nom || '—'} />
-                    <Recap k="Cotisation" v={f.montant_cotisation ? formatFCFA(Number(f.montant_cotisation)) : '—'} />
+                    <Recap k="Type" v={f.type === 'accumulative' ? 'Coffre-fort' : 'Rotative'} />
+                    <Recap k={f.type === 'accumulative' ? 'Dépôt' : 'Cotisation'} v={f.montant_cotisation ? formatFCFA(Number(f.montant_cotisation)) : '—'} />
                     <Recap k="Fréquence" v={f.frequence} />
                     <Recap k="Membres max" v={f.nb_membres_max || '—'} />
-                    <Recap k="Rotation" v={f.methode_rotation} />
+                    {f.type === 'accumulative'
+                      ? <Recap k="Échéance" v={f.date_echeance || '—'} />
+                      : <Recap k="Bénéficiaire" v="Tirage au sort" />}
                   </dl>
                 </div>
               </>

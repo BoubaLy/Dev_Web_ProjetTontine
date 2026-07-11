@@ -14,9 +14,9 @@ const MEMBERS = [
 ];
 
 const STEPS = [
-  { n: '01', t: 'Créez ou rejoignez un groupe', d: "Lancez votre tontine (montant, fréquence, rotation) ou entrez dans une existante avec un code d'invitation." },
-  { n: '02', t: 'Déclarez votre cotisation', d: "Faites votre transfert Wave / Orange Money, puis saisissez la référence reçue par SMS. Aucune saisie de solde, aucune fausse info." },
-  { n: '03', t: 'Le bénéficiaire confirme', d: "La personne qui reçoit vérifie son solde et confirme — ou conteste. Un paiement n'est validé que si deux personnes sont d'accord." },
+  { n: '01', t: 'Créez ou rejoignez un groupe', d: "Lancez votre tontine (montant, fréquence, membres) ou entrez dans une existante avec un code d'invitation." },
+  { n: '02', t: 'Déclarez votre cotisation', d: "Faites votre transfert Wave / Orange Money, puis saisissez la référence reçue par SMS. Tout le monde cotise dans le pot." },
+  { n: '03', t: 'L\'admin valide, le sort décide', d: "L'administrateur vérifie chaque dépôt réel et le valide. Une fois la collecte complète, le bénéficiaire est tiré au sort — équitable et scellé." },
 ];
 
 function Fragment({ step }) {
@@ -36,7 +36,7 @@ function Fragment({ step }) {
   if (step === 1) {
     return (
       <div className="card w-full max-w-sm p-5">
-        <p className="text-xs text-ink-soft">Montant à transférer à Modou Fall</p>
+        <p className="text-xs text-ink-soft">Montant à verser dans le pot</p>
         <p className="font-mono text-2xl font-semibold">25 000 FCFA</p>
         <div className="mt-3 rounded-card border border-line px-3 py-2 font-mono text-sm">WV-8H2K3P</div>
         <div className="mt-3 grid place-items-center rounded-pill bg-primary py-2.5 text-sm font-semibold text-white">Déclarer le paiement</div>
@@ -48,13 +48,13 @@ function Fragment({ step }) {
     <div className="card w-full max-w-sm p-5">
       <div className="flex items-start gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-full bg-gold-soft text-gold"><Wallet size={18} /></div>
-        <p className="text-sm">Ousmane a déclaré <span className="font-mono">25 000 FCFA</span>. Vérifiez votre solde puis confirmez.</p>
+        <p className="text-sm">Ousmane a déclaré <span className="font-mono">25 000 FCFA</span>. L'admin vérifie le dépôt réel puis valide.</p>
       </div>
       <div className="mt-3 flex flex-wrap justify-center gap-2">
-        <div className="whitespace-nowrap rounded-pill border border-danger px-3 py-2 text-xs font-semibold text-danger">Je n'ai rien reçu</div>
-        <div className="whitespace-nowrap rounded-pill bg-primary px-3 py-2 text-xs font-semibold text-white">J'ai bien reçu</div>
+        <div className="whitespace-nowrap rounded-pill border border-danger px-3 py-2 text-xs font-semibold text-danger">Dépôt introuvable</div>
+        <div className="whitespace-nowrap rounded-pill bg-primary px-3 py-2 text-xs font-semibold text-white">Valider le dépôt</div>
       </div>
-      <p className="mt-3 flex items-center justify-center gap-1 text-sm font-medium text-success"><ArrowUpRight size={14} /> Cotisation validée · score +1</p>
+      <p className="mt-3 flex items-center justify-center gap-1 text-sm font-medium text-success"><ArrowUpRight size={14} /> Collecte complète · tirage au sort du bénéficiaire</p>
     </div>
   );
 }

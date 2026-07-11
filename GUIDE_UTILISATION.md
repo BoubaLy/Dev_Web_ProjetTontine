@@ -1,8 +1,8 @@
 # Guide d'utilisation — TontineSecure
 
 Ce guide explique comment **utiliser** TontineSecure, l'application de gestion digitale de
-tontines (épargne rotative « Natt / Mbotaay ») avec paiement déclaratif et **validation
-croisée** entre membres.
+tontines (« Natt / Mbotaay ») avec paiement déclaratif, **validation des dépôts par
+l'administrateur** et **tirage au sort** transparent du bénéficiaire.
 
 ---
 
@@ -46,37 +46,52 @@ Certaines actions exigent une identité vérifiée.
 ### Créer une tontine (vous en devenez l'administrateur)
 1. **Mes tontines -> Créer** (wizard en 4 étapes).
 2. Choisissez :
-   - **Type** : *Rotative* (chacun reçoit le pot à son tour — la tontine classique) ou
-     *Accumulative* (caisse commune épargnée ensemble).
-   - **Montant de cotisation**, **fréquence** (hebdo/mensuelle), **nombre de membres**.
+   - **Type** : *Rotative* (à chaque tour tout le monde cotise et **un membre est tiré au
+     sort** pour recevoir le pot) ou *Accumulative* (**coffre-fort** : chacun épargne
+     jusqu'à une **date d'échéance**, puis récupère exactement ses propres versements).
+   - **Montant de cotisation / dépôt**, **fréquence** (hebdo/mensuelle), **nombre de membres**.
    - **Pénalité de retard** (1 à 2,5 %) et **délai de grâce**.
-   - **Ordre de passage** : *Aléatoire* (tiré au sort) ou *Manuel* (ordre d'arrivée).
-3. La tontine est créée.
+   - Pour une accumulative : la **date d'échéance** (date de la fête / du projet).
+3. La tontine est créée. Le bénéficiaire n'est jamais choisi d'avance : il est tiré au sort
+   après chaque collecte complète.
 
 ### Ajouter des membres (administrateur)
 1. Dans le détail du groupe, **générez un code d'invitation** et partagez-le.
 2. Les invités saisissent le code via **Mes tontines -> Rejoindre**.
 3. Vous **validez** chaque demande d'adhésion.
 
-### Démarrer le cycle
-Quand les membres sont validés, l'administrateur **démarre le cycle** : l'**ordre de rotation**
-est généré et le **premier bénéficiaire** est désigné.
+### Démarrer la tontine
+Quand les membres sont validés, l'administrateur **démarre la collecte** (ou l'épargne). Aucun
+ordre n'est fixé à l'avance : pour une rotative, le bénéficiaire de chaque tour est **tiré au
+sort** après la collecte.
 
 ---
 
 ## 5. Le cycle de cotisation (cœur de l'app)
 
-À chaque tour, un membre est **bénéficiaire** (il reçoit le pot). Les autres cotisent.
+### Tontine rotative (tirage au sort après collecte)
+Le bénéficiaire n'est **pas connu à l'avance** : pour garder tout le monde motivé, il est tiré
+au sort une fois la collecte terminée.
 
-1. **Déclarer sa cotisation** : effectuez le transfert **Mobile Money** (Wave / Orange Money)
-   au bénéficiaire, puis saisissez la **référence de la transaction** dans l'app.
-2. **Validation croisée** : le **bénéficiaire** reçoit une notification et **confirme la
-   réception** (la cotisation devient *validée*) — ou **conteste** (ouverture d'un litige).
-3. Quand **toutes** les cotisations sont validées, l'administrateur **clôture le cycle** :
-   le **pot est versé** au bénéficiaire et le tour suivant démarre automatiquement.
+1. **Déclarer sa cotisation** : **tous** les membres effectuent leur transfert **Mobile Money**
+   (Wave / Orange Money) dans le pot, puis saisissent la **référence** dans l'app. La cotisation
+   passe en *déclarée · en attente*.
+2. **Validation par l'administrateur** : l'admin vérifie le **dépôt réel** et passe chaque
+   cotisation en *validée* — ou la **conteste** (ouverture d'un litige, membre gelé).
+3. **Tirage au sort** : le bouton de tirage reste **bloqué tant que 100 % des cotisations ne
+   sont pas validées**. Une fois débloqué, l'app tire au hasard un bénéficiaire **parmi ceux qui
+   n'ont pas encore gagné** ce cycle.
+4. **Clôture du tour** : l'admin transfère le pot au gagnant, **téléverse le reçu**, ce qui
+   clôture le tour et ouvre le suivant. Quand tout le monde a gagné une fois, la tontine se termine.
 
-> Le bénéficiaire du tour ne cotise pas son propre tour. Le tableau de bord montre le
-> **pot attendu** (« À recevoir ») quand c'est votre tour.
+### Tontine accumulative (coffre-fort / épargne Tabaski)
+Aucun tirage : l'app et l'admin jouent le rôle d'un **coffre-fort numérique**.
+
+1. **Dépôts réguliers** : chaque membre dépose un montant fixe par période ; l'admin valide
+   chaque dépôt (*en attente -> validé*), remplaçant le carnet papier par un historique fiable.
+2. **Fonds bloqués** jusqu'à la **date d'échéance** (la date de la fête / du projet).
+3. **Restitution** : à l'échéance, l'admin lance la restitution et **chaque membre récupère
+   exactement le total de ses propres versements**. Un mois manqué n'impacte que lui, pas les autres.
 
 ---
 
@@ -101,8 +116,8 @@ En cas de problème (paiement non reçu, contestation) :
 
 | Rôle | Peut… |
 |---|---|
-| **Membre** | Rejoindre des tontines, cotiser, confirmer/contester, signaler un litige. |
-| **Administrateur de groupe** | Tout membre **+** gérer son groupe (inviter, valider, démarrer/clôturer les cycles, arbitrer ses litiges). |
+| **Membre** | Rejoindre des tontines, déclarer ses cotisations/dépôts, signaler un litige. |
+| **Administrateur de groupe** | Tout membre **+** gérer son groupe (inviter, valider les adhésions, **valider les dépôts**, **tirer au sort**, **clôturer avec reçu** / restituer, arbitrer ses litiges). |
 | **Super-administrateur** | Gérer la plateforme : valider les KYC, geler/dégeler des comptes, arbitrer tous les litiges. |
 
 ---
@@ -113,5 +128,5 @@ En cas de problème (paiement non reçu, contestation) :
   de bord (la page d'accueil publique n'apparaît que si vous êtes déconnecté — ou via
   **Profil -> Voir la page d'accueil publique**).
 - **Notifications** : cloche en haut (mobile) ou onglet Notifications — les actions à faire
-  (confirmer un paiement) y apparaissent en priorité.
+  (valider un dépôt en tant qu'admin) y apparaissent en priorité.
 - **Un compte gelé** ne peut ni cotiser, ni recevoir, ni se connecter (le temps d'un litige).

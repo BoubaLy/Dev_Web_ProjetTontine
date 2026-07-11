@@ -2,98 +2,129 @@
 
 namespace Tests\Feature;
 
-use App\Models\Contribution;
 use App\Notifications\PayoutReceived;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\Concerns\BuildsTontine;
 use Tests\TestCase;
 
-/** US-11 — Clôture du cycle, versement (RG-05/08) et enchaînement du tour suivant. */
+/**
+ * Tour rotatif : tirage au sort apres collecte complete, puis cloture avec recu
+ * et versement du pot au gagnant, enfin ouverture du tour suivant.
+ */
 class CloseCycleTest extends TestCase
 {
     use RefreshDatabase, BuildsTontine;
 
-    private function cotisationValide($cycle, $payeur): void
+    public function test_tirage_bloque_si_la_collecte_n_est_pas_complete(): void
     {
-        Contribution::create([
+        ['cycle' => $cycle, 'admin' => $admin, 'members' => $members] = $this->bootTontine(3);
+
+        // Seuls 2 des 4 membres (admin inclus) sont valides -> collecte incomplete.
+        $this->cotisationValidee($cycle, $members->get(0), $admin);
+        $this->cotisationValidee($cycle, $members->get(1), $admin);
+
+        Sanctum::actingAs($admin);
+        $this->postJson("/api/v1/cycles/{$cycle->id}/draw")->assertStatus(422);
+
+        $this->assertDatabaseHas('cycles', ['id' => $cycle->id, 'beneficiaire_id' => null]);
+    }
+
+    public function test_flux_complet_tirage_puis_cloture_versement_et_tour_suivant(): void
+    {
+        Notification::fake();
+        Storage::fake('public');
+        ['group' => $group, 'cycle' => $cycle, 'admin' => $admin, 'allMembers' => $all] = $this->bootTontine(3);
+
+        foreach ($all as $membre) {
+            $this->cotisationValidee($cycle, $membre, $admin);
+        }
+
+        Sanctum::actingAs($admin);
+
+        // 1) Tirage au sort du beneficiaire.
+        $this->postJson("/api/v1/cycles/{$cycle->id}/draw")->assertOk();
+        $gagnantId = $cycle->fresh()->beneficiaire_id;
+        $this->assertNotNull($gagnantId);
+
+        // 2) Cloture avec recu du transfert.
+        $this->postJson("/api/v1/cycles/{$cycle->id}/close", [
+            'recu' => UploadedFile::fake()->image('recu.jpg'),
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('cycles', ['id' => $cycle->id, 'statut' => 'cloture']);
+
+        // Pot = 4 membres × 10000, verse au gagnant, avec recu.
+        $this->assertDatabaseHas('payouts', [
             'cycle_id' => $cycle->id,
-            'user_id' => $payeur->id,
-            'montant' => 10000,
-            'statut' => 'valide',
-            'methode_paiement' => 'wave',
-            'reference_transaction' => 'OK-'.$payeur->id,
-            'declare_le' => now(),
-            'valide_par' => $cycle->beneficiaire_id,
-            'valide_le' => now(),
-            'paye_le' => now(),
+            'user_id' => $gagnantId,
+            'statut' => 'verse',
+            'montant' => 40000,
+        ]);
+        $this->assertNotNull($cycle->fresh()->payout->recu_path);
+        Notification::assertSentTo($all->firstWhere('id', $gagnantId), PayoutReceived::class);
+
+        // Tour suivant ouvert (beneficiaire null, a tirer plus tard).
+        $this->assertDatabaseHas('cycles', [
+            'group_id' => $group->id,
+            'numero_periode' => 2,
+            'beneficiaire_id' => null,
+            'statut' => 'en_cours',
         ]);
     }
 
-    public function test_cloture_bloquee_si_tout_n_est_pas_valide(): void
+    public function test_cloture_bloquee_sans_tirage(): void
     {
-        ['cycle' => $cycle, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine(3);
-
-        // Seulement 2 des 3 payeurs sont validés -> RG-08 non satisfaite.
-        $this->cotisationValide($cycle, $payers->get(0));
-        $this->cotisationValide($cycle, $payers->get(1));
+        Storage::fake('public');
+        ['cycle' => $cycle, 'admin' => $admin, 'allMembers' => $all] = $this->bootTontine(3);
+        foreach ($all as $membre) {
+            $this->cotisationValidee($cycle, $membre, $admin);
+        }
 
         Sanctum::actingAs($admin);
-        $this->postJson("/api/v1/cycles/{$cycle->id}/close")->assertStatus(422);
+        // Pas de tirage effectue -> cloture refusee (malgre 100 % valide et recu fourni).
+        $this->postJson("/api/v1/cycles/{$cycle->id}/close", [
+            'recu' => UploadedFile::fake()->image('recu.jpg'),
+        ])->assertStatus(422);
 
         $this->assertDatabaseHas('cycles', ['id' => $cycle->id, 'statut' => 'en_cours']);
         $this->assertDatabaseCount('payouts', 0);
     }
 
-    public function test_cloture_complete_declenche_versement_et_cycle_suivant(): void
+    public function test_le_recu_est_obligatoire_pour_cloturer(): void
     {
-        Notification::fake();
-        ['group' => $group, 'cycle' => $cycle, 'admin' => $admin, 'beneficiaire' => $beneficiaire, 'payers' => $payers]
-            = $this->bootTontine(3);
-
-        foreach ($payers as $payeur) {
-            $this->cotisationValide($cycle, $payeur);
+        ['cycle' => $cycle, 'admin' => $admin, 'members' => $members, 'allMembers' => $all] = $this->bootTontine(3);
+        foreach ($all as $membre) {
+            $this->cotisationValidee($cycle, $membre, $admin);
         }
+        $cycle->update(['beneficiaire_id' => $members->first()->id, 'tirage_effectue_le' => now()]);
 
         Sanctum::actingAs($admin);
-        $this->postJson("/api/v1/cycles/{$cycle->id}/close")->assertCreated();
-
-        // Cycle clôturé.
-        $this->assertDatabaseHas('cycles', ['id' => $cycle->id, 'statut' => 'cloture']);
-
-        // Versement créé et exécuté par ProcessPayoutJob (queue sync) : 3 × 10000.
-        $this->assertDatabaseHas('payouts', [
-            'cycle_id' => $cycle->id,
-            'user_id' => $beneficiaire->id,
-            'statut' => 'verse',
-            'montant' => 30000,
-        ]);
-        Notification::assertSentTo($beneficiaire, PayoutReceived::class);
-
-        // Cycle suivant créé pour le bénéficiaire de l'ordre 2 (premier payeur).
-        $this->assertDatabaseHas('cycles', [
-            'group_id' => $group->id,
-            'numero_periode' => 2,
-            'beneficiaire_id' => $payers->first()->id,
-            'statut' => 'en_cours',
-        ]);
-
-        // Score de fiabilité recalculé (cotisation validée à temps -> 100%).
-        $this->assertEquals(100.0, (float) $payers->first()->fresh()->score_fiabilite);
+        $this->postJson("/api/v1/cycles/{$cycle->id}/close")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('recu');
     }
 
-    public function test_cloture_bloquee_si_le_beneficiaire_est_gele_rg06(): void
+    public function test_cloture_bloquee_si_le_beneficiaire_est_gele(): void
     {
-        ['cycle' => $cycle, 'admin' => $admin, 'beneficiaire' => $beneficiaire, 'payers' => $payers] = $this->bootTontine(3);
-        foreach ($payers as $payeur) {
-            $this->cotisationValide($cycle, $payeur);
+        Storage::fake('public');
+        ['cycle' => $cycle, 'admin' => $admin, 'members' => $members, 'allMembers' => $all] = $this->bootTontine(3);
+        foreach ($all as $membre) {
+            $this->cotisationValidee($cycle, $membre, $admin);
         }
-        // RG-06 : le bénéficiaire est gelé (litige en cours) -> versement bloqué.
-        $beneficiaire->update(['est_gele' => true]);
+
+        // Gagnant impose puis gele (litige en cours) -> versement bloque.
+        $gagnant = $members->first();
+        $cycle->update(['beneficiaire_id' => $gagnant->id, 'tirage_effectue_le' => now()]);
+        $gagnant->update(['est_gele' => true]);
 
         Sanctum::actingAs($admin);
-        $this->postJson("/api/v1/cycles/{$cycle->id}/close")->assertStatus(422);
+        $this->postJson("/api/v1/cycles/{$cycle->id}/close", [
+            'recu' => UploadedFile::fake()->image('recu.jpg'),
+        ])->assertStatus(422);
 
         $this->assertDatabaseHas('cycles', ['id' => $cycle->id, 'statut' => 'en_cours']);
         $this->assertDatabaseCount('payouts', 0);

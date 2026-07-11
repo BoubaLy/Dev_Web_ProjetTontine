@@ -36,7 +36,7 @@ Route::prefix('v1')->group(function () {
         Route::get('kyc/{kyc}/file', [KycController::class, 'download']);
         Route::patch('kyc/{kyc}/validate', [KycController::class, 'validateDocument'])->middleware('role:super_admin');
 
-        // --- Groupes & rotation ---
+        // --- Groupes & tontine ---
         Route::get('groups', [GroupController::class, 'index']);
         Route::post('groups', [GroupController::class, 'store'])->middleware('kyc.verified');
         Route::post('groups/join/{code}', [GroupController::class, 'join'])->middleware('kyc.verified');
@@ -45,13 +45,19 @@ Route::prefix('v1')->group(function () {
         Route::patch('groups/{group}/members/{userId}/validate', [GroupController::class, 'validateMember']);
         Route::post('groups/{group}/start-cycle', [GroupController::class, 'startCycle']);
         Route::get('groups/{group}/cycles/current', [GroupController::class, 'currentCycle']);
+        // Accumulative : restitution a l'echeance (chaque membre recupere ses versements).
+        Route::post('groups/{group}/settle', [GroupController::class, 'settle']);
 
-        // --- Cotisations & cycle financier (P2P déclaratif, validation croisée) ---
+        // --- Cotisations & cycle financier (declaratif, validation par l'admin) ---
         Route::get('me/contributions', [ContributionController::class, 'myHistory']);
         Route::post('cycles/{cycle}/contributions', [ContributionController::class, 'store']);
         Route::get('cycles/{cycle}/dashboard', [ContributionController::class, 'dashboard']);
+        // Rotative : tirage au sort du beneficiaire apres collecte, puis cloture avec recu.
+        Route::post('cycles/{cycle}/draw', [ContributionController::class, 'draw']);
         Route::post('cycles/{cycle}/close', [ContributionController::class, 'close']);
-        Route::patch('contributions/{contribution}/confirm', [ContributionController::class, 'confirm']);
+        // Accumulative : cloturer la periode et ouvrir la suivante.
+        Route::post('cycles/{cycle}/advance', [ContributionController::class, 'advance']);
+        Route::patch('contributions/{contribution}/validate', [ContributionController::class, 'validate']);
         Route::patch('contributions/{contribution}/dispute', [ContributionController::class, 'dispute']);
 
         // --- Notifications in-app (canal database) ---

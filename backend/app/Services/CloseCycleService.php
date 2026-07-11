@@ -4,19 +4,23 @@ namespace App\Services;
 
 use App\Jobs\ProcessPayoutJob;
 use App\Models\Cycle;
-use App\Models\GroupMember;
+use App\Models\Group;
 use App\Models\Payout;
-use RuntimeException;
+use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 /**
- * Clôture d'un cycle et enchaînement du tour suivant (US-11).
+ * Cloture des tours et versements.
  *
- * Règles appliquées :
- *  - RG-05 : le versement n'est déclenché que si le taux de collecte atteint 100 %.
- *  - RG-08 : la clôture à 100 % exige que toutes les cotisations soient au statut
- *            définitif `valide` (une déclaration non validée bloque la clôture).
+ * Logique v3 :
+ *  - Rotative : la collecte concerne TOUS les membres actifs. Une fois 100 %
+ *    valide par l'admin puis le beneficiaire tire au sort, l'admin transfere le
+ *    pot, televerse le recu, ce qui cloture le tour et ouvre le suivant.
+ *  - Accumulative (coffre-fort) : chaque periode est cloturee sans versement ;
+ *    a l'echeance, chaque membre recupere exactement le total de SES versements.
  */
 class CloseCycleService
 {
@@ -24,17 +28,16 @@ class CloseCycleService
     {
     }
 
-    /** Membres actifs devant cotiser sur la période (tous sauf le bénéficiaire du tour). */
-    public function payeursAttendus(Cycle $cycle): \Illuminate\Support\Collection
+    /** Membres actifs devant cotiser sur la periode : desormais TOUS les membres. */
+    public function payeursAttendus(Cycle $cycle): Collection
     {
         return $cycle->group->adhesions()
             ->where('statut', 'actif')
-            ->where('user_id', '!=', $cycle->beneficiaire_id)
             ->pluck('user_id');
     }
 
-    /** Le cycle est-il clôturable ? (toutes les cotisations attendues sont `valide`). */
-    public function peutCloturer(Cycle $cycle): bool
+    /** La collecte du tour est-elle complete (toutes les cotisations `valide`) ? */
+    public function collecteComplete(Cycle $cycle): bool
     {
         $attendus = $this->payeursAttendus($cycle);
 
@@ -47,34 +50,37 @@ class CloseCycleService
     }
 
     /**
-     * Clôture le cycle : crée le versement (SLA simulé 24h), passe au tour suivant
-     * et recalcule les scores de fiabilité des cotisants.
+     * Cloture d'un tour rotatif : verse le pot au gagnant tire au sort, avec le
+     * recu du transfert, puis ouvre le tour suivant.
      *
-     * @throws RuntimeException si le taux de collecte n'atteint pas 100 % (RG-05/08).
+     * @throws RuntimeException si les conditions de cloture ne sont pas remplies.
      */
-    public function cloturer(Cycle $cycle): Payout
+    public function cloturerRotative(Cycle $cycle, ?string $recuPath = null): Payout
     {
+        $cycle->loadMissing('group', 'beneficiaire');
+
+        if ($cycle->group->estAccumulative()) {
+            throw new RuntimeException('Utilisez la restitution a l\'echeance pour une tontine accumulative.');
+        }
+
         if ($cycle->statut !== 'en_cours') {
-            throw new RuntimeException('Ce cycle est déjà clôturé.');
+            throw new RuntimeException('Ce tour est deja cloture.');
         }
 
-        if (! $this->peutCloturer($cycle)) {
-            throw new RuntimeException(
-                'Clôture impossible : toutes les cotisations doivent être validées (RG-08).'
-            );
+        if (! $cycle->tirageEffectue()) {
+            throw new RuntimeException('Cloture impossible : le beneficiaire n\'a pas encore ete tire au sort.');
         }
 
-        // RG-06 — un bénéficiaire gelé (litige en cours) ne peut pas recevoir le
-        // versement tant que le litige n'est pas clos.
+        if (! $this->collecteComplete($cycle)) {
+            throw new RuntimeException('Cloture impossible : toutes les cotisations doivent etre validees (100 %).');
+        }
+
+        // Un beneficiaire gele (litige en cours) ne peut pas recevoir le pot.
         if ($cycle->beneficiaire?->est_gele) {
-            throw new RuntimeException(
-                'Le bénéficiaire du tour est gelé (litige en cours) : le versement est bloqué jusqu\'à résolution (RG-06).'
-            );
+            throw new RuntimeException('Le beneficiaire est gele (litige en cours) : versement bloque jusqu\'a resolution.');
         }
 
-        return DB::transaction(function () use ($cycle) {
-            $cycle->loadMissing('group', 'contributions');
-
+        return DB::transaction(function () use ($cycle, $recuPath) {
             $total = (float) $cycle->contributions()
                 ->where('statut', 'valide')
                 ->sum(DB::raw('montant + montant_penalite'));
@@ -84,27 +90,27 @@ class CloseCycleService
                 'user_id' => $cycle->beneficiaire_id,
                 'montant' => $total,
                 'statut' => 'en_attente',
+                'recu_path' => $recuPath,
             ]);
 
             $cycle->update(['statut' => 'cloture']);
 
-            // Recalcul des scores de fiabilité des cotisants du tour.
             foreach ($this->payeursAttendus($cycle) as $userId) {
-                if ($user = \App\Models\User::find($userId)) {
+                if ($user = User::find($userId)) {
                     $this->scores->recalculer($user);
                 }
             }
 
-            $this->creerCycleSuivant($cycle);
+            $this->ouvrirTourSuivant($cycle);
 
-            Log::info('[Cycle] Clôture', [
+            Log::info('[Tontine] Tour rotatif cloture', [
                 'cycle_id' => $cycle->id,
                 'group_id' => $cycle->group_id,
                 'payout_id' => $payout->id,
                 'montant' => $total,
+                'recu' => $recuPath,
             ]);
 
-            // Versement asynchrone au bénéficiaire (SLA simulé de 24h — US-11.3).
             ProcessPayoutJob::dispatch($payout->id)->delay(now()->addSeconds(5));
 
             return $payout;
@@ -112,42 +118,143 @@ class CloseCycleService
     }
 
     /**
-     * Crée le cycle suivant pour le prochain bénéficiaire de l'ordre de rotation.
-     * Si tous les membres ont été servis, le groupe passe au statut `cloture`.
+     * Accumulative : cloture la periode courante (sans versement) et ouvre la
+     * suivante, tant que l'echeance n'est pas atteinte.
      */
-    private function creerCycleSuivant(Cycle $cycle): ?Cycle
+    public function avancerPeriodeAccumulative(Cycle $cycle): Cycle
+    {
+        $cycle->loadMissing('group');
+
+        if (! $cycle->group->estAccumulative()) {
+            throw new RuntimeException('Cette action ne concerne que les tontines accumulatives.');
+        }
+
+        if ($cycle->statut !== 'en_cours') {
+            throw new RuntimeException('Cette periode est deja cloturee.');
+        }
+
+        return DB::transaction(function () use ($cycle) {
+            $cycle->update(['statut' => 'cloture']);
+
+            foreach ($this->payeursAttendus($cycle) as $userId) {
+                if ($user = User::find($userId)) {
+                    $this->scores->recalculer($user);
+                }
+            }
+
+            $suivant = Cycle::create([
+                'group_id' => $cycle->group_id,
+                'numero_periode' => $cycle->numero_periode + 1,
+                'beneficiaire_id' => null,
+                'date_debut' => now(),
+                'date_fin' => $cycle->group->frequence === 'hebdomadaire'
+                    ? now()->addWeek()
+                    : now()->addMonth(),
+                'statut' => 'en_cours',
+            ]);
+
+            Log::info('[Tontine] Periode accumulative avancee', [
+                'group_id' => $cycle->group_id,
+                'periode' => $suivant->numero_periode,
+            ]);
+
+            return $suivant;
+        });
+    }
+
+    /**
+     * Restitution a l'echeance (coffre-fort) : chaque membre recupere EXACTEMENT
+     * le total de ses propres versements valides. Un mois manque n'impacte que lui.
+     *
+     * @return Collection<int,Payout>
+     */
+    public function restituerAccumulative(Group $group): Collection
+    {
+        if (! $group->estAccumulative()) {
+            throw new RuntimeException('La restitution ne concerne que les tontines accumulatives.');
+        }
+
+        if ($group->statut !== 'en_cours') {
+            throw new RuntimeException('Ce groupe n\'est pas en cours : restitution impossible.');
+        }
+
+        $dernierCycle = $group->cycles()->orderByDesc('numero_periode')->first();
+        if (! $dernierCycle) {
+            throw new RuntimeException('Aucune periode a restituer.');
+        }
+
+        // Total valide par membre, sur toutes les periodes du groupe.
+        $totauxParMembre = $group->cycles()
+            ->with(['contributions' => fn ($q) => $q->where('statut', 'valide')])
+            ->get()
+            ->pluck('contributions')
+            ->flatten()
+            ->groupBy('user_id')
+            ->map(fn ($lignes) => (float) $lignes->sum(fn ($c) => (float) $c->montant));
+
+        if ($totauxParMembre->isEmpty()) {
+            throw new RuntimeException('Aucun versement valide a restituer.');
+        }
+
+        return DB::transaction(function () use ($group, $dernierCycle, $totauxParMembre) {
+            $payouts = collect();
+
+            foreach ($totauxParMembre as $userId => $total) {
+                if ($total <= 0) {
+                    continue;
+                }
+
+                $payout = Payout::create([
+                    'cycle_id' => $dernierCycle->id,
+                    'user_id' => $userId,
+                    'montant' => $total,
+                    'statut' => 'en_attente',
+                ]);
+
+                $payouts->push($payout);
+                ProcessPayoutJob::dispatch($payout->id)->delay(now()->addSeconds(5));
+            }
+
+            $dernierCycle->update(['statut' => 'cloture']);
+            $group->update(['statut' => 'cloture']);
+
+            Log::info('[Tontine] Restitution accumulative effectuee', [
+                'group_id' => $group->id,
+                'nb_membres_servis' => $payouts->count(),
+            ]);
+
+            return $payouts;
+        });
+    }
+
+    /**
+     * Ouvre le tour suivant pour la rotative. Quand tous les membres ont gagne,
+     * la tontine est terminee.
+     */
+    private function ouvrirTourSuivant(Cycle $cycle): ?Cycle
     {
         $group = $cycle->group;
 
-        $membres = $group->adhesions()
-            ->where('statut', 'actif')
-            ->whereNotNull('ordre_rotation')
-            ->orderBy('ordre_rotation')
-            ->get();
+        $nbMembres = $group->adhesions()->where('statut', 'actif')->count();
+        $nbGagnants = $group->cycles()->whereNotNull('beneficiaire_id')->count();
 
-        $prochainOrdre = $cycle->numero_periode + 1;
-
-        // Tous les tours effectués : la tontine est terminée.
-        if ($prochainOrdre > $membres->count()) {
+        if ($nbGagnants >= $nbMembres) {
             $group->update(['statut' => 'cloture']);
-            Log::info('[Cycle] Tontine terminée', ['group_id' => $group->id]);
+            Log::info('[Tontine] Rotative terminee (tous les membres ont gagne)', [
+                'group_id' => $group->id,
+            ]);
 
             return null;
         }
 
-        $beneficiaire = $membres->firstWhere('ordre_rotation', $prochainOrdre);
-
-        $dateDebut = now();
-        $dateFin = $group->frequence === 'hebdomadaire'
-            ? $dateDebut->copy()->addWeek()
-            : $dateDebut->copy()->addMonth();
-
         return Cycle::create([
             'group_id' => $group->id,
-            'numero_periode' => $prochainOrdre,
-            'beneficiaire_id' => $beneficiaire?->user_id,
-            'date_debut' => $dateDebut,
-            'date_fin' => $dateFin,
+            'numero_periode' => $cycle->numero_periode + 1,
+            'beneficiaire_id' => null,
+            'date_debut' => now(),
+            'date_fin' => $group->frequence === 'hebdomadaire'
+                ? now()->addWeek()
+                : now()->addMonth(),
             'statut' => 'en_cours',
         ]);
     }

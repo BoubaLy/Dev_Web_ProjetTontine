@@ -50,21 +50,20 @@ export default function Dashboard() {
   // Cercle de Rotation interactif de la tontine active.
   const fg = featuredQ.data;
   const fc = featuredCycleQ.data;
-  const fMembers = fg ? (fg.adhesions ?? []).filter((m) => m.statut === 'actif' && m.ordre_rotation).sort((a, b) => a.ordre_rotation - b.ordre_rotation) : [];
+  const fMembers = fg ? (fg.adhesions ?? []).filter((m) => m.statut === 'actif') : [];
   const fRing = fMembers.map((m) => ({
     name: `${m.user?.prenom ?? ''} ${m.user?.nom ?? ''}`.trim() || m.user?.telephone || '?',
     isYou: m.user_id === user?.id,
     status: m.user_id === user?.id ? fc?.ma_cotisation_statut : undefined,
   }));
-  const fBenefIdx = fc ? Math.max(fMembers.findIndex((m) => m.user_id === fc.beneficiaire?.id), 0) : 0;
+  const fAccu = fg?.type === 'accumulative';
+  const fTirageFait = !!fc?.tirage_effectue;
+  const fBenefIdx = fTirageFait ? Math.max(fMembers.findIndex((m) => m.user_id === fc.beneficiaire?.id), 0) : -1;
   const showFeatured = fg && fc && fRing.length > 0;
 
-  // « À recevoir » : un versement réellement en attente, sinon le pot ATTENDU quand c'est
-  // ton tour d'être bénéficiaire du cycle en cours (le bénéficiaire ne cotise pas son
-  // propre tour -> pot ≈ montant × (nb membres actifs − 1)).
-  const potAttendu = fc?.est_beneficiaire && fMembers.length > 1
-    ? Number(fc.montant_cotisation || 0) * (fMembers.length - 1)
-    : 0;
+  // « À recevoir » : un versement réellement en attente, sinon le pot que tu recevras
+  // si tu as été tiré au sort pour le tour en cours (pot = montant × nb membres actifs).
+  const potAttendu = fc?.est_beneficiaire ? Number(fc.montant_cotisation || 0) * Math.max(fMembers.length, 1) : 0;
   const aRecevoir = versementEnAttente > 0 ? versementEnAttente : potAttendu;
   const aRecevoirEstime = versementEnAttente === 0 && potAttendu > 0;
 
@@ -98,22 +97,26 @@ export default function Dashboard() {
                 <div className="flex justify-center border-b border-line bg-surface-alt/40 py-6">
                   <RotationRing
                     members={fRing}
-                    progress={Math.min(fc.numero_periode / Math.max(fRing.length, 1), 1)}
+                    progress={fAccu ? 0 : Math.min(fc.numero_periode / Math.max(fRing.length, 1), 1)}
                     beneficiaryIndex={fBenefIdx}
-                    centerLabel="Tour" centerValue={`${fc.numero_periode}/${fRing.length}`}
+                    centerLabel={fAccu ? 'Période' : 'Tour'} centerValue={fAccu ? `${fc.numero_periode}` : `${fc.numero_periode}/${fRing.length}`}
                     size={200} interactive
                   />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
-                  <p className="text-xs uppercase tracking-wide text-primary">Tour en cours</p>
+                  <p className="text-xs uppercase tracking-wide text-primary">{fAccu ? 'Épargne en cours' : 'Tour en cours'}</p>
                   <h3 className="text-lg font-semibold text-ink">{fg.nom}</h3>
                   <p className="mt-1 flex items-center gap-1 text-sm text-ink-soft">
-                    <Crown size={14} className="text-gold" />
-                    Bénéficiaire : <b className="text-ink">{fc.beneficiaire ? `${fc.beneficiaire.prenom} ${fc.beneficiaire.nom}` : '—'}</b>
-                    {fc.est_beneficiaire && "(c'est vous)"}
+                    {fAccu ? (
+                      <><CalendarClock size={14} className="text-primary" /> Coffre-fort — restitution à l'échéance</>
+                    ) : fTirageFait ? (
+                      <><Crown size={14} className="text-gold" /> Bénéficiaire : <b className="text-ink">{fc.beneficiaire ? `${fc.beneficiaire.prenom} ${fc.beneficiaire.nom}` : '—'}</b>{fc.est_beneficiaire && " (c'est vous)"}</>
+                    ) : (
+                      <><Crown size={14} className="text-gold" /> Bénéficiaire tiré au sort après la collecte</>
+                    )}
                   </p>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-xs text-ink-soft">Votre cotisation :</span> <StatusPill status={fc.ma_cotisation_statut} />
+                    <span className="text-xs text-ink-soft">{fAccu ? 'Votre dépôt :' : 'Votre cotisation :'}</span> <StatusPill status={fc.ma_cotisation_statut} />
                   </div>
                   <p className="mt-2 text-xs text-ink-faint">Astuce : touchez un avatar du cercle pour voir son statut.</p>
                   <Link to={`/groupes/${fg.id}`} className="mt-auto inline-flex items-center gap-1 pt-3 text-sm font-medium text-primary">

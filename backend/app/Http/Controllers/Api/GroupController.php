@@ -7,6 +7,7 @@ use App\Http\Requests\Group\CreateGroupRequest;
 use App\Models\Group;
 use App\Models\GroupMember;
 use App\Models\Invitation;
+use App\Services\CloseCycleService;
 use App\Services\RotationService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -158,15 +159,19 @@ class GroupController extends Controller
         return $this->success($adhesion, "Adhésion {$data['decision']} avec succès.");
     }
 
-    /** US-09 — Démarrer le cycle (RG-02 : groupe suffisamment rempli). */
+    /** US-09 — Démarrer la collecte (RG-02 : groupe suffisamment rempli). */
     public function startCycle(Request $request, Group $group, RotationService $rotation): JsonResponse
     {
         if (! $request->user()->can('manage', $group)) {
-            return $this->error('Seul l\'administrateur peut démarrer le cycle.', null, 403);
+            return $this->error('Seul l\'administrateur peut démarrer la tontine.', null, 403);
         }
 
         if ($group->statut !== 'ouvert') {
-            return $this->error('Le cycle de ce groupe a déjà démarré ou est clôturé.', null, 422);
+            return $this->error('La tontine a déjà démarré ou est clôturée.', null, 422);
+        }
+
+        if ($group->estAccumulative() && ! $group->date_echeance) {
+            return $this->error('Définissez d\'abord la date d\'échéance de l\'épargne.', null, 422);
         }
 
         $membresActifs = $group->adhesions()->whereIn('statut', ['valide', 'actif'])->count();
@@ -183,8 +188,30 @@ class GroupController extends Controller
         $cycle = $rotation->demarrerPremierCycle($group);
 
         return $this->success(
-            $cycle->load('beneficiaire:id,nom,prenom,telephone'),
-            'Cycle démarré. L\'ordre de rotation a été généré.',
+            $cycle,
+            $group->estAccumulative()
+                ? 'Épargne démarrée. Les membres peuvent déposer chaque période.'
+                : 'Collecte démarrée. Le bénéficiaire sera tiré au sort après validation des cotisations.',
+            201
+        );
+    }
+
+    /** Accumulative : restituer a l'echeance (chaque membre recupere ses versements). */
+    public function settle(Request $request, Group $group, CloseCycleService $closeCycle): JsonResponse
+    {
+        if (! $request->user()->can('manage', $group)) {
+            return $this->error('Seul l\'administrateur peut lancer la restitution.', null, 403);
+        }
+
+        try {
+            $payouts = $closeCycle->restituerAccumulative($group);
+        } catch (\RuntimeException $e) {
+            return $this->error($e->getMessage(), null, 422);
+        }
+
+        return $this->success(
+            $payouts,
+            "Restitution effectuée : {$payouts->count()} membre(s) remboursé(s) de leurs versements.",
             201
         );
     }
@@ -207,19 +234,22 @@ class GroupController extends Controller
         }
 
         $user = $request->user();
-        $estBeneficiaire = $cycle->beneficiaire_id === $user->id;
+        $estBeneficiaire = $cycle->tirageEffectue() && $cycle->beneficiaire_id === $user->id;
 
         // Statut clair de la cotisation du membre courant pour CE tour (US-12).
         $maCotisation = $cycle->contributions()->where('user_id', $user->id)->first();
 
         // Enrichit la réponse pour que le membre sache immédiatement quoi faire.
         $data = $cycle->toArray();
+        $data['type'] = $group->type;
         $data['montant_cotisation'] = $group->montant_cotisation;
+        $data['date_echeance'] = $group->date_echeance;
+        $data['tirage_effectue'] = $cycle->tirageEffectue();
         $data['est_beneficiaire'] = $estBeneficiaire;
-        $data['ma_cotisation_statut'] = $estBeneficiaire ? 'beneficiaire' : ($maCotisation->statut ?? 'a_payer');
+        $data['ma_cotisation_statut'] = $maCotisation->statut ?? 'a_payer';
         $data['ma_cotisation'] = $maCotisation;
 
-        return $this->success($data, 'Cycle en cours.');
+        return $this->success($data, 'Tour en cours.');
     }
 
     // --- Helpers ----------------------------------------------------------

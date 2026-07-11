@@ -20,9 +20,9 @@ class EscalationRG09Test extends TestCase
     public function test_la_declaration_planifie_le_job_d_escalade(): void
     {
         Bus::fake();
-        ['cycle' => $cycle, 'payers' => $payers] = $this->bootTontine();
+        ['cycle' => $cycle, 'members' => $members] = $this->bootTontine();
 
-        Sanctum::actingAs($payers->first());
+        Sanctum::actingAs($members->first());
         $this->postJson("/api/v1/cycles/{$cycle->id}/contributions", [
             'methode_paiement' => 'wave', 'reference_transaction' => 'TX-RG09',
         ])->assertCreated();
@@ -33,9 +33,9 @@ class EscalationRG09Test extends TestCase
     public function test_le_job_n_alerte_pas_avant_48h(): void
     {
         Notification::fake();
-        ['cycle' => $cycle, 'payers' => $payers] = $this->bootTontine();
+        ['cycle' => $cycle, 'members' => $members] = $this->bootTontine();
         $contribution = Contribution::create([
-            'cycle_id' => $cycle->id, 'user_id' => $payers->first()->id, 'montant' => 10000,
+            'cycle_id' => $cycle->id, 'user_id' => $members->first()->id, 'montant' => 10000,
             'statut' => 'declare_paye', 'reference_transaction' => 'RECENT', 'declare_le' => now()->subHour(),
         ]);
 
@@ -47,9 +47,9 @@ class EscalationRG09Test extends TestCase
     public function test_le_job_alerte_l_admin_apres_48h(): void
     {
         Notification::fake();
-        ['cycle' => $cycle, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine();
+        ['cycle' => $cycle, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
         $contribution = Contribution::create([
-            'cycle_id' => $cycle->id, 'user_id' => $payers->first()->id, 'montant' => 10000,
+            'cycle_id' => $cycle->id, 'user_id' => $members->first()->id, 'montant' => 10000,
             'statut' => 'declare_paye', 'reference_transaction' => 'VIEUX', 'declare_le' => now()->subHours(50),
         ]);
 

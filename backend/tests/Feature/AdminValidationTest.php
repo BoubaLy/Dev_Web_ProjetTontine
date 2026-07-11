@@ -11,8 +11,8 @@ use Laravel\Sanctum\Sanctum;
 use Tests\Concerns\BuildsTontine;
 use Tests\TestCase;
 
-/** US-11.b — Validation croisée : le bénéficiaire confirme ou conteste. */
-class CrossValidationTest extends TestCase
+/** Validation par l'admin : il verifie le depot reel puis valide ou conteste. */
+class AdminValidationTest extends TestCase
 {
     use RefreshDatabase, BuildsTontine;
 
@@ -29,34 +29,34 @@ class CrossValidationTest extends TestCase
         ]);
     }
 
-    public function test_le_beneficiaire_confirme_la_reception(): void
+    public function test_l_admin_valide_une_cotisation(): void
     {
         Notification::fake();
-        ['cycle' => $cycle, 'beneficiaire' => $beneficiaire, 'payers' => $payers] = $this->bootTontine();
-        $payeur = $payers->first();
+        ['cycle' => $cycle, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
+        $payeur = $members->first();
         $contribution = $this->declarer($cycle, $payeur);
 
-        Sanctum::actingAs($beneficiaire);
-        $this->patchJson("/api/v1/contributions/{$contribution->id}/confirm")
+        Sanctum::actingAs($admin);
+        $this->patchJson("/api/v1/contributions/{$contribution->id}/validate")
             ->assertOk()
             ->assertJsonPath('data.statut', 'valide');
 
         $this->assertDatabaseHas('contributions', [
             'id' => $contribution->id,
             'statut' => 'valide',
-            'valide_par' => $beneficiaire->id,
+            'valide_par' => $admin->id,
         ]);
         Notification::assertSentTo($payeur, ContributionValidated::class);
     }
 
-    public function test_un_tiers_ne_peut_pas_confirmer(): void
+    public function test_un_membre_ne_peut_pas_valider(): void
     {
-        ['cycle' => $cycle, 'payers' => $payers] = $this->bootTontine();
-        $contribution = $this->declarer($cycle, $payers->first());
+        ['cycle' => $cycle, 'members' => $members] = $this->bootTontine();
+        $contribution = $this->declarer($cycle, $members->first());
 
-        // Un autre payeur (pas le bénéficiaire du tour) tente de confirmer.
-        Sanctum::actingAs($payers->get(1));
-        $this->patchJson("/api/v1/contributions/{$contribution->id}/confirm")
+        // Un autre membre (pas l'admin) tente de valider.
+        Sanctum::actingAs($members->get(1));
+        $this->patchJson("/api/v1/contributions/{$contribution->id}/validate")
             ->assertStatus(403);
 
         $this->assertDatabaseHas('contributions', [
@@ -65,39 +65,38 @@ class CrossValidationTest extends TestCase
         ]);
     }
 
-    public function test_le_beneficiaire_conteste_et_ouvre_un_litige(): void
+    public function test_l_admin_conteste_et_ouvre_un_litige(): void
     {
         Notification::fake();
-        ['cycle' => $cycle, 'beneficiaire' => $beneficiaire, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine();
-        $payeur = $payers->first();
+        ['cycle' => $cycle, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
+        $payeur = $members->first();
         $contribution = $this->declarer($cycle, $payeur);
 
-        Sanctum::actingAs($beneficiaire);
+        Sanctum::actingAs($admin);
         $this->patchJson("/api/v1/contributions/{$contribution->id}/dispute", [
-            'description' => 'Aucun virement reçu sur mon compte Wave.',
+            'description' => 'Aucun depot retrouve sur le compte de collecte.',
         ])->assertCreated();
 
         $this->assertDatabaseHas('contributions', ['id' => $contribution->id, 'statut' => 'litige']);
         $this->assertDatabaseHas('disputes', [
             'contribution_id' => $contribution->id,
             'concerne_user_id' => $payeur->id,
-            'signale_par' => $beneficiaire->id,
+            'signale_par' => $admin->id,
             'statut' => 'ouvert',
         ]);
-        // RG-06 — le payeur mis en cause est gelé.
+        // Le membre mis en cause est gele et informe de l'ouverture du litige.
         $this->assertTrue($payeur->fresh()->est_gele);
-        // L'administrateur du groupe est alerté pour arbitrage.
-        Notification::assertSentTo($admin, DisputeOpened::class);
+        Notification::assertSentTo($payeur, DisputeOpened::class);
     }
 
-    public function test_confirmer_une_cotisation_non_declaree_est_refuse(): void
+    public function test_valider_une_cotisation_non_declaree_est_refuse(): void
     {
-        ['cycle' => $cycle, 'beneficiaire' => $beneficiaire, 'payers' => $payers] = $this->bootTontine();
-        $contribution = $this->declarer($cycle, $payers->first());
-        $contribution->update(['statut' => 'valide']); // déjà traitée
+        ['cycle' => $cycle, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
+        $contribution = $this->declarer($cycle, $members->first());
+        $contribution->update(['statut' => 'valide']); // deja traitee
 
-        Sanctum::actingAs($beneficiaire);
-        $this->patchJson("/api/v1/contributions/{$contribution->id}/confirm")
+        Sanctum::actingAs($admin);
+        $this->patchJson("/api/v1/contributions/{$contribution->id}/validate")
             ->assertStatus(422);
     }
 }

@@ -22,6 +22,7 @@ class Group extends Model
         'methode_rotation',
         'statut',
         'code_invitation',
+        'date_echeance',
     ];
 
     protected function casts(): array
@@ -31,7 +32,14 @@ class Group extends Model
             'penalite_pourcentage' => 'decimal:2',
             'nb_membres_max' => 'integer',
             'delai_grace_jours' => 'integer',
+            'date_echeance' => 'date',
         ];
+    }
+
+    /** Tontine « coffre-fort » : epargne bloquee jusqu'a l'echeance, sans tirage. */
+    public function estAccumulative(): bool
+    {
+        return $this->type === 'accumulative';
     }
 
     public function admin(): BelongsTo

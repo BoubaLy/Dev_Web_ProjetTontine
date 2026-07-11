@@ -12,6 +12,7 @@ class Payout extends Model
         'user_id',
         'montant',
         'statut',
+        'recu_path',
         'verse_le',
     ];
 

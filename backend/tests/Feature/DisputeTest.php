@@ -20,8 +20,8 @@ class DisputeTest extends TestCase
     public function test_un_membre_signale_un_litige(): void
     {
         Notification::fake();
-        ['group' => $group, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine();
-        $signaleur = $payers->first();
+        ['group' => $group, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
+        $signaleur = $members->first();
 
         Sanctum::actingAs($signaleur);
         $this->postJson('/api/v1/disputes', [
@@ -51,8 +51,8 @@ class DisputeTest extends TestCase
 
     public function test_admin_met_en_investigation_et_gele_le_compte(): void
     {
-        ['group' => $group, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine();
-        $concerne = $payers->first();
+        ['group' => $group, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
+        $concerne = $members->first();
         $dispute = Dispute::create([
             'group_id' => $group->id, 'signale_par' => $admin->id,
             'concerne_user_id' => $concerne->id, 'description' => 'Litige', 'statut' => 'ouvert',
@@ -67,13 +67,13 @@ class DisputeTest extends TestCase
 
     public function test_seul_un_arbitre_peut_resoudre(): void
     {
-        ['group' => $group, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine();
+        ['group' => $group, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
         $dispute = Dispute::create([
             'group_id' => $group->id, 'signale_par' => $admin->id,
             'description' => 'Litige', 'statut' => 'ouvert',
         ]);
 
-        Sanctum::actingAs($payers->first()); // simple membre
+        Sanctum::actingAs($members->first()); // simple membre
         $this->patchJson("/api/v1/disputes/{$dispute->id}/resolve", [
             'resolution' => 'RAS',
         ])->assertStatus(403);
@@ -82,8 +82,8 @@ class DisputeTest extends TestCase
     public function test_resolution_cloture_degele_et_valide_la_cotisation(): void
     {
         Notification::fake();
-        ['cycle' => $cycle, 'group' => $group, 'admin' => $admin, 'payers' => $payers] = $this->bootTontine();
-        $concerne = $payers->first();
+        ['cycle' => $cycle, 'group' => $group, 'admin' => $admin, 'members' => $members] = $this->bootTontine();
+        $concerne = $members->first();
         $concerne->update(['est_gele' => true]);
 
         $contribution = Contribution::create([
