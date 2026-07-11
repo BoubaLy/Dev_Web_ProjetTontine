@@ -21,8 +21,13 @@ services:
         sync: false
       - key: APP_ENV
         value: production
+      # TEMPORAIRE : true pour diagnostiquer l'erreur 500 de connexion. A remettre a false.
       - key: APP_DEBUG
-        value: "false"
+        value: "true"
+      # Les logs (dont les exceptions) partent sur la sortie standard -> visibles
+      # directement dans les logs Render (sinon ils vont dans un fichier interne).
+      - key: LOG_CHANNEL
+        value: stderr
       # --- Base MySQL Aiven (a renseigner depuis la console Aiven) ---
       - key: DB_CONNECTION
         value: mysql
