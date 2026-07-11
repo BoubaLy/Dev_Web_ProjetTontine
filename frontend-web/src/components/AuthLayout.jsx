@@ -23,7 +23,7 @@ export default function AuthLayout({ children, showcaseStep = null }) {
   return (
     <div className="relative isolate flex min-h-screen flex-col overflow-hidden bg-bg lg:flex-row">
       {/* Fond continu : motif sur toute la page… */}
-      <AmbientMesh variant="hero" />
+      <AmbientMesh variant="heroCalm" />
       {/* …estompé en dégradé vers la gauche (formulaire) -> « trace atténuée » qui s'invite
           depuis le panneau visuel, sans ligne de démarcation. Sert aussi de scrim (AA). */}
       <div
