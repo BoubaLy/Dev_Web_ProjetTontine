@@ -156,7 +156,7 @@ export default function CreateGroup() {
             {step === 3 && (
               <>
                 {f.type === 'accumulative' ? (
-                  <Field label="Date d'échéance (restitution)" error={erreur} hint="Date de la fête / du projet : l'épargne est bloquée jusque-là">
+                  <Field label="Date d'échéance (restitution)" hint="Date de la fête / du projet : l'épargne est bloquée jusque-là">
                     <input className="input" type="date" value={f.date_echeance} min={new Date().toISOString().slice(0, 10)} onChange={(e) => set('date_echeance', e.target.value)} />
                     <p className="mt-1.5 text-xs text-ink-soft">À l'échéance, chaque membre récupère exactement le total de ses propres dépôts (un mois manqué n'impacte que lui).</p>
                   </Field>
@@ -184,6 +184,11 @@ export default function CreateGroup() {
             )}
           </motion.div>
         </AnimatePresence>
+
+        {/* Erreur de création (dernière étape) — sinon l'échec serait invisible */}
+        {step === STEPS.length - 1 && erreur && (
+          <p className="mt-4 rounded-card bg-danger-soft px-3 py-2 text-sm text-danger">{erreur}</p>
+        )}
 
         {/* Navigation */}
         <div className="mt-5 flex gap-3">
