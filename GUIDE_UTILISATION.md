@@ -28,9 +28,6 @@ Au premier accès après une période d'inactivité, le démarrage peut prendre 
 2. Renseignez **prénom, nom, téléphone, email, mot de passe** (wizard en 3 étapes).
 3. Le compte est créé et vous êtes **connecté directement**.
 
-> La vérification par code (OTP par email) est présente dans le code mais **désactivée
-> pour cette version MVP** (`OTP_ENABLED=false`). Pour la réactiver : passer `OTP_ENABLED=true`
-> et configurer un service d'envoi d'emails (`MAIL_*`).
 
 ---
 
