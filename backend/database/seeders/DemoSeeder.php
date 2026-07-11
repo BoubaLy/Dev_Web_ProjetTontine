@@ -68,10 +68,10 @@ class DemoSeeder extends Seeder
             'methode_rotation' => 'aleatoire', 'statut' => 'en_cours', 'code_invitation' => 'AMIS2026',
         ]);
 
-        $ordre1 = [$awa, $modou, $bineta, $ousmane, $fatou];
-        foreach ($ordre1 as $i => $u) {
+        $membres1 = [$awa, $modou, $bineta, $ousmane, $fatou];
+        foreach ($membres1 as $i => $u) {
             GroupMember::create([
-                'group_id' => $g1->id, 'user_id' => $u->id, 'ordre_rotation' => $i + 1,
+                'group_id' => $g1->id, 'user_id' => $u->id,
                 'statut' => 'actif', 'date_adhesion' => now()->subMonths(3)->addDays($i),
             ]);
         }
@@ -122,7 +122,7 @@ class DemoSeeder extends Seeder
         ]);
         // 5 membres actifs : cohérent avec le minimum d'une tontine rotative démarrée.
         foreach ([$modou, $awa, $bineta, $cheikh, $fatou] as $i => $u) {
-            GroupMember::create(['group_id' => $g2->id, 'user_id' => $u->id, 'ordre_rotation' => $i + 1, 'statut' => 'actif', 'date_adhesion' => now()->subWeeks(2)->addDays($i)]);
+            GroupMember::create(['group_id' => $g2->id, 'user_id' => $u->id, 'statut' => 'actif', 'date_adhesion' => now()->subWeeks(2)->addDays($i)]);
         }
         $c3 = Cycle::create(['group_id' => $g2->id, 'numero_periode' => 1, 'beneficiaire_id' => null, 'date_debut' => now()->subDays(3), 'date_fin' => now()->addDays(4), 'statut' => 'en_cours']);
         Contribution::create([

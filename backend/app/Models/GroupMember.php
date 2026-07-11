@@ -10,7 +10,6 @@ class GroupMember extends Model
     protected $fillable = [
         'group_id',
         'user_id',
-        'ordre_rotation',
         'statut',
         'date_adhesion',
     ];
@@ -18,7 +17,6 @@ class GroupMember extends Model
     protected function casts(): array
     {
         return [
-            'ordre_rotation' => 'integer',
             'date_adhesion' => 'datetime',
         ];
     }

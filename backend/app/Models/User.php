@@ -83,7 +83,7 @@ class User extends Authenticatable
     public function groupes(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'group_members')
-            ->withPivot(['ordre_rotation', 'statut', 'date_adhesion'])
+            ->withPivot(['statut', 'date_adhesion'])
             ->withTimestamps();
     }
 
