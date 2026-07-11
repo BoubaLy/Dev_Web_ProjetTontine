@@ -1,8 +1,7 @@
 # =====================================================================
 # TontineSecure - image TOUT-EN-UN (un seul service web).
-# Caddy sert la SPA React (dist/) et proxifie /api vers Laravel (php-fpm),
-# le tout sur $PORT. A completer par une base (PostgreSQL sur Render,
-# ou MySQL) => 2 composants au total.
+# nginx sert la SPA React (dist/) et route /api vers Laravel (php-fpm),
+# le tout sur $PORT. A completer par une base MySQL (ex. Aiven).
 # Contexte de build = racine du depot (acces a backend/ et frontend-web/).
 # Support MySQL ET PostgreSQL (pdo_mysql + pdo_pgsql).
 # =====================================================================
@@ -22,15 +21,14 @@ WORKDIR /app
 COPY backend/composer.json backend/composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 
-# --- Etape 3 : runtime PHP 8.4 + Caddy ---
+# --- Etape 3 : runtime PHP 8.4 + nginx ---
 FROM php:8.4-fpm AS app
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libzip-dev libpng-dev libonig-dev libpq-dev unzip \
+        libzip-dev libpng-dev libonig-dev libpq-dev unzip nginx gettext-base \
     && docker-php-ext-install pdo_mysql pdo_pgsql mbstring bcmath zip gd opcache \
+    && rm -f /etc/nginx/sites-enabled/default \
     && rm -rf /var/lib/apt/lists/*
 
-# Binaire Caddy (statique) recupere depuis l'image officielle.
-COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
@@ -39,9 +37,9 @@ COPY backend/ ./
 RUN composer dump-autoload --no-dev --optimize --no-interaction \
     && chown -R www-data:www-data storage bootstrap/cache
 
-# SPA compilee + config Caddy + script de demarrage.
+# SPA compilee + config nginx + script de demarrage.
 COPY --from=front /front/dist /srv
-COPY deploy/Caddyfile /etc/caddy/Caddyfile
+COPY deploy/nginx.conf.template /etc/nginx/tontine.conf.template
 COPY deploy/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 

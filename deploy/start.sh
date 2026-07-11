@@ -1,14 +1,14 @@
 #!/bin/sh
 # =====================================================================
-# Demarrage TontineSecure (un seul conteneur : Caddy + php-fpm).
-# La base est fournie par variables d'environnement (DB_CONNECTION=pgsql sur
-# Render, ou mysql). Si un plugin MySQL expose MYSQL*, on les mappe vers DB_*.
-# Migre, met en cache, puis lance php-fpm (arriere-plan) et Caddy sur $PORT.
+# Demarrage TontineSecure (un seul conteneur : nginx + php-fpm).
+# La base est fournie par variables d'environnement (DB_CONNECTION=mysql sur
+# Aiven, ou pgsql). Si un plugin expose MYSQL*, on les mappe vers DB_*.
+# Migre, met en cache, puis lance php-fpm (arriere-plan) et nginx sur $PORT.
 # =====================================================================
 set -e
 cd /var/www/html
 
-# Base de donnees : reutilise le plugin MySQL de Railway si DB_* non fourni.
+# Base de donnees : reutilise MYSQL* si DB_* non fourni.
 export DB_CONNECTION="${DB_CONNECTION:-mysql}"
 export DB_HOST="${DB_HOST:-$MYSQLHOST}"
 export DB_PORT="${DB_PORT:-$MYSQLPORT}"
@@ -29,15 +29,22 @@ if [ -n "$DB_HOST" ]; then
   done
 fi
 
-php artisan migrate --force || true
-# Jeu de demonstration : uniquement si RUN_SEED=true (premiere mise en ligne).
+# Migrations. Si RUN_SEED=true : base repartie a neuf + donnees de demo
+# (evite les doublons si le conteneur redemarre). Sinon : migration simple.
 if [ "$RUN_SEED" = "true" ]; then
+  php artisan migrate:fresh --force
   php artisan db:seed --class=DemoSeeder --force || true
+else
+  php artisan migrate --force || true
 fi
 php artisan storage:link || true
 php artisan config:cache
 php artisan route:cache
 
-# php-fpm en arriere-plan, Caddy au premier plan (sert la SPA + proxy /api).
+# nginx sur le port fourni par la plateforme.
+export PORT="${PORT:-8080}"
+envsubst '${PORT}' < /etc/nginx/tontine.conf.template > /etc/nginx/conf.d/default.conf
+
+# php-fpm en arriere-plan, nginx au premier plan.
 php-fpm -D
-exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+exec nginx -g 'daemon off;'
