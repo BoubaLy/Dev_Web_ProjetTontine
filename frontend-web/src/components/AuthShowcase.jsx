@@ -65,12 +65,14 @@ export default function AuthShowcase({ compact = false, step = null }) {
         )}
 
         <RotationRing
+          key={reduce ? 'static' : `k-${shown}`}
           members={members.length ? members : DEMO.slice(0, 1)}
           progress={progress}
           beneficiaryIndex={0}
           centerLabel={compact ? undefined : 'Tour'}
           centerValue={compact ? undefined : `${shown}/${DEMO.length}`}
           size={ringSize}
+          animate={!reduce}
         />
 
         {!compact && (

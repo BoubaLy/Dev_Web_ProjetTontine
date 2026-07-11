@@ -44,6 +44,12 @@ function AdminOnly({ children }) {
 export default function App() {
   const { token, loading } = useAuth();
 
+  // Chargement de marque (logo animé) au demarrage de l'app, avant tout affichage
+  // — s'applique partout, y compris la page de connexion et la vitrine.
+  if (loading) {
+    return <div className="grid min-h-screen place-items-center bg-bg"><Loading /></div>;
+  }
+
   return (
     <Suspense fallback={<Loading />}>
     <Routes>

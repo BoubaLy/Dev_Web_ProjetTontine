@@ -49,6 +49,14 @@ export default function RotationRing({
     <div className="relative select-none" style={{ width: size, height: size }}>
       <div className="absolute rounded-full bg-primary/5 blur-2xl" style={{ inset: size * 0.08 }} />
 
+      {/* Lueur qui orbite (mode animé) */}
+      {doAnim && (
+        <div className="absolute inset-0" style={{ animation: 'spin 9s linear infinite' }}>
+          <div className="absolute rounded-full bg-gold blur-md"
+            style={{ width: av, height: av, left: R - av / 2, top: R - arcR - av / 2, opacity: 0.5 }} />
+        </div>
+      )}
+
       <svg width={size} height={size} className="absolute inset-0">
         <defs>
           <linearGradient id="ringShimmer" x1="0" y1="0" x2="1" y2="1">
