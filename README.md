@@ -5,7 +5,7 @@ avec paiement **P2P déclaratif et validation croisée** (Wave / Orange Money).
 
 **Stack :** **React + Vite** (Web app) · **Laravel 12** (API REST) · **MySQL 8** · **Sanctum**
 
-Projet académique — DIC1, Développement Web.
+Projet académique — DIC1, Développement Web. **Application déployée en production.**
 
 > **Comment utiliser l'application : voir [`GUIDE_UTILISATION.md`](GUIDE_UTILISATION.md).**
 
@@ -17,12 +17,13 @@ Projet académique — DIC1, Développement Web.
 tontinesecure/
 ├── backend/           API Laravel 12 (Sanctum, Services, Jobs, Notifications, Policies, tests)
 ├── frontend-web/      Web App React + Vite (design system « Opal », SPA)
-├── docker-compose.yml Déploiement local (nginx + php-fpm + MySQL + Caddy)
+├── deploy/            Image de production (nginx + php-fpm servant la SPA et l'API)
+├── docker-compose.yml Environnement local (nginx + php-fpm + MySQL + Caddy)
 ├── README.md
 └── GUIDE_UTILISATION.md
 ```
 
-## Démarrage rapide (Docker)
+## Démarrage en local (Docker)
 
 ```bash
 docker compose up -d --build
@@ -57,5 +58,5 @@ npm run dev                   # http://localhost:5173
 
 ---
 
-Pour le mode d'emploi complet (inscription, KYC, création/adhésion à une tontine, cycle de
+Pour le mode d'emploi complet (inscription, création/adhésion à une tontine, cycle de
 cotisation, validation croisée, litiges, score, rôles), voir **[`GUIDE_UTILISATION.md`](GUIDE_UTILISATION.md)**.

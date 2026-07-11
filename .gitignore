@@ -47,3 +47,7 @@ docs/
 /GUIDE.md
 /DEPLOYMENT.md
 frontend-web/PROGRESS-app-vivante.md
+
+# Guide de deploiement et rapport : gardes en local, hors depot
+/DEPLOIEMENT.md
+/RAPPORT.md

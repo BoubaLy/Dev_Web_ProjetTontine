@@ -6,14 +6,12 @@ croisée** entre membres.
 
 ---
 
-## 1. Lancer l'application
+## 1. Accéder à l'application
 
-### En local (Docker)
-```bash
-docker compose up -d --build
-```
-- Application : **http://localhost**
-- L'API et la base MySQL démarrent automatiquement (migrations + données de démo).
+L'application est **déployée en ligne** : ouvrez simplement son adresse dans votre navigateur.
+Au premier accès après une période d'inactivité, le démarrage peut prendre quelques secondes.
+
+*(Pour lancer une copie en local : `docker compose up -d --build`, puis http://localhost.)*
 
 ### Comptes de démonstration (mot de passe : `password`)
 | Rôle | Téléphone |
