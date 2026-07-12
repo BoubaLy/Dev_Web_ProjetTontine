@@ -127,6 +127,11 @@ En cas de problème (paiement non reçu, contestation) :
 - **Rester connecté** : la session dure 7 jours ; au rechargement vous restez sur votre tableau
   de bord (la page d'accueil publique n'apparaît que si vous êtes déconnecté — ou via
   **Profil -> Voir la page d'accueil publique**).
-- **Notifications** : cloche en haut (mobile) ou onglet Notifications — les actions à faire
-  (valider un dépôt en tant qu'admin) y apparaissent en priorité.
+- **Notifications** : cloche en haut (mobile) ou onglet Notifications. Vous y êtes averti(e) :
+  - quand **un membre paie** (tout le groupe voit qui a payé, le montant, la date et l'heure) ;
+  - quand un **dépôt attend votre validation** (administrateur) — action prioritaire ;
+  - quand **votre cotisation est validée**, quand le **pot vous est versé**, en cas de **litige** ;
+  - côté **super-administrateur**, quand une **pièce KYC** est déposée et attend validation.
+- **Vérifiez votre identité (KYC)** : un rappel s'affiche sur le tableau de bord tant que votre
+  compte n'est pas vérifié — obligatoire pour créer ou rejoindre une tontine.
 - **Un compte gelé** ne peut ni cotiser, ni recevoir, ni se connecter (le temps d'un litige).
