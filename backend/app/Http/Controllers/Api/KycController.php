@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Kyc\KycUploadRequest;
 use App\Models\KycDocument;
+use App\Models\User;
+use App\Notifications\KycEnAttente;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -44,6 +47,9 @@ class KycController extends Controller
         if ($user->statut_kyc !== 'verifie') {
             $user->update(['statut_kyc' => 'en_attente']);
         }
+
+        // Alerte les super-admins qu'une pièce attend une validation KYC.
+        Notification::send(User::where('role', 'super_admin')->get(), new KycEnAttente($document));
 
         return $this->success($document, 'Pièce déposée. En attente de validation.', 201);
     }

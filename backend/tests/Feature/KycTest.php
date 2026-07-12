@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\KycDocument;
 use App\Models\User;
+use App\Notifications\KycEnAttente;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -33,6 +35,22 @@ class KycTest extends TestCase
         $this->assertNotEquals($doc->chemin_fichier, $doc->getRawOriginal('chemin_fichier'));
         // Le chemin n'est pas exposé dans la réponse.
         $response->assertJsonMissingPath('data.chemin_fichier');
+    }
+
+    public function test_le_depot_alerte_le_super_admin(): void
+    {
+        Notification::fake();
+        Storage::fake('local');
+        $super = User::factory()->create(['role' => 'super_admin']);
+        $membre = User::factory()->kycEnAttente()->create();
+
+        Sanctum::actingAs($membre);
+        $this->postJson('/api/v1/kyc/upload', [
+            'type_document' => 'cni',
+            'document' => UploadedFile::fake()->image('cni.jpg'),
+        ])->assertCreated();
+
+        Notification::assertSentTo($super, KycEnAttente::class);
     }
 
     public function test_le_super_admin_valide_et_met_a_jour_le_kyc(): void

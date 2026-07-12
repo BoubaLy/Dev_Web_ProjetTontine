@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   Coins, CircleCheck, ShieldAlert, HandCoins, BellRing, Clock, Gavel, Check, X,
+  IdCard, BadgeCheck,
 } from 'lucide-react';
 import { useNotifications, useValidateContribution, useDisputeContribution, useMarkRead } from '../lib/queries';
 import { Loading, EmptyState, Modal, Toast, Spinner } from '../components/ui';
@@ -10,11 +11,14 @@ import { CotisationSuccessMotion } from '../components/celebrations';
 const META = {
   contribution_declaree: { Icon: Coins, cls: 'bg-gold-soft text-gold' },
   cotisation_validee: { Icon: CircleCheck, cls: 'bg-success-soft text-success' },
+  cotisation_payee: { Icon: HandCoins, cls: 'bg-success-soft text-success' },
   litige_ouvert: { Icon: ShieldAlert, cls: 'bg-danger-soft text-danger' },
   litige_resolu: { Icon: Gavel, cls: 'bg-primary-soft text-primary' },
   versement_recu: { Icon: HandCoins, cls: 'bg-success-soft text-success' },
   rappel_cotisation: { Icon: BellRing, cls: 'bg-primary-soft text-primary' },
   validation_en_retard: { Icon: Clock, cls: 'bg-danger-soft text-danger' },
+  kyc_en_attente: { Icon: IdCard, cls: 'bg-gold-soft text-gold' },
+  kyc_requis: { Icon: BadgeCheck, cls: 'bg-primary-soft text-primary' },
 };
 
 function timeAgo(d) {

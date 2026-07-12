@@ -9,9 +9,11 @@ use App\Models\Dispute;
 use App\Models\User;
 use App\Notifications\ContributionDeclared;
 use App\Notifications\ContributionValidated;
+use App\Notifications\CotisationPayee;
 use App\Notifications\DisputeOpened;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use RuntimeException;
 
 /**
@@ -123,6 +125,17 @@ class ContributionService
             ]);
 
             $contribution->user->notify(new ContributionValidated($contribution));
+
+            // Transparence : tous les autres membres actifs sont informes du paiement.
+            $autres = $contribution->cycle->group->adhesions()
+                ->where('statut', 'actif')
+                ->where('user_id', '!=', $contribution->user_id)
+                ->with('user')
+                ->get()
+                ->pluck('user')
+                ->filter();
+
+            Notification::send($autres, new CotisationPayee($contribution));
 
             return $contribution->fresh();
         });

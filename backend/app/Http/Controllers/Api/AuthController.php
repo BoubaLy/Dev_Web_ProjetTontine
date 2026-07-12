@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Models\User;
+use App\Notifications\KycRequis;
 use App\Services\OtpService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -36,6 +37,9 @@ class AuthController extends Controller
             $user->forceFill(['telephone_verifie_le' => now()])->save();
             $message = 'Compte créé. Vous êtes connecté.';
         }
+
+        // Nouvel inscrit : on lui rappelle de vérifier son identité (KYC).
+        $user->notify(new KycRequis());
 
         $token = $user->createToken('mobile')->plainTextToken;
 

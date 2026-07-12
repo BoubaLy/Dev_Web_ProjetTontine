@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, UserPlus, ArrowDownLeft, ArrowUpRight, ArrowRight, Crown, CalendarClock } from 'lucide-react';
+import { Plus, UserPlus, ArrowDownLeft, ArrowUpRight, ArrowRight, Crown, CalendarClock, IdCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroups, useMyHistory, useGroup, useCurrentCycle, formatFCFA } from '../lib/queries';
 import { EmptyState, StatusPill } from '../components/ui';
@@ -84,6 +84,19 @@ export default function Dashboard() {
             <span className={`pill ${role.c}`}>{role.l}</span>
           </div>
         </div>
+
+        {/* Rappel KYC tant que l'identité n'est pas vérifiée */}
+        {user?.statut_kyc !== 'verifie' && (
+          <Link to="/kyc" className="flex items-center gap-3 rounded-card border border-gold/40 bg-gold-soft px-4 py-3 text-sm text-ink transition-colors hover:bg-gold-soft/70">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gold text-white"><IdCard size={18} /></span>
+            <span className="flex-1">
+              <b>Vérifiez votre identité (KYC)</b> pour pouvoir créer ou rejoindre des tontines.
+              {user?.statut_kyc === 'en_attente' && ' Votre pièce est en cours de validation.'}
+              {user?.statut_kyc === 'rejete' && ' Votre dernière pièce a été refusée, renvoyez-en une.'}
+            </span>
+            <ArrowRight size={18} className="shrink-0 text-gold" />
+          </Link>
+        )}
 
         {/* ===== BENTO GRID ===== */}
         <motion.div

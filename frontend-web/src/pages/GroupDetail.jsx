@@ -446,7 +446,7 @@ function DeclareModal({ cycle, group, groupId, onClose, onDone }) {
       <p className="my-3 text-xs text-ink-soft">Effectuez le transfert Mobile Money, puis saisissez la référence reçue par SMS. <b className="text-ink">L'administrateur</b> vérifiera le dépôt réel et validera votre cotisation.</p>
       <Field label="Méthode">
         <div className="flex gap-2 rounded-pill bg-surface-alt p-1">
-          {[['wave', 'Wave'], ['orange_money', 'Orange Money'], ['mock', 'Test']].map(([v, l]) => (
+          {[['wave', 'Wave'], ['orange_money', 'Orange Money']].map(([v, l]) => (
             <button key={v} onClick={() => setMethode(v)} className={`flex-1 rounded-pill py-1.5 text-xs font-medium ${methode === v ? 'bg-primary text-white' : 'text-ink-soft'}`}>{l}</button>
           ))}
         </div>

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Contribution;
 use App\Notifications\ContributionValidated;
+use App\Notifications\CotisationPayee;
 use App\Notifications\DisputeOpened;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -47,6 +48,11 @@ class AdminValidationTest extends TestCase
             'valide_par' => $admin->id,
         ]);
         Notification::assertSentTo($payeur, ContributionValidated::class);
+
+        // Transparence : les autres membres sont informés du paiement, pas le payeur.
+        Notification::assertSentTo($members->get(1), CotisationPayee::class);
+        Notification::assertSentTo($admin, CotisationPayee::class);
+        Notification::assertNotSentTo($payeur, CotisationPayee::class);
     }
 
     public function test_un_membre_ne_peut_pas_valider(): void

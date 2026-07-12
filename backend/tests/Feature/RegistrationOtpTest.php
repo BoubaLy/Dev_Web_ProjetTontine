@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Notifications\KycRequis;
 use App\Notifications\OtpCode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -29,6 +30,16 @@ class RegistrationOtpTest extends TestCase
 
         $user = User::where('telephone', '+221781234567')->first();
         Notification::assertSentTo($user, OtpCode::class);
+    }
+
+    public function test_l_inscription_rappelle_de_verifier_le_kyc(): void
+    {
+        Notification::fake();
+
+        $this->postJson('/api/v1/auth/register', $this->payload)->assertCreated();
+
+        $user = User::where('telephone', '+221781234567')->first();
+        Notification::assertSentTo($user, KycRequis::class);
     }
 
     public function test_l_email_est_obligatoire(): void
